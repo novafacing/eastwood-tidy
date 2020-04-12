@@ -6,8 +6,7 @@ Setup
 1. Get the llvm github repo
     - git clone https://github.com/llvm/llvm-project.git
     
-2. Add eastwood-tidy to llvm-project/clang-tools-extra/clang-tidy/eastwood
-    - git clone https://github.com/Connor-McMillin/eastwood-tidy.git eastwood
+2. Put eastwood-tidy in llvm-project/clang-tools-extra/clang-tidy/eastwood
     
 Make sure that the eastwood-tidy repo is named eastwood and is in llvm-project/clang-tools-extra/clang-tidy/ since the rest of the setup depends on this structure and naming
 
