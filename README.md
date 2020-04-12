@@ -16,13 +16,13 @@ Make sure that the eastwood-tidy repo is named eastwood and is in llvm-project/c
     - cp eastwood/setup/ClangTidyForceLinker.h llvm-project/clang-tools-extra/clang-tidy/
     
 4. Use CMake + Make to build the new clang-tidy
-    - cd /llvm-project
+    - cd /llvm-project/llvm/
     - mkdir build
     - cd build
     - cmake -DLLVM_ENABLE_PROJECTS='clang;clang-tools-extra' ..
     - make -j NN clang-tidy
     
-And now you should have the new clang-tidy with all the currently developed eastwood-tidy checks in it in llvm-project/build/bin.
+And now you should have the new clang-tidy with all the currently developed eastwood-tidy checks in it in llvm-project/llvm/build/bin.
 
 To run the clang-tidy linter with only our rules you will need a few things:
   - test.c : a C file to check
