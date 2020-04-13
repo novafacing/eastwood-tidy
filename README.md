@@ -72,8 +72,8 @@ Progress
 | 11 | A | Do not use tabs for indentation. |  |  |  |
 |  | B | Use only UNIX newline encoding (\n). DOS newlines (\r\n) are prohibited. |  |  |  |
 |  | C | Do not make more than one assignment per expression. |  |  |  |
-|  | D | Do not use embedded constants; except for general initialization purposes and values that lack intrinsic meaning. Common sense need to apply. | X |  |  |
-|  | E | The use of goto is forbidden in this course. |  |  |  |
+|  | D | Do not use embedded constants; except for general initialization purposes and values that lack intrinsic meaning. Common sense need to apply. |  |  |  |
+|  | E | The use of goto is forbidden in this course. | X |  |  |
 | 12 | A | No more than one variable may be defined on a single line. |  |  |  |
 |  | B | All variables must be initialized at the time they are defined. |  |  |  |
 |  | C | Variables should be placed in as local a scope as possible, as close to the first use as possible. |  |  |  |
