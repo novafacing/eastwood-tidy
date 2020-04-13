@@ -33,10 +33,10 @@ Command to run eastwood checks:
 Progress
 | Rule Number | Rule Sub-Letter | Rule Description | Implemented | Partially Implemented (Add description) | Will Not Implement |
 |-------------|-------------|---------|-------------|-------------|------------|
-| 1 | A | Variable names should be in all lowercase. If the name is composed of more than one word, then underscores    must be used to separate them |  |  |  |
+| 1 | A | Variable names should be in all lowercase. If the name is composed of more than one word, then underscores    must be used to separate them |  | X - Need to check that this rule is applied to everything we need |  |
 |  | B | Use descriptive and meaningful names |  |  |  |
 |  | C | All constants must be all uppercase, and contain at least two characters. Constants must be declared using #define. A constant numeric value assigned must be enclosed in parenthesis. |  |  |  |
-|  | D | All global variables must be started with prefix "g_". Declarations/definitions should be at the top of the file. |  |  |  |
+|  | D | All global variables must be started with prefix "g_". Declarations/definitions should be at the top of the file. | X |  |  |
 | 2 | A | Each line must be kept within 80 columns in order to make sure the entire line will fit on printouts.  If the line is too long, then it must be broken up into readable segments. The indentation of the code on the following lines needs to be at least 2 spaces. |  |  |  |
 |  | B | Each function should be kept small for modularity purpose. The suggested size is less than two pages. Exception can be made, if the logic of the function requires its size to be longer than two pages. Common sense needs to be followed. |  |  |  |
 | 3 | A | One space must be placed after all structure control, and flow commands. One space must also be present between the closing parenthesis and opening brace. |  |  |  |
@@ -45,7 +45,7 @@ Progress
 |  | D | #define expressions need to be grouped together and need to be lined up in column 1. They need to have a blank line above and below. |  |  |  |
 |  | E | Never put trailing whitespace at the end of a line. |  |  |  |
 |  | F | Never place spaces between function names and the parenthesis preceding the argument list. |  |  |  |
-| 4 | A | Two space indentation must be applied to all structure, control, and flow commands. This two space indentation rule must be applied to the entire program. |  |  |  |
+| 4 | A | Two space indentation must be applied to all structure, control, and flow commands. This two space indentation rule must be applied to the entire program. |  | X - Mostly done, need to refactor since the rule for do while is separate from if/else cuz of course |  |
 |  | B | Parameters for functions with more than one parameter should be on the same line, unless the line length is exceeded. In that case, parameters on the next line should begin at the same column position as the parameters on the first line. The example below uses fewer than 80 characters just for demonstration purposes. |  |  |  |
 |  | C | Do while loops need to be indented with the while on the same line as the closing brace. |  |  |  |
 | 5 | A | Comment should be meaningful and not repeat the obvious. Comments are intended to alert people the intention of the code.   |  |  |  |
@@ -72,7 +72,7 @@ Progress
 | 11 | A | Do not use tabs for indentation. |  |  |  |
 |  | B | Use only UNIX newline encoding (\n). DOS newlines (\r\n) are prohibited. |  |  |  |
 |  | C | Do not make more than one assignment per expression. |  |  |  |
-|  | D | Do not use embedded constants; except for general initialization purposes and values that lack intrinsic meaning. Common sense need to apply. |  |  |  |
+|  | D | Do not use embedded constants; except for general initialization purposes and values that lack intrinsic meaning. Common sense need to apply. | X |  |  |
 |  | E | The use of goto is forbidden in this course. |  |  |  |
 | 12 | A | No more than one variable may be defined on a single line. |  |  |  |
 |  | B | All variables must be initialized at the time they are defined. |  |  |  |
