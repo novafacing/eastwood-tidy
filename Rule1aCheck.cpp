@@ -25,6 +25,7 @@ void Rule1aCheck::registerMatchers(MatchFinder *Finder) {
   Finder->addMatcher(recordDecl(isUnion()).bind("union"), this);
   Finder->addMatcher(recordDecl(isStruct()).bind("struct"), this);
   Finder->addMatcher(fieldDecl().bind("field"), this);
+  Finder->addMatcher(typedefDecl().bind("typedef"), this);
 }
 
 void Rule1aCheck::check_name(SourceLocation loc, std::string name, std::string type) {
@@ -92,6 +93,11 @@ void Rule1aCheck::check(const MatchFinder::MatchResult &Result) {
     loc = MatchedDecl->getLocation();
     name = MatchedDecl->getName().str();
     type = "Field";
+    check_name(loc, name, type);
+  } else if (auto MatchedDecl = Result.Nodes.getNodeAs<TypedefDecl>("typedef")) {
+    loc = MatchedDecl->getLocation();
+    name = MatchedDecl->getName().str();
+    type = "Enum";
     check_name(loc, name, type);
   } else {
     return;
