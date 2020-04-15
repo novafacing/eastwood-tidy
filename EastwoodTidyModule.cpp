@@ -11,9 +11,11 @@
 #include "../ClangTidyModule.h"
 #include "../ClangTidyModuleRegistry.h"
 #include "Rule11eCheck.h"
-#include "Rule1DCheck.h"
+#include "Rule1cCheck.h"
+#include "Rule1dCheck.h"
 #include "Rule1aCheck.h"
-#include "Rule5dCheck.h"
+#include "Rule4aCheck.h"
+#include "Rule4cCheck.h"
 
 namespace clang {
 namespace tidy {
@@ -26,10 +28,14 @@ public:
         "eastwood-Rule11E");
     CheckFactories.registerCheck<Rule1aCheck>(
         "eastwood-Rule1A");
-    CheckFactories.registerCheck<Rule5dCheck>(
-        "eastwood-Rule5D");
     CheckFactories.registerCheck<Rule1DCheck>(
-        "eastwood-rule-1-d");
+        "eastwood-Rule1D");
+    CheckFactories.registerCheck<Rule1cCheck>(
+        "eastwood-Rule1C");
+    CheckFactories.registerCheck<Rule4aCheck>(
+        "eastwood-Rule4A");
+    CheckFactories.registerCheck<Rule4cCheck>(
+        "eastwood-Rule4C");
   }
 };
 
