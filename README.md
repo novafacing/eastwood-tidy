@@ -33,8 +33,9 @@ Command to run eastwood checks:
 Progress
 | Rule Number | Rule Sub-Letter | Rule Description | Implemented | Partially Implemented (Add description) | Will Not Implement |
 |-------------|-------------|---------|-------------|-------------|------------|
-| 1 | A | Variable names should be in all lowercase. If the name is composed of more than one word, then underscores    must be used to separate them | X |  |  |  |  |
-|  | C | All constants must be all uppercase, and contain at least two characters. Constants must be declared using #define. A constant numeric value assigned must be enclosed in parenthesis. |  |  |  |
+| 1 | A | Variable names should be in all lowercase. If the name is composed of more than one word, then underscores must be used to separate them | X |  |  |  |  |
+|  | B | Use descriptive and meaningful names |  |  |  |  |  |
+|  | C | All constants must be all uppercase, and contain at least two characters. Constants must be declared using #define. A constant numeric value assigned must be enclosed in parenthesis. |  | X - Mostly done, need to finish checking if the constant is or is not surrounded by parens |  |
 |  | D | All global variables must be started with prefix "g_". Declarations/definitions should be at the top of the file. | X |  |  |
 | 2 | A | Each line must be kept within 80 columns in order to make sure the entire line will fit on printouts.  If the line is too long, then it must be broken up into readable segments. The indentation of the code on the following lines needs to be at least 2 spaces. |  |  |  |
 |  | B | Each function should be kept small for modularity purpose. The suggested size is less than two pages. Exception can be made, if the logic of the function requires its size to be longer than two pages. Common sense needs to be followed. |  |  |  |
