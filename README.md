@@ -34,11 +34,11 @@ Progress
 | Rule Number | Rule Sub-Letter | Rule Description | Implemented | Partially Implemented (Add description) | Will Not Implement |
 |-------------|-------------|---------|-------------|-------------|------------|
 | 1 | A | Variable names should be in all lowercase. If the name is composed of more than one word, then underscores must be used to separate them | X |  |  |  |  |
-|  | B | Use descriptive and meaningful names |  |  |  |  |  |
+|  | B | Use descriptive and meaningful names |  | X - Will make something to dump all names which we analyze in Rule 1A. Need to find a way to do it nicely |  |  |  |
 |  | C | All constants must be all uppercase, and contain at least two characters. Constants must be declared using #define. A constant numeric value assigned must be enclosed in parenthesis. |  | X - Mostly done, need to finish checking if the constant is or is not surrounded by parens |  |
 |  | D | All global variables must be started with prefix "g_". Declarations/definitions should be at the top of the file. | X |  |  |
 | 2 | A | Each line must be kept within 80 columns in order to make sure the entire line will fit on printouts.  If the line is too long, then it must be broken up into readable segments. The indentation of the code on the following lines needs to be at least 2 spaces. |  |  |  |
-|  | B | Each function should be kept small for modularity purpose. The suggested size is less than two pages. Exception can be made, if the logic of the function requires its size to be longer than two pages. Common sense needs to be followed. |  |  |  |
+|  | B | Each function should be kept small for modularity purpose. The suggested size is less than two pages. Exception can be made, if the logic of the function requires its size to be longer than two pages. Common sense needs to be followed. |  |  | X |
 | 3 | A | One space must be placed after all structure control, and flow commands. One space must also be present between the closing parenthesis and opening brace. |  |  |  |
 |  | B | One space must be placed before and after all logical, and arithmetic operators; except for unary and data reference operators (i.e. [], ., &, \*, ->). |  |  |  |
 |  | C | One space must be placed after internal semi-colons and commas. |  |  |  |
@@ -48,8 +48,8 @@ Progress
 | 4 | A | Two space indentation must be applied to all structure, control, and flow commands. This two space indentation rule must be applied to the entire program. |  | X - Done with everything except indentation |  |
 |  | B | Parameters for functions with more than one parameter should be on the same line, unless the line length is exceeded. In that case, parameters on the next line should begin at the same column position as the parameters on the first line. The example below uses fewer than 80 characters just for demonstration purposes. |  |  |  |
 |  | C | Do while loops need to be indented with the while on the same line as the closing brace. | X |  |  |
-| 5 | A | Comment should be meaningful and not repeat the obvious. Comments are intended to alert people the intention of the code.   |  |  |  |
-|  | B | Place comments above the code rather than along side the code. Exceptions can be made for short comments placed beside declarations, else, and switch commands. |  |  |  |
+| 5 | A | Comment should be meaningful and not repeat the obvious. Comments are intended to alert people the intention of the code.   |  |  | X |
+|  | B | Place comments above the code rather than along side the code. Exceptions can be made for short comments placed beside declarations, else, and switch commands. |  |  | X |
 |  | C | Code and comments must be separated by blank lines, and lined up. A blank line is not required above the comment if it is the 1st. line following an opening brace. |  |  |  |
 |  | D | Function's name must be commented at the end of each function. The comment should be the name of the function indented one space after the closing brace and include left and right parentheses. |  |  |  |
 |  | E | Function header comments should have a blank line above and below the comment. |  |  |  |
@@ -61,19 +61,19 @@ Progress
 |  | D | All project header files should be listed as descendants of the project's source directory. UNIX directory shortcuts  |  |  |  |
 |  | E | Includes should be ordered per the following example. Suppose dir/foo.c implements things in dir2/foo.h. Your includes should be ordered as follows: |  |  |  |
 |  | F | All relevant include files should be explicitly included. Do not assume that just because foo.h currently includes bar.h you do not need to explicitly include bar.h.
- |  |  |  |
+ |  |  | X |
 |  | G | Non-local includes (standard libraries, etc) must be surrounded by < and >. Double quotes should only be used for include files that exist in the local directory structure. |  |  |  |
 | 9 | A | Return values of functions such as malloc, calloc, fopen, fread, fwrite, and system must be checked or returned whenever a possible error condition exists. |  |  |  |
-|  | B | When the function fopen is invoked to open a file, fclose must be used to close the file.  It is important to remember that fclose does not explicitly set the file pointer back to NULL. Therefore, it is necessary to set the file pointer to NULL. |  |  |  |
-|  | C | After dynamically deallocating a pointer using free, the pointer must be set back to NULL. |  |  |  |
-|  | D | Appropriate range checking must be performed to make sure received parameters are within expected range. |  |  |  |
+|  | B | When the function fopen is invoked to open a file, fclose must be used to close the file.  It is important to remember that fclose does not explicitly set the file pointer back to NULL. Therefore, it is necessary to set the file pointer to NULL. |  |  | X |
+|  | C | After dynamically deallocating a pointer using free, the pointer must be set back to NULL. |  |  | X |
+|  | D | Appropriate range checking must be performed to make sure received parameters are within expected range. |  |  | X |
 |  | E | The appropriately typed symbol should be used to represent 0 and NULL. |  |  |  |
-| 10 |  | All error messages must be directed to standard error. |  |  |  |
+| 10 |  | All error messages must be directed to standard error. |  |  | X |
 | 11 | A | Do not use tabs for indentation. |  |  |  |
 |  | B | Use only UNIX newline encoding (\n). DOS newlines (\r\n) are prohibited. |  |  |  |
 |  | C | Do not make more than one assignment per expression. |  |  |  |
-|  | D | Do not use embedded constants; except for general initialization purposes and values that lack intrinsic meaning. Common sense need to apply. |  |  |  |
+|  | D | Do not use embedded constants; except for general initialization purposes and values that lack intrinsic meaning. Common sense need to apply. |  |  | X |
 |  | E | The use of goto is forbidden in this course. | X |  |  |
 | 12 | A | No more than one variable may be defined on a single line. |  |  |  |
 |  | B | All variables must be initialized at the time they are defined. |  |  |  |
-|  | C | Variables should be placed in as local a scope as possible, as close to the first use as possible. |  |  |  |
+|  | C | Variables should be placed in as local a scope as possible, as close to the first use as possible. |  |  | X |
