@@ -45,9 +45,9 @@ Progress
 |  | D | #define expressions need to be grouped together and need to be lined up in column 1. They need to have a blank line above and below. |  |  |  |
 |  | E | Never put trailing whitespace at the end of a line. |  |  |  |
 |  | F | Never place spaces between function names and the parenthesis preceding the argument list. |  |  |  |
-| 4 | A | Two space indentation must be applied to all structure, control, and flow commands. This two space indentation rule must be applied to the entire program. |  | X - Mostly done, need to refactor since the rule for do while is separate from if/else cuz of course |  |
+| 4 | A | Two space indentation must be applied to all structure, control, and flow commands. This two space indentation rule must be applied to the entire program. |  | X - Done with everything except indentation |  |
 |  | B | Parameters for functions with more than one parameter should be on the same line, unless the line length is exceeded. In that case, parameters on the next line should begin at the same column position as the parameters on the first line. The example below uses fewer than 80 characters just for demonstration purposes. |  |  |  |
-|  | C | Do while loops need to be indented with the while on the same line as the closing brace. |  |  |  |
+|  | C | Do while loops need to be indented with the while on the same line as the closing brace. | X |  |  |
 | 5 | A | Comment should be meaningful and not repeat the obvious. Comments are intended to alert people the intention of the code.   |  |  |  |
 |  | B | Place comments above the code rather than along side the code. Exceptions can be made for short comments placed beside declarations, else, and switch commands. |  |  |  |
 |  | C | Code and comments must be separated by blank lines, and lined up. A blank line is not required above the comment if it is the 1st. line following an opening brace. |  |  |  |
