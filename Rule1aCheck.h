@@ -25,6 +25,7 @@ public:
       : ClangTidyCheck(Name, Context) {}
   void registerMatchers(ast_matchers::MatchFinder *Finder) override;
   void check(const ast_matchers::MatchFinder::MatchResult &Result) override;
+  void check_name(SourceLocation loc, std::string name, std::string type);
 };
 
 } // namespace eastwood
