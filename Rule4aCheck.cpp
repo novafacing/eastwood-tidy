@@ -291,16 +291,11 @@ bool Rule4aCheck::checkStmt(
       }
 
       // There should be exactly one newline between else/while and the closing brace
-      if (num_lines != 1) {
+      if (type == 'e' && num_lines != 1) {
         errors_found = true;
 
-        if (type == 'e') {
-          diag(EndLoc, "[Rule IV.A] Else should start on its own line directly after"
+        diag(EndLoc, "[Rule IV.A] Else should start on its own line directly after"
                        " the closing brace of the if statement");
-        } else {
-          diag(EndLoc, "[Rule IV.A] While should start on its own line directly after"
-                       " the closing brace of the do statement");
-        }
       }
     } else {
       // If, For, While
