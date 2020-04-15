@@ -33,8 +33,7 @@ Command to run eastwood checks:
 Progress
 | Rule Number | Rule Sub-Letter | Rule Description | Implemented | Partially Implemented (Add description) | Will Not Implement |
 |-------------|-------------|---------|-------------|-------------|------------|
-| 1 | A | Variable names should be in all lowercase. If the name is composed of more than one word, then underscores    must be used to separate them |  | X - Need to check that this rule is applied to everything we need |  |
-|  | B | Use descriptive and meaningful names |  |  |  |
+| 1 | A | Variable names should be in all lowercase. If the name is composed of more than one word, then underscores    must be used to separate them | X |  |  |  |  |
 |  | C | All constants must be all uppercase, and contain at least two characters. Constants must be declared using #define. A constant numeric value assigned must be enclosed in parenthesis. |  |  |  |
 |  | D | All global variables must be started with prefix "g_". Declarations/definitions should be at the top of the file. | X |  |  |
 | 2 | A | Each line must be kept within 80 columns in order to make sure the entire line will fit on printouts.  If the line is too long, then it must be broken up into readable segments. The indentation of the code on the following lines needs to be at least 2 spaces. |  |  |  |
