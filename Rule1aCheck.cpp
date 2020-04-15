@@ -23,6 +23,9 @@ void Rule1aCheck::registerMatchers(MatchFinder *Finder) {
 
 void Rule1aCheck::check(const MatchFinder::MatchResult &Result) {
   const auto *MatchedDecl = Result.Nodes.getNodeAs<VarDecl>("variable");
+  if (!MatchedDecl || !MatchedDecl->getLocation().isValid()) {
+    return;
+  }
 
   std::regex local_regex{R"([a-z][a-z0-9_]*)"};
   std::smatch results;
