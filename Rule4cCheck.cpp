@@ -170,17 +170,22 @@ bool Rule4cCheck::checkStmt(
   }
 
   assert(EndLoc.isValid());
-
   assert(*SM.getCharacterData(EndLoc) == 'w');
 
-  if (!isHorizontalWhitespace(*SM.getCharacterData(EndLoc.getLocWithOffset(-1))) ||
-      *SM.getCharacterData(EndLoc.getLocWithOffset(-2)) != '}') {
-    diag(EndLoc, "[Rule IV.C] While statement in a do-while must be separated "
-                 "from the closing brace by exactly one space");
-    return true;
-  } else {
-    return false;
+  EndLoc = EndLoc.getLocWithOffset(-1);
+
+  // Check that 
+  while (*SM.getCharacterData(EndLoc) != '}') {
+    if (*SM.getCharacterData(EndLoc) == '\n') {
+      diag(EndLoc, "[Rule IV.C] While statement in a do-while must be on same "
+                   "line as the closing brace");
+      return true;
+    }
+
+    EndLoc = EndLoc.getLocWithOffset(-1);
   }
+
+  return false;
 }
 
 } // namespace eastwood
