@@ -11,6 +11,8 @@
 #define LLVM_CLANG_TOOLS_EXTRA_CLANG_TIDY_EASTWOOD_RULE1DCHECK_H
 
 #include "../ClangTidy.h"
+#include "../ClangTidyCheck.h"
+
 
 namespace clang {
 namespace tidy {

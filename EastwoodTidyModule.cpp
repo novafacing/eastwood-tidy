@@ -18,36 +18,35 @@
 #include "Rule4cCheck.h"
 
 namespace clang {
-namespace tidy {
-namespace eastwood {
+    namespace tidy {
+        namespace eastwood {
 
-class EastwoodModule : public ClangTidyModule {
-public:
-  void addCheckFactories(ClangTidyCheckFactories &CheckFactories) override {
-    CheckFactories.registerCheck<Rule11eCheck>(
-        "eastwood-Rule11E");
-    CheckFactories.registerCheck<Rule1aCheck>(
-        "eastwood-Rule1A");
-    CheckFactories.registerCheck<Rule1DCheck>(
-        "eastwood-Rule1D");
-    CheckFactories.registerCheck<Rule1cCheck>(
-        "eastwood-Rule1C");
-    CheckFactories.registerCheck<Rule4aCheck>(
-        "eastwood-Rule4A");
-    CheckFactories.registerCheck<Rule4cCheck>(
-        "eastwood-Rule4C");
-  }
-};
+            class EastwoodModule : public ClangTidyModule {
+                public:
+                    void addCheckFactories(ClangTidyCheckFactories &CheckFactories) override {
+                        CheckFactories.registerCheck<Rule11eCheck>(
+                                "eastwood-Rule11E");
+                        CheckFactories.registerCheck<Rule1aCheck>(
+                                "eastwood-Rule1A");
+                        CheckFactories.registerCheck<Rule1DCheck>(
+                                "eastwood-Rule1D");
+                        CheckFactories.registerCheck<Rule1cCheck>(
+                                "eastwood-Rule1C");
+                        CheckFactories.registerCheck<Rule4aCheck>(
+                                "eastwood-Rule4A");
+                        CheckFactories.registerCheck<Rule4cCheck>(
+                                "eastwood-Rule4C");
+                    }
+            };
+        } // namespace eastwood
 
-} // namespace eastwood
+        // Register the EastwoodTidyModule using this statically initialized variable.
+        static ClangTidyModuleRegistry::Add<eastwood::EastwoodModule>
+            X("eastwood-module", "Adds CS240 linter checks");
 
-// Register the EastwoodTidyModule using this statically initialized variable.
-static ClangTidyModuleRegistry::Add<eastwood::EastwoodModule>
-    X("eastwood-module", "Adds CS240 linter checks");
+        // This anchor is used to force the linker to link in the generated object file
+        // and thus register the EastwoodModule
+        volatile int EastwoodModuleAnchorSource = 0;
 
-// This anchor is used to force the linker to link in the generated object file
-// and thus register the EastwoodModule
-volatile int EastwoodModuleAnchorSource = 0;
-
-} // namespace tidy
+    } // namespace tidy
 } // namespace clang
