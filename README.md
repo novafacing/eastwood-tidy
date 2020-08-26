@@ -112,7 +112,7 @@ The command `clang-tidy -checks "-*,eastwood*" path-to-file.c` is the same.
 $ cd test
 $ mkdir build
 $ cd build
-$ cmake -DCMAKE_EXPORT_COMPILE_COMMANS=ON -DCLANG_TIDY_LOCATION=/absolute/path/to/clang-tidy ..
+$ cmake -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -DCLANG_TIDY_LOCATION=/absolute/path/to/clang-tidy ..
 $ make -j NN
 ```
 
