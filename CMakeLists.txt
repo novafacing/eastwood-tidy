@@ -2,13 +2,13 @@ set(LLVM_LINK_COMPONENTS support)
 
 add_clang_library(clangTidyEastwoodModule
 
-    EastwoodTidyModule.cpp
-    Rule1aCheck.cpp
-    Rule1cCheck.cpp
-    Rule1dCheck.cpp
-    Rule4aCheck.cpp
-    Rule4cCheck.cpp
-    Rule11eCheck.cpp
+    src/EastwoodTidyModule.cpp
+    src/Rule1aCheck.cpp
+    src/Rule1cCheck.cpp
+    src/Rule1dCheck.cpp
+    src/Rule4aCheck.cpp
+    src/Rule4cCheck.cpp
+    src/Rule11eCheck.cpp
 
     LINK_LIBS
     clangAnalysis
@@ -20,4 +20,9 @@ add_clang_library(clangTidyEastwoodModule
     clangTidy
     clangTidyUtils
     clangTooling
+)
+
+include_directories(
+    BEFORE
+        include/
 )
