@@ -40,7 +40,7 @@ namespace clang {
                     return;
                 } else {
                     // Error
-                    diag(loc, "[Rule 1.A] %0 %1 is not all lowercase"
+                    diag(loc, "[Rule I.A] %0 %1 is not all lowercase"
                             " and separated by underscores")
                         << type << name;
                 }

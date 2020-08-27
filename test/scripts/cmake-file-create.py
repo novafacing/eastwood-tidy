@@ -28,6 +28,13 @@ enable_testing()
 use_gcc()
 
 project(eastwood-test VERSION 1.0)
+
+add_test(NAME eastwood-test
+    COMMAND
+        python3 ${CMAKE_CURRENT_BINARY_DIR}/../test.py ${CMAKE_CURRENT_BINARY_DIR}/../src ${CLANG_TIDY_LOCATION} ${CMAKE_CURRENT_BINARY_DIR}/../test-spec.json
+    WORKING_DIRECTORY
+        ${CMAKE_CURRENT_BINARY_DIR}/../src
+)
 """
 
 RULE_TEMPLATE = """
