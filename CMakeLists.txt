@@ -4,6 +4,7 @@ add_clang_library(clangTidyEastwoodModule
 
     src/EastwoodTidyModule.cpp
     src/Rule1aCheck.cpp
+    src/Rule1bCheck.cpp
     src/Rule1cCheck.cpp
     src/Rule1dCheck.cpp
     src/Rule4aCheck.cpp

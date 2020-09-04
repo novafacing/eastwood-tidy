@@ -104,6 +104,20 @@ The compile database can be manually specified with `clang-tidy -p <database>.js
 
 The command `clang-tidy -checks "-*,eastwood*" path-to-file.c` is the same.
 
+3. Options:
+
+The clang-tidy linter has a few command line options, outlined below. Unfortunately, they are taken in a rather nasty format. To pass options you can do:
+
+```
+$ clang-tidy -checks "-*,eastwood*" -config="{CheckOptions: [{key: a, value: b}, {key: x, value: y}]}" path-to-file.c
+```
+
+The options we provide (and an example usage) are below:
+
+| Option | Default | Type | Example                                                                       |
+| ------ | ------- | ---- | ----------------------------------------------------------------------------- |
+| Dump   | false   | bool | `-config="{CheckOptions: [{key: eastwood-Rule1B.Dump, value: true}]}"`        |
+
 ## Testing <a name="testing" />
 
 `eastwood-tidy` can be tested against the test cases in the `test` directory by building the tests and compilation database with a provided path to the built `clang-tidy` binary.
@@ -124,5 +138,16 @@ The tests are demarcated in `test/test-spec.json` and run using python's `unitte
 *Note*: currently there is a variable `EXTRA_ARGS` in test.py. This is because I use NixOS. Just make that an empty array for your own testing...until I fix it :)
 
 ## Notes <a name="notes" />
+
+### Note for NixOS users:
+
+To find your glibc directory, just `nix eval nixpkgs.glibc.dev.outPath | tr -d '\n' | tr -d '"' | cat <<< "/include/"`.
+
+Where `glibc.dev` is any library whose headers you need.
+
+You can just do `clang-tidy <args> -- $(nix eval nixpkgs.glibc.dev.outPath | tr -d '\n' | tr -d '"' | cat <<< "/include")`.
+
+
+### Note for include directories
 
 Note for include directories and files: using `clang-tidy <regular args> -- <clang args>` can be done to specify include directories. For example: `./clang-tidy -checks "-*,eastwood*" /home/novafacing/hub/llvm-project/clang-tools-extra/clang-tidy/eastwood/test/I/test_I_D_fail.c -- -I/nix/store/lqn6r231ifgs2z66vvaav5zmrywlllzf-glibc-2.31-dev/include/`
