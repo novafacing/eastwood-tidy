@@ -93,6 +93,8 @@ def process(override, spec):
                 if override or not os.path.exists(os.path.join("src", write_roman(int(section)), test["filename"] + ".c")):
                     testfile = open(os.path.join("src", write_roman(int(section)), test["filename"] + ".c"), "w")
                     testfile.write(test["test"])
+                else:
+                    print("Not creating test: ", test["filename"])
                 if spec[section][subsection]["header"] and not os.path.exists(os.path.join("src", write_roman(int(section)), test["filename"] + ".h")):
                     header_contents = create_header_contents(section, subsection, test["filename"], spec[section][subsection])
                     headerfile = open(os.path.join("src", write_roman(int(section)), test["filename"] + ".h"), "w")
@@ -105,6 +107,8 @@ def process(override, spec):
                 if override or not os.path.exists(os.path.join("src", write_roman(int(section)), testf["filename"] + ".c")):
                     testfile = open(os.path.join("src", write_roman(int(section)), testf["filename"] + ".c"), "w")
                     testfile.write(testf["test"])
+                else:
+                    print("Not creating test: ", test["filename"])
                 if spec[section][subsection]["header"] and not os.path.exists(os.path.join("src", write_roman(int(section)), testf["filename"] + ".h")):
                     header_contents = create_header_contents(section, subsection, testf["filename"], spec[section][subsection])
                     headerfile = open(os.path.join("src", write_roman(int(section)), testf["filename"] + ".h"), "w")

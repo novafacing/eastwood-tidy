@@ -31,10 +31,10 @@ namespace clang {
                                 "eastwood-Rule1A");
                         CheckFactories.registerCheck<Rule1bCheck>(
                                 "eastwood-Rule1B");
-                        CheckFactories.registerCheck<Rule1DCheck>(
-                                "eastwood-Rule1D");
                         CheckFactories.registerCheck<Rule1cCheck>(
                                 "eastwood-Rule1C");
+                        CheckFactories.registerCheck<Rule1dCheck>(
+                                "eastwood-Rule1D");
                         CheckFactories.registerCheck<Rule4aCheck>(
                                 "eastwood-Rule4A");
                         CheckFactories.registerCheck<Rule4cCheck>(

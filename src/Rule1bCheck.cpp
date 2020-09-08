@@ -13,6 +13,7 @@
 #include <regex>
 #include <map>
 #include <utility>
+#include <sstream>
 #include <string>
 #include <iostream>
 #include <iomanip>
@@ -25,10 +26,9 @@ namespace clang {
 
             Rule1bCheck::Rule1bCheck(StringRef Name, ClangTidyContext * Context) :
                 ClangTidyCheck(Name, Context), Dump(Options.get("Dump", "false")) {
-                std::cout << "Options value is equal to: " << Options.get("Dump", "false") << std::endl;
                 if (this->Dump == "true") {
                     for (auto ty : {"variable", "function", "enum", "union", "struct", "field", "typedef"}) {
-                        std::vector<std::pair<unsigned, std::string>> v{};
+                        std::vector<SourceLocation> v{};
                         this->Declarations.insert(std::make_pair(ty, v));
                     }
                 }
@@ -44,70 +44,59 @@ namespace clang {
                 Finder->addMatcher(typedefDecl().bind("typedef"), this);
             }
 
-            void Rule1bCheck::saveVar(unsigned lineNum, std::string name, std::string type) {
-                this->Declarations[type].push_back(std::pair<unsigned, std::string>(lineNum, name));
+            void Rule1bCheck::saveVar(SourceLocation loc, std::string type) {
+                this->Declarations[type].push_back(loc);
             }
 
             void Rule1bCheck::check(const MatchFinder::MatchResult &Result) {
                 SourceLocation loc;
-                std::string name = "";
                 std::string type = "";
                 if (auto MatchedDecl = Result.Nodes.getNodeAs<VarDecl>("variable")) {
                     loc = MatchedDecl->getLocation();
-                    name = MatchedDecl->getName().str();
                     type = "variable";
-                    unsigned lineNum = Result.SourceManager->getSpellingLineNumber(loc);
-                    this->saveVar(lineNum, name, type);
                 } else if (auto MatchedDecl = Result.Nodes.getNodeAs<FunctionDecl>("function")) {
                     loc = MatchedDecl->getLocation();
-                    name = MatchedDecl->getName().str();
                     type = "function";
-                    unsigned lineNum = Result.SourceManager->getSpellingLineNumber(loc);
-                    this->saveVar(lineNum, name, type);
                 } else if (auto MatchedDecl = Result.Nodes.getNodeAs<EnumDecl>("enum")) {
                     loc = MatchedDecl->getLocation();
-                    name = MatchedDecl->getName().str();
                     type = "enum";
-                    unsigned lineNum = Result.SourceManager->getSpellingLineNumber(loc);
-                    this->saveVar(lineNum, name, type);
                 } else if (auto MatchedDecl = Result.Nodes.getNodeAs<RecordDecl>("struct")) {
                     if (MatchedDecl->isAnonymousStructOrUnion()) {
                         return;
                     }
 
                     loc = MatchedDecl->getLocation();
-                    name = MatchedDecl->getName().str();
                     type = "struct";
-                    unsigned lineNum = Result.SourceManager->getSpellingLineNumber(loc);
-                    this->saveVar(lineNum, name, type);
                 } else if (auto MatchedDecl = Result.Nodes.getNodeAs<RecordDecl>("union")) {
                     if (MatchedDecl->isAnonymousStructOrUnion()) {
                         return;
                     }
 
                     loc = MatchedDecl->getLocation();
-                    name = MatchedDecl->getName().str();
                     type = "union";
-                    unsigned lineNum = Result.SourceManager->getSpellingLineNumber(loc);
-                    this->saveVar(lineNum, name, type);
                 } else if (auto MatchedDecl = Result.Nodes.getNodeAs<FieldDecl>("field")) {
                     if (MatchedDecl->isAnonymousStructOrUnion()) {
                         return;
                     }
 
                     loc = MatchedDecl->getLocation();
-                    name = MatchedDecl->getName().str();
                     type = "field";
-                    unsigned lineNum = Result.SourceManager->getSpellingLineNumber(loc);
-                    this->saveVar(lineNum, name, type);
                 } else if (auto MatchedDecl = Result.Nodes.getNodeAs<TypedefDecl>("typedef")) {
                     loc = MatchedDecl->getLocation();
-                    name = MatchedDecl->getName().str();
                     type = "enum";
-                    unsigned lineNum = Result.SourceManager->getSpellingLineNumber(loc);
-                    this->saveVar(lineNum, name, type);
                 } else {
                     return;
+                }
+
+                if ((Result.SourceManager)->isWrittenInMainFile(loc)) {
+                    this->saveVar(loc, type);
+                } else {
+                    // Just for debugging purposes I'm leaving this here
+                    /*
+                    if (loc.isValid()) {
+                        diag(loc, "'%0' is not being saved") << type;
+                    }
+                    */
                 }
             }
 
@@ -116,14 +105,10 @@ namespace clang {
                 if (this->Dump == "true") {
                     std::ios init(NULL);
                     init.copyfmt(std::cout);
-                    std::cout << "[Rule I.B] Dumping variables from translation unit:" << std::endl;
                     for (auto ty : {"variable", "function", "enum", "union", "struct", "field", "typedef"}) {
                         for (auto dec : this->Declarations.at(ty)) {
-                            /* Format:     enum:00000013 degrees */
-                            if (dec.first != 0) {
-                                /* Included declarations will have a value of 0 */
-                                std::cout << std::setw(8) << ty << ":" << std::setfill('0')
-                                    << std::setw(8) << dec.first << " "<< std::setfill(' ') << dec.second << std::endl;
+                            if (dec.isValid()) {
+                                diag(dec, "'%0' declaration.", DiagnosticIDs::Note) << ty;
                             }
                         }
                     }

@@ -7,9 +7,9 @@
             "header": true
         },
         "b": {
-            "implemented": false,
+            "implemented": true,
             "description": "Use descriptive and meaningful names.",
-            "test": false,
+            "test": true,
             "header": true
         },
         "c": {

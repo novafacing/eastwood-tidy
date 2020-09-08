@@ -56,17 +56,14 @@ namespace clang {
                     loc = MatchedDecl->getLocation();
                     name = MatchedDecl->getName().str();
                     type = "Variable";
-                    check_name(loc, name, type);
                 } else if (auto MatchedDecl = Result.Nodes.getNodeAs<FunctionDecl>("function")) {
                     loc = MatchedDecl->getLocation();
                     name = MatchedDecl->getName().str();
                     type = "Function";
-                    check_name(loc, name, type);
                 } else if (auto MatchedDecl = Result.Nodes.getNodeAs<EnumDecl>("enum")) {
                     loc = MatchedDecl->getLocation();
                     name = MatchedDecl->getName().str();
                     type = "Enum";
-                    check_name(loc, name, type);
                 } else if (auto MatchedDecl = Result.Nodes.getNodeAs<RecordDecl>("struct")) {
                     if (MatchedDecl->isAnonymousStructOrUnion()) {
                         return;
@@ -75,7 +72,6 @@ namespace clang {
                     loc = MatchedDecl->getLocation();
                     name = MatchedDecl->getName().str();
                     type = "Struct";
-                    check_name(loc, name, type);
                 } else if (auto MatchedDecl = Result.Nodes.getNodeAs<RecordDecl>("union")) {
                     if (MatchedDecl->isAnonymousStructOrUnion()) {
                         return;
@@ -84,7 +80,6 @@ namespace clang {
                     loc = MatchedDecl->getLocation();
                     name = MatchedDecl->getName().str();
                     type = "Union";
-                    check_name(loc, name, type);
                 } else if (auto MatchedDecl = Result.Nodes.getNodeAs<FieldDecl>("field")) {
                     if (MatchedDecl->isAnonymousStructOrUnion()) {
                         return;
@@ -93,14 +88,15 @@ namespace clang {
                     loc = MatchedDecl->getLocation();
                     name = MatchedDecl->getName().str();
                     type = "Field";
-                    check_name(loc, name, type);
                 } else if (auto MatchedDecl = Result.Nodes.getNodeAs<TypedefDecl>("typedef")) {
                     loc = MatchedDecl->getLocation();
                     name = MatchedDecl->getName().str();
                     type = "Enum";
-                    check_name(loc, name, type);
                 } else {
                     return;
+                }
+                if ((Result.SourceManager)->isWrittenInMainFile(loc)) {
+                    check_name(loc, name, type);
                 }
             }
 

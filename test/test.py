@@ -7,7 +7,10 @@ import re
 import subprocess
 from collections import OrderedDict
 
-EXTRA_ARGS = ['--', '-I/nix/store/lqn6r231ifgs2z66vvaav5zmrywlllzf-glibc-2.31-dev/include/']
+IFNIXOS = b'NixOS' in subprocess.run(['uname', '-a'], stdout=subprocess.PIPE).stdout[:-1]
+PATH = subprocess.run(['zsh', '-c', 'nix eval nixpkgs.glibc.dev.outPath | tr -d "\n" | tr -d \'"\' | cat <<< "/include/"'], stdout=subprocess.PIPE).stdout[:-1]
+print("Path is ", PATH)
+EXTRA_ARGS = ['--', "-I" + PATH.decode('utf-8')]
 
 def write_roman(num):
     roman = OrderedDict()
@@ -37,7 +40,12 @@ def write_roman(num):
 
 
 def runTest(clang_tidy_path, cfile_path):
-    command = [clang_tidy_path, '-checks', '"-*,eastwood*"', cfile_path, *EXTRA_ARGS]
+    command = []
+    if IFNIXOS:
+        command = ['zsh', '-c', clang_tidy_path, '-checks="-*,eastwood*"', cfile_path, *EXTRA_ARGS]
+    else:
+        command = ['zsh', '-c', clang_tidy_path, '--checks="-*,eastwood*"', cfile_path]
+    print("Running clang tidy with command: {0}".format(command))
     proc = subprocess.run(command, stdout = subprocess.PIPE)
     return proc.stdout
 
@@ -47,7 +55,8 @@ class TestEastwood(unittest.TestCase):
 def make_test(description, clang_tidy_path, cfile_path, section, subsection, fail):
     def test(self):
         result = runTest(clang_tidy_path, cfile_path).decode('utf-8')
-        reg = '\[Rule ([MCDXLIV]+)\.([A-H])\]'
+        print("Test result for {0} {1}:\n{2}".format(clang_tidy_path, cfile_path, result))
+        reg = '\[eastwood-Rule([0-9]+)\.([A-H])\]'
         matches = re.findall(reg, result)
         sects = [e for i, e in enumerate(matches) if i % 2 == 0]
         subs = [e for i, e in enumerate(matches) if i % 2 != 0]
@@ -80,11 +89,11 @@ if __name__ == "__main__":
                 test_func_pass = make_test("Test condition {} on Rule {}.{}".format("Pass", write_roman(int(section)), 
                     subsection.upper()), CLANG_TIDY_LOCATION, os.path.join(SOURCE_DIR, write_roman(int(section)), 
                     "test_{}_{}_pass.c".format(write_roman(int(section)), subsection.upper())), 
-                    write_roman(int(section)), subsection.upper(), False)
+                    section, subsection.upper(), False)
                 test_func_fail = make_test("Test condition {} on Rule {}.{}".format("Fail", write_roman(int(section)), 
                     subsection.upper()), CLANG_TIDY_LOCATION, os.path.join(SOURCE_DIR, write_roman(int(section)), 
                     "test_{}_{}_fail.c".format(write_roman(int(section)), subsection.upper())), 
-                    write_roman(int(section)), subsection.upper(), True)
+                    section, subsection.upper(), True)
 
                 setattr(TestEastwood, 'test_{}_{}_{}'.format(section, subsection.upper(), 'pass'), test_func_pass)
                 setattr(TestEastwood, 'test_{}_{}_{}'.format(section, subsection.upper(), 'fail'), test_func_fail)

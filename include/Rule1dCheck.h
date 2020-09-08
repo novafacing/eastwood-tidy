@@ -1,4 +1,4 @@
-//===--- Rule1DCheck.h - clang-tidy -----------------------------*- C++ -*-===//
+//===--- Rule1dCheck.h - clang-tidy -----------------------------*- C++ -*-===//
 //
 //                     The LLVM Compiler Infrastructure
 //
@@ -22,9 +22,9 @@ namespace eastwood {
 ///
 /// For the user-facing documentation see:
 /// http://clang.llvm.org/extra/clang-tidy/checks/eastwood-global-variable-names.html
-class Rule1DCheck : public ClangTidyCheck {
+class Rule1dCheck : public ClangTidyCheck {
 public:
-  Rule1DCheck(StringRef Name, ClangTidyContext *Context)
+  Rule1dCheck(StringRef Name, ClangTidyContext *Context)
       : ClangTidyCheck(Name, Context) {}
   void registerMatchers(ast_matchers::MatchFinder *Finder) override;
   void check(const ast_matchers::MatchFinder::MatchResult &Result) override;

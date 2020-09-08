@@ -17,12 +17,15 @@ namespace clang {
 namespace tidy {
 namespace eastwood {
 
-void Rule1DCheck::registerMatchers(MatchFinder *Finder) {
+void Rule1dCheck::registerMatchers(MatchFinder *Finder) {
   Finder->addMatcher(varDecl(hasGlobalStorage()).bind("variable"), this);
 }
 
-void Rule1DCheck::check(const MatchFinder::MatchResult &Result) {
+void Rule1dCheck::check(const MatchFinder::MatchResult &Result) {
   const auto *MatchedDecl = Result.Nodes.getNodeAs<VarDecl>("variable");
+  if (!(Result.SourceManager)->isWrittenInMainFile(MatchedDecl->getLocation())) {
+      return;
+  }
 
   if (MatchedDecl->getName().startswith("g_")) {
     return;

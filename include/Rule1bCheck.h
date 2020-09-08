@@ -24,13 +24,13 @@ namespace clang {
             class Rule1bCheck : public ClangTidyCheck {
                 private:
                     std::string Dump;
-                    std::map<std::string, std::vector<std::pair<unsigned, std::string>>> Declarations;
+                    std::map<std::string, std::vector<SourceLocation>> Declarations;
                 public:
                     Rule1bCheck(StringRef Name, ClangTidyContext *Context);
                     void registerMatchers(ast_matchers::MatchFinder *Finder) override;
                     void check(const ast_matchers::MatchFinder::MatchResult &Result) override;
                     void storeOptions(ClangTidyOptions::OptionMap & Opts) override;
-                    void saveVar(unsigned lineNum, std::string name, std::string type);
+                    void saveVar(SourceLocation lineNum, std::string type);
                     void onEndOfTranslationUnit() override;
             };
 

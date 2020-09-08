@@ -13,6 +13,12 @@
 #include "../ClangTidyCheck.h"
 #include "clang/Lex/Preprocessor.h"
 #include <string>
+#include <regex>
+#include <map>
+#include <utility>
+#include <iostream>
+#include <iomanip>
+#include <vector>
 
 namespace clang {
     namespace tidy {
@@ -24,21 +30,19 @@ namespace clang {
             /// For the user-facing documentation see:
             /// http://clang.llvm.org/extra/clang-tidy/checks/eastwood-macro-usage.html
             class Rule1cCheck : public ClangTidyCheck {
+                private:
+                    std::map<std::string, std::vector<SourceLocation>> EmbeddedConstants;
+                    std::vector<SourceRange> DeclarationRanges;
+                    std::string Dump;
                 public:
-                    Rule1cCheck(StringRef Name, ClangTidyContext *Context)
-                        : ClangTidyCheck(Name, Context) {}
+                    Rule1cCheck(StringRef Name, ClangTidyContext *Context);
                     void registerPPCallbacks(const SourceManager &SM, Preprocessor *PP,
                             Preprocessor *ModuleExpanderPP) override;
-                    void warnNaming(const MacroDirective *MD, StringRef MacroName);
-                    void warnFormatting(const SourceLocation loc, StringRef MacroName);
-
-                private:
-                    /// A regular expression that defines how allowed macros must look like.
-                    std::string AllowedRegexp;
-                    /// Control if only the check shall only test on CAPS_ONLY macros.
-                    bool CheckCapsOnly;
-                    /// Should the macros without a valid location be diagnosed?
-                    bool IgnoreCommandLineMacros;
+                    void registerMatchers(ast_matchers::MatchFinder * Finder) override;
+                    void saveEmbeddedConstant(SourceLocation loc, std::string type);
+                    void check(const ast_matchers::MatchFinder::MatchResult & Result) override;
+                    void onEndOfTranslationUnit() override;
+                    void storeOptions(ClangTidyOptions::OptionMap & Opts) override;
             };
 
         } // namespace eastwood

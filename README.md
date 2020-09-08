@@ -114,9 +114,10 @@ $ clang-tidy -checks "-*,eastwood*" -config="{CheckOptions: [{key: a, value: b},
 
 The options we provide (and an example usage) are below:
 
-| Option | Default | Type | Example                                                                       |
-| ------ | ------- | ---- | ----------------------------------------------------------------------------- |
-| Dump   | false   | bool | `-config="{CheckOptions: [{key: eastwood-Rule1B.Dump, value: true}]}"`        |
+| Option               | Default | Type | Example                                                                      |
+| ------               | ------- | ---- | -----------------------------------------------------------------------------|
+| eastwood-Rule1B.Dump | false   | bool | `-config="{CheckOptions: [{key: eastwood-Rule1B.Dump, value: true}]}"`       |
+| eastwood-Rule1C.Dump | false   | bool | `-config="{CheckOptions: [{key: eastwood-Rule1C.Dump, value: true}]}"`       |
 
 ## Testing <a name="testing" />
 

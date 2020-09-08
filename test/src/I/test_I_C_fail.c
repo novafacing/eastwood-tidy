@@ -5,12 +5,15 @@
  * t do not have surrounding parentheses.
  * -------------------------------------------------------------------------- */
 #include "test_I_C_fail.h"
+#include <stdio.h>
 
 #define file_name "Data_File"    // Fails because name is not all uppercase and underscore
 #define TEMPERATURE_OF_ROOM 10   // Fails because constant non-string is not enclosed in parentheses
 #define temperature_of_room (10) // Fails because name is not all uppercase and underscore
 
 int test(void) {
+    char buf[40];
+    fgets(buf, 0x10, stdin);
     return 1;
 }
 
