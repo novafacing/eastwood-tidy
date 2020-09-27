@@ -11,25 +11,30 @@
 
 #include "../ClangTidyCheck.h"
 
+#include "clang/AST/ASTContext.h"
+#include "clang/ASTMatchers/ASTMatchFinder.h"
+
+#include <regex>
+
 namespace clang {
-namespace tidy {
-namespace eastwood {
+    namespace tidy {
+        namespace eastwood {
 
-/// FIXME: Write a short description.
-///
-/// For the user-facing documentation see:
-/// http://clang.llvm.org/extra/clang-tidy/checks/eastwood-Rule1A.html
-class Rule1aCheck : public ClangTidyCheck {
-public:
-  Rule1aCheck(StringRef Name, ClangTidyContext *Context)
-      : ClangTidyCheck(Name, Context) {}
-  void registerMatchers(ast_matchers::MatchFinder *Finder) override;
-  void check(const ast_matchers::MatchFinder::MatchResult &Result) override;
-  void check_name(SourceLocation loc, std::string name, std::string type);
-};
+            class Rule1aCheck : public ClangTidyCheck {
+                public:
+                    /* Constructors */
+                    Rule1aCheck(StringRef Name, ClangTidyContext *Context)
+                        : ClangTidyCheck(Name, Context) {}
 
-} // namespace eastwood
-} // namespace tidy
+                    /* Overrides */
+                    void registerMatchers(ast_matchers::MatchFinder *Finder) override;
+                    void check(const ast_matchers::MatchFinder::MatchResult &Result) override;
+
+                    void checkName(SourceLocation loc, std::string name, std::string type);
+            }; // Rule1aCheck
+
+        } // namespace eastwood
+    } // namespace tidy
 } // namespace clang
 
 #endif // LLVM_CLANG_TOOLS_EXTRA_CLANG_TIDY_EASTWOOD_RULE1ACHECK_H

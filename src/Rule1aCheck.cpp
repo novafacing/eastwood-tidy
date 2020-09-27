@@ -7,10 +7,6 @@
 //===----------------------------------------------------------------------===//
 
 #include "Rule1aCheck.h"
-#include "clang/AST/ASTContext.h"
-#include "clang/ASTMatchers/ASTMatchFinder.h"
-
-#include <regex>
 
 using namespace clang::ast_matchers;
 
@@ -28,26 +24,25 @@ namespace clang {
                 Finder->addMatcher(typedefDecl().bind("typedef"), this);
             }
 
-            void Rule1aCheck::check_name(SourceLocation loc, std::string name, std::string type) {
+            void Rule1aCheck::checkName(SourceLocation loc, std::string name, std::string type) {
                 if (!loc.isValid()) {
                     return;
                 }
 
-                std::regex local_regex{R"([a-z][a-z0-9_]*)"};
+                std::regex localRegex{R"([a-z][a-z0-9_]*)"};
                 std::smatch results;
 
-                if (std::regex_match(name, results, local_regex)) {
+                if (std::regex_match(name, results, localRegex)) {
                     return;
                 } else {
                     // Error
-                    diag(loc, "[Rule I.A] %0 %1 is not all lowercase"
+                    diag(loc, "%0 %1 is not all lowercase"
                             " and separated by underscores")
                         << type << name;
                 }
             }
 
             void Rule1aCheck::check(const MatchFinder::MatchResult &Result) {
-
                 SourceLocation loc;
                 std::string name = "";
                 std::string type = "";
@@ -95,8 +90,9 @@ namespace clang {
                 } else {
                     return;
                 }
+
                 if ((Result.SourceManager)->isWrittenInMainFile(loc)) {
-                    check_name(loc, name, type);
+                    checkName(loc, name, type);
                 }
             }
 

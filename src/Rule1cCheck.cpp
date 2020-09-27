@@ -7,14 +7,6 @@
 //===----------------------------------------------------------------------===//
 
 #include "Rule1cCheck.h"
-#include "clang/AST/ASTContext.h"
-#include "clang/ASTMatchers/ASTMatchFinder.h"
-#include "clang/Lex/Lexer.h"
-#include "clang/Basic/LangOptions.h"
-#include "clang/Lex/PPCallbacks.h"
-#include "clang/Lex/Preprocessor.h"
-
-#include <regex>
 
 using namespace clang::ast_matchers;
 
@@ -36,6 +28,7 @@ namespace clang {
                 private:
                     Rule1cCheck * Check;
                     Preprocessor * PP;
+
                 public:
                     Rule1cPPCallBack(Rule1cCheck * Check, Preprocessor * PP) 
                         : Check(Check), PP(PP) {
@@ -55,10 +48,10 @@ namespace clang {
                                 MD->getMacroInfo()->getNumTokens() == 0) {
                             return;
                         }
-                        std::regex define_name_regex{R"([A-Z0-9_][A-Z0-9_]+)"};
+                        std::regex defineNameRegex{R"([A-Z0-9_][A-Z0-9_]+)"};
                         std::smatch results;
                         std::string name = this->PP->getSpelling(MacroNameTok);
-                        if (!std::regex_match(name, results, define_name_regex)) {
+                        if (!std::regex_match(name, results, defineNameRegex)) {
                             DiagnosticBuilder Diag = this->Check->diag(MD->getLocation(), 
                                 "'%0' is not all uppercase, separated by underscores, and >= 2 characters in length.");
                             Diag << name;
@@ -68,21 +61,18 @@ namespace clang {
                         /* A constant declaration with #define will either be "string" or (val) (1 / 3 toks) */
                         // TODO: Still failing the correct case....not sure why. TODO!!!!
                         if (MD->getMacroInfo()->getNumTokens() == 1 || MD->getMacroInfo()->getNumTokens() == 3) {
-                            const Token & Start = *(MD->getMacroInfo()->tokens_begin());
-                            const Token & Primary = *(MD->getMacroInfo()->tokens_begin() + 1);
-                            const Token & End = *(MD->getMacroInfo()->tokens_begin() + 2);
-                            std::cout << "Start " << Start.getName() << std::endl;
-                            std::cout << "End " << End.getName() << std::endl;
-                            std::cout << "Primary " << Primary.getName() << std::endl;
-                            if (tok::isLiteral(Primary.getKind()) && !tok::isStringLiteral(Primary.getKind())) {
-                                if (isSurroundedLeft(Start) && isSurroundedRight(End)) {
+                            const Token & start = *(MD->getMacroInfo()->tokens_begin());
+                            const Token & primary = *(MD->getMacroInfo()->tokens_begin() + 1);
+                            const Token & end = *(MD->getMacroInfo()->tokens_begin() + 2);
+                            if (tok::isLiteral(primary.getKind()) && !tok::isStringLiteral(primary.getKind())) {
+                                if (isSurroundedLeft(start) && isSurroundedRight(end)) {
                                     return;
                                 } else {
                                     DiagnosticBuilder Diag = this->Check->diag(MD->getLocation(),
                                         "'%0' initializer is non-string constant and not surrounded by parentheses.");
-                                    Diag << name << Primary.getLiteralData();
+                                    Diag << name << primary.getLiteralData();
                                 }
-                            } else if (tok::isLiteral(Start.getKind()) && !tok::isStringLiteral(Start.getKind()) && MD->getMacroInfo()->getNumTokens() == 1) {
+                            } else if (tok::isLiteral(start.getKind()) && !tok::isStringLiteral(start.getKind()) && MD->getMacroInfo()->getNumTokens() == 1) {
                                     DiagnosticBuilder Diag = this->Check->diag(MD->getLocation(),
                                         "'%0' initializer is non-string constant and not surrounded by parentheses.");
                                     Diag << name;
@@ -93,13 +83,13 @@ namespace clang {
             };
 
             Rule1cCheck::Rule1cCheck(StringRef Name, ClangTidyContext * Context) :
-                ClangTidyCheck(Name, Context), Dump(Options.get("Dump", "false")) {
+                ClangTidyCheck(Name, Context), dump(Options.get("dump", "false")) {
 
-                    if (this->Dump == "true") {
+                    if (this->dump == "true") {
                         for (auto ty : {"characterLiteral", "floatLiteral", "imaginaryLiteral", 
                                 "integerLiteral", "userDefinedLiteral", "fixedPointLiteral", "compoundLiteral"}) {
                             std::vector<SourceLocation> v{};
-                            this->EmbeddedConstants.insert(std::make_pair(ty, v));
+                            this->embeddedConstants.insert(std::make_pair(ty, v));
                         }
                     }
             }
@@ -124,7 +114,7 @@ namespace clang {
             }
 
             void Rule1cCheck::saveEmbeddedConstant(SourceLocation loc, std::string type) {
-                this->EmbeddedConstants[type].push_back(loc);
+                this->embeddedConstants[type].push_back(loc);
             }
 
             void Rule1cCheck::check(const MatchFinder::MatchResult &Result) {
@@ -135,8 +125,7 @@ namespace clang {
                 if (auto Match = Result.Nodes.getNodeAs<VarDecl>("variable")) {
                     if (Match->hasDefinition(*Result.Context)) {
                         /* If we aren't defining, we definitely don't need to check that the literal is in it */
-                        this->DeclarationRanges.push_back(Match->getSourceRange());
-
+                        this->declarationRanges.push_back(Match->getSourceRange());
                     }
                 }
 
@@ -174,18 +163,18 @@ namespace clang {
 
             void Rule1cCheck::onEndOfTranslationUnit() {
                 ClangTidyCheck::onEndOfTranslationUnit();
-                if (this->Dump == "true") {
+                if (this->dump == "true") {
                     std::ios init(NULL);
                     init.copyfmt(std::cout);
                     for (auto ty : {"characterLiteral", "floatLiteral", "imaginaryLiteral", "integerLiteral", 
                             "userDefinedLiteral", "fixedPointLiteral", "compoundLiteral"}) {
-                        for (auto constant : this->EmbeddedConstants.at(ty)) {
+                        for (auto constant : this->embeddedConstants.at(ty)) {
                             if (constant.isValid()) {
-                                if (this->DeclarationRanges.empty()) {
+                                if (this->declarationRanges.empty()) {
                                     diag(constant, "embedded constant of type '%0'.", DiagnosticIDs::Note) << ty;
                                 } else {
                                     bool toPrint = true;
-                                    for (auto range : this->DeclarationRanges) {
+                                    for (auto range : this->declarationRanges) {
                                         if (range.fullyContains(SourceRange(constant))) {
                                             toPrint = false;
                                             
@@ -200,11 +189,10 @@ namespace clang {
                     }
                     std::cout.copyfmt(init);
                 }
-
             }
 
             void Rule1cCheck::storeOptions(ClangTidyOptions::OptionMap & Opts) {
-                Options.store(Opts, "Dump", this->Dump);
+                Options.store(Opts, "dump", this->dump);
             }
         } // namespace eastwood
     } // namespace tidy

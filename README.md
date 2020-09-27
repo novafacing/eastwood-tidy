@@ -121,6 +121,27 @@ The options we provide (and an example usage) are below:
 
 ## Testing <a name="testing" />
 
+#### The new test procedure is to do the following:
+
+1. Install the dependencies for LLVM however is appropriate for your system. You need at minimum the `FileCheck` utility.
+
+2. Copy the script `scripts/check_clang_tidy.py` into your LLVM repo: `llvm-project/clang-tools-extra/test/clang-tidy/check_clang_tidy.py`.
+
+3. Set the `CLANG_TIDY` variable at the top of the script to your `clang-tidy` location. Probably this is `llvm-project/llvm/build/bin/clang-tidy`.
+
+4. `cp -av eastwood/test/*.c llvm-project/clang-tools-extra/test/clang-tidy/checkers/`
+
+5. `cp -av eastwood/test/*.h llvm-project/clang-tools-extra/test/clang-tidy/checkers/`
+
+The above 2 points just mean: move all the .c and .h test files into the checkers directory from wherever `eastwood` is lcoated.
+
+6. Run the checker: `python3 check_clang_tidy.py checkers/eastwood-rule-1a.c eastwood-Rule1A ./checkers/`
+
+Where eastwood-rule-1a.c and eastwood-Rule1A are the name of a source file and a code standard point, respectively.
+
+
+#### The below is deprecated guidance, use at your own risk.
+
 `eastwood-tidy` can be tested against the test cases in the `test` directory by building the tests and compilation database with a provided path to the built `clang-tidy` binary.
 
 ```

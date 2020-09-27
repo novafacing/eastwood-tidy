@@ -12,23 +12,23 @@
 #include "../ClangTidyCheck.h"
 
 namespace clang {
-namespace tidy {
-namespace eastwood {
+    namespace tidy {
+        namespace eastwood {
 
-/// FIXME: Write a short description.
-///
-/// For the user-facing documentation see:
-/// http://clang.llvm.org/extra/clang-tidy/checks/eastwood-Rule11E.html
-class Rule11eCheck : public ClangTidyCheck {
-public:
-  Rule11eCheck(StringRef Name, ClangTidyContext *Context)
-      : ClangTidyCheck(Name, Context) {}
-  void registerMatchers(ast_matchers::MatchFinder *Finder) override;
-  void check(const ast_matchers::MatchFinder::MatchResult &Result) override;
-};
 
-} // namespace eastwood
-} // namespace tidy
+            class Rule11eCheck : public ClangTidyCheck {
+                public:
+                    /* Constructors */
+                    Rule11eCheck(StringRef Name, ClangTidyContext *Context)
+                        : ClangTidyCheck(Name, Context) {}
+
+                    /* Overrides */
+                    void registerMatchers(ast_matchers::MatchFinder *Finder) override;
+                    void check(const ast_matchers::MatchFinder::MatchResult &Result) override;
+            }; // Rule11eCheck
+
+        } // namespace eastwood
+    } // namespace tidy
 } // namespace clang
 
 #endif // LLVM_CLANG_TOOLS_EXTRA_CLANG_TIDY_EASTWOOD_RULE11ECHECK_H

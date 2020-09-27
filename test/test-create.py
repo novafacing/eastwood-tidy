@@ -3,7 +3,8 @@ import os
 import sys
 from collections import OrderedDict
 
-COMMENT_TEMPLATE = """/* --------------------- Test Code Style Section {}.{} {} """
+COMMENT_TEMPLATE = """// RUN: %%check_clang_tidy %%s eastwood-rule-{}{} %%t
+/* --------------------- Test Code Style Section {}.{} """
 
 COMMENT_LINE_TEMPLATE = """
  *
@@ -11,14 +12,12 @@ COMMENT_LINE_TEMPLATE = """
 
 
 MAIN_TEMPLATE = """
-int test(void) {
 
-}
+// Put Something That Fails Here
+// CHECK-MESSAGES: :[[@LINE-1]]:[column goes here]:  Failure Message Goes Here
 
-int main(int argc, char ** argv) {
-  printf("{0}\\n");
-  test();
-}
+// OK: Reason
+// Some code that doesn't fail here
 """
 
 def write_roman(num):
@@ -55,12 +54,12 @@ def format_template_end(formatted_template_start):
     return template
 
 def create_contents(if_pass, section, subsection, spec):
-    comment = [COMMENT_TEMPLATE.format(write_roman(int(section)), subsection.upper(), "Pass" if if_pass else "Fail")]
+    comment = [COMMENT_TEMPLATE.format(int(section), subsection, write_roman(int(section)), subsection.upper())]
     comment[0] += '-' * (80 - len(comment[0]))
     inner = [' * ' + spec["description"][i: i + 80 - len(' * ')] for i in range(0, len(spec["description"]), 80 - len(' * '))]
     comment.extend(inner)
     comment.append(format_template_end(comment[0]))
-    comment.append('#include "test_{}_{}_{}.h"'.format(write_roman(int(section)), subsection.upper(), "pass" if if_pass else "fail"))
+    comment.append('#include "eastwood-rule-{}{}.h"'.format(int(section), subsection))
     return "\n".join(comment) + "\n" + MAIN_TEMPLATE
 
 def format_new_test(if_pass, section, subsection, spec):
@@ -68,7 +67,7 @@ def format_new_test(if_pass, section, subsection, spec):
     print(spec)
     if spec["test"]:
         test = {}
-        test["filename"] = 'test_{0}_{1}_{2}'.format(write_roman(int(section)), subsection.upper(), "pass" if if_pass else "fail")
+        test["filename"] = 'eastwood-rule-{}{}'.format(int(section), subsection)
         comment_contents = create_contents(if_pass, section, subsection, spec)
         test["test"] = comment_contents
         return test
@@ -78,9 +77,8 @@ def format_new_test(if_pass, section, subsection, spec):
 def create_header_contents(section, subsection, filename, spec):
     include_guards = """#ifndef {0}_H
 #define {1}_H
-#include <stdio.h>
 
-#endif // {2}_H""".format(filename.upper(), filename.upper(), filename.upper())
+#endif // {2}_H""".format(filename.upper().replace('-', '_'), filename.upper().replace('-', '_'), filename.upper().replace('-', '_'))
     return include_guards
 
 def process(override, spec):
@@ -88,31 +86,15 @@ def process(override, spec):
         for subsection in spec[section]:
             test = format_new_test(True, section, subsection, spec[section][subsection])
             if test is not None:
-                if not os.path.isdir(os.path.join("src", write_roman(int(section)))):
-                    os.mkdir(os.path.join("src", write_roman(int(section))))
-                if override or not os.path.exists(os.path.join("src", write_roman(int(section)), test["filename"] + ".c")):
-                    testfile = open(os.path.join("src", write_roman(int(section)), test["filename"] + ".c"), "w")
+                if override or not os.path.exists(test["filename"] + ".c"):
+                    testfile = open(test["filename"] + ".c", "w")
                     testfile.write(test["test"])
                 else:
                     print("Not creating test: ", test["filename"])
-                if spec[section][subsection]["header"] and not os.path.exists(os.path.join("src", write_roman(int(section)), test["filename"] + ".h")):
+                if spec[section][subsection]["header"] and not os.path.exists(test["filename"] + ".h"):
                     header_contents = create_header_contents(section, subsection, test["filename"], spec[section][subsection])
-                    headerfile = open(os.path.join("src", write_roman(int(section)), test["filename"] + ".h"), "w")
+                    headerfile = open(test["filename"] + ".h", "w")
                     if override or not os.path.exists(test["filename"] + ".h"):
-                        headerfile.write(header_contents)
-            testf = format_new_test(False, section, subsection, spec[section][subsection])
-            if testf is not None:
-                if not os.path.isdir(os.path.join("src", write_roman(int(section)))):
-                    os.mkdir(os.path.join("src", write_roman(int(section))))
-                if override or not os.path.exists(os.path.join("src", write_roman(int(section)), testf["filename"] + ".c")):
-                    testfile = open(os.path.join("src", write_roman(int(section)), testf["filename"] + ".c"), "w")
-                    testfile.write(testf["test"])
-                else:
-                    print("Not creating test: ", test["filename"])
-                if spec[section][subsection]["header"] and not os.path.exists(os.path.join("src", write_roman(int(section)), testf["filename"] + ".h")):
-                    header_contents = create_header_contents(section, subsection, testf["filename"], spec[section][subsection])
-                    headerfile = open(os.path.join("src", write_roman(int(section)), testf["filename"] + ".h"), "w")
-                    if override or not os.path.exists(testf["filename"] + ".h"):
                         headerfile.write(header_contents)
 
 if __name__ == "__main__":

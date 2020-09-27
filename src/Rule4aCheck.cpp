@@ -337,3 +337,4 @@ void Rule4aCheck::onEndOfTranslationUnit() {
 } // namespace eastwood
 } // namespace tidy
 } // namespace clang
+

@@ -13,25 +13,26 @@
 #include "../ClangTidy.h"
 #include "../ClangTidyCheck.h"
 
+#include "clang/AST/ASTContext.h"
+#include "clang/ASTMatchers/ASTMatchFinder.h"
 
 namespace clang {
-namespace tidy {
-namespace eastwood {
+    namespace tidy {
+        namespace eastwood {
 
-/// FIXME: Write a short description.
-///
-/// For the user-facing documentation see:
-/// http://clang.llvm.org/extra/clang-tidy/checks/eastwood-global-variable-names.html
-class Rule1dCheck : public ClangTidyCheck {
-public:
-  Rule1dCheck(StringRef Name, ClangTidyContext *Context)
-      : ClangTidyCheck(Name, Context) {}
-  void registerMatchers(ast_matchers::MatchFinder *Finder) override;
-  void check(const ast_matchers::MatchFinder::MatchResult &Result) override;
-};
+            class Rule1dCheck : public ClangTidyCheck {
+                public:
+                    /* Constructors */
+                    Rule1dCheck(StringRef Name, ClangTidyContext *Context)
+                        : ClangTidyCheck(Name, Context) {}
 
-} // namespace eastwood
-} // namespace tidy
+                    /* Overrides */
+                    void registerMatchers(ast_matchers::MatchFinder *Finder) override;
+                    void check(const ast_matchers::MatchFinder::MatchResult &Result) override;
+            }; // Rule1dCheck
+
+        } // namespace eastwood
+    } // namespace tidy
 } // namespace clang
 
 #endif // LLVM_CLANG_TOOLS_EXTRA_CLANG_TIDY_EASTWOOD_RULE1DCHECK_H

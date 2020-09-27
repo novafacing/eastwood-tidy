@@ -14,29 +14,28 @@
 using namespace clang::ast_matchers;
 
 namespace clang {
-namespace tidy {
-namespace eastwood {
+    namespace tidy {
+        namespace eastwood {
 
-void Rule1dCheck::registerMatchers(MatchFinder *Finder) {
-  Finder->addMatcher(varDecl(hasGlobalStorage()).bind("variable"), this);
-}
+            void Rule1dCheck::registerMatchers(MatchFinder *Finder) {
+                Finder->addMatcher(varDecl(hasGlobalStorage()).bind("variable"), this);
+            }
 
-void Rule1dCheck::check(const MatchFinder::MatchResult &Result) {
-  const auto *MatchedDecl = Result.Nodes.getNodeAs<VarDecl>("variable");
-  if (!(Result.SourceManager)->isWrittenInMainFile(MatchedDecl->getLocation())) {
-      return;
-  }
+            void Rule1dCheck::check(const MatchFinder::MatchResult &Result) {
+                const auto *MatchedDecl = Result.Nodes.getNodeAs<VarDecl>("variable");
+                if (!(Result.SourceManager)->isWrittenInMainFile(MatchedDecl->getLocation())) {
+                    return;
+                }
 
-  if (MatchedDecl->getName().startswith("g_")) {
-    return;
-  } else {
+                if (MatchedDecl->getName().startswith("g_")) {
+                    return;
+                } else {
+                    diag(MatchedDecl->getLocation(), "Global variable %0 doesn't conform to global naming scheme.")
+                        << MatchedDecl
+                        << FixItHint::CreateInsertion(MatchedDecl->getLocation(), "g_");
+                }
+            }
 
-  diag(MatchedDecl->getLocation(), "[Rule I.D] Global variable %0 doesn't conform to global naming scheme")
-      << MatchedDecl
-      << FixItHint::CreateInsertion(MatchedDecl->getLocation(), "g_");
-  }
-}
-
-} // namespace eastwood
-} // namespace tidy
+        } // namespace eastwood
+    } // namespace tidy
 } // namespace clang

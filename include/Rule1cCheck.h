@@ -11,39 +11,46 @@
 
 #include "../ClangTidy.h"
 #include "../ClangTidyCheck.h"
+
+#include "clang/AST/ASTContext.h"
+#include "clang/ASTMatchers/ASTMatchFinder.h"
+#include "clang/Basic/LangOptions.h"
+#include "clang/Lex/Lexer.h"
+#include "clang/Lex/PPCallbacks.h"
 #include "clang/Lex/Preprocessor.h"
-#include <string>
-#include <regex>
-#include <map>
-#include <utility>
-#include <iostream>
+
 #include <iomanip>
+#include <iostream>
+#include <map>
+#include <regex>
+#include <string>
+#include <utility>
 #include <vector>
 
 namespace clang {
     namespace tidy {
         namespace eastwood {
 
-            /// Find macro usage that is considered problematic because better language
-            /// constructs exist for the task.
-            ///
-            /// For the user-facing documentation see:
-            /// http://clang.llvm.org/extra/clang-tidy/checks/eastwood-macro-usage.html
             class Rule1cCheck : public ClangTidyCheck {
                 private:
-                    std::map<std::string, std::vector<SourceLocation>> EmbeddedConstants;
-                    std::vector<SourceRange> DeclarationRanges;
-                    std::string Dump;
+                    std::map<std::string, std::vector<SourceLocation>> embeddedConstants;
+                    std::vector<SourceRange> declarationRanges;
+                    std::string dump;
+
                 public:
+                    /* Constructors */
                     Rule1cCheck(StringRef Name, ClangTidyContext *Context);
+
+                    /* Overrides */
                     void registerPPCallbacks(const SourceManager &SM, Preprocessor *PP,
                             Preprocessor *ModuleExpanderPP) override;
                     void registerMatchers(ast_matchers::MatchFinder * Finder) override;
-                    void saveEmbeddedConstant(SourceLocation loc, std::string type);
                     void check(const ast_matchers::MatchFinder::MatchResult & Result) override;
                     void onEndOfTranslationUnit() override;
                     void storeOptions(ClangTidyOptions::OptionMap & Opts) override;
-            };
+
+                    void saveEmbeddedConstant(SourceLocation loc, std::string type);
+            }; // Rule1cCheck
 
         } // namespace eastwood
     } // namespace tidy

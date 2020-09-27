@@ -11,28 +11,40 @@
 
 #include "../ClangTidyCheck.h"
 
+#include "clang/AST/ASTContext.h"
+#include "clang/ASTMatchers/ASTMatchFinder.h"
+
+#include <iomanip>
+#include <iostream>
 #include <map>
+#include <regex>
+#include <sstream>
 #include <string>
+#include <utility>
 
 namespace clang {
     namespace tidy {
         namespace eastwood {
-            /// FIXME: Write a short description.
-            ///
-            /// For the user-facing documentation see:
-            /// http://clang.llvm.org/extra/clang-tidy/checks/eastwood-Rule1A.html
+
             class Rule1bCheck : public ClangTidyCheck {
+
                 private:
-                    std::string Dump;
-                    std::map<std::string, std::vector<SourceLocation>> Declarations;
+                    std::string dump;
+                    std::map<std::string, std::vector<SourceLocation>> declarations;
+
                 public:
+                    /* Constructors */
                     Rule1bCheck(StringRef Name, ClangTidyContext *Context);
+
+                    /* Overrides */
                     void registerMatchers(ast_matchers::MatchFinder *Finder) override;
                     void check(const ast_matchers::MatchFinder::MatchResult &Result) override;
                     void storeOptions(ClangTidyOptions::OptionMap & Opts) override;
-                    void saveVar(SourceLocation lineNum, std::string type);
                     void onEndOfTranslationUnit() override;
-            };
+
+                    void saveVar(SourceLocation lineNum, std::string type);
+
+            }; // Rule1bCheck
 
         } // namespace eastwood
     } // namespace tidy
