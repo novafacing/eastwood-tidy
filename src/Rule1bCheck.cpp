@@ -5,6 +5,8 @@
 // SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 //
 //===----------------------------------------------------------------------===//
+//
+// Variable names should be descriptive and meaningful. Note: This only dumps variable names, it does not error
 
 #include "Rule1bCheck.h"
 

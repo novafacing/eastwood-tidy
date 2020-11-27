@@ -6,6 +6,7 @@
  * t do not have surrounding parentheses.
  * --------------------------------------------------------------------------------------------------- */
 #include "eastwood-rule-1c.h"
+#include <stdio.h>
 
 #define ROOM_TEMPERATURE 10
 // CHECK-MESSAGES: :[[@LINE-1]]:9: warning: 'ROOM_TEMPERATURE' initializer is non-string constant and not surrounded by parentheses. [eastwood-Rule1C]
@@ -17,3 +18,12 @@
 // Some code that doesn't fail here
 #define ROOM_TEMPERATURE_AVG (10)
 #define ROOM_TEMP "ten"
+
+int main() {
+    // No embedded constant, this is overwhelmingly likely to be okay.
+    int some_thing = 10;
+    // Embedded constant
+    printf("%d\n", some_thing + 5);
+    // Embedded constant
+    return 1;
+}

@@ -5,6 +5,8 @@
 // SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 //
 //===----------------------------------------------------------------------===//
+//
+// All constants must be uppercase, contain at least 2 characters, and be declared with define
 
 #include "Rule1cCheck.h"
 
@@ -32,7 +34,7 @@ namespace clang {
                 public:
                     Rule1cPPCallBack(Rule1cCheck * Check, Preprocessor * PP) 
                         : Check(Check), PP(PP) {
-                    }
+                        }
 
                     /* Can also implement:
                      *  - MacroExpands (whenever macro is expanded)
@@ -53,7 +55,7 @@ namespace clang {
                         std::string name = this->PP->getSpelling(MacroNameTok);
                         if (!std::regex_match(name, results, defineNameRegex)) {
                             DiagnosticBuilder Diag = this->Check->diag(MD->getLocation(), 
-                                "'%0' is not all uppercase, separated by underscores, and >= 2 characters in length.");
+                                    "'%0' is not all uppercase, separated by underscores, and >= 2 characters in length.");
                             Diag << name;
                         }
 
@@ -69,14 +71,14 @@ namespace clang {
                                     return;
                                 } else {
                                     DiagnosticBuilder Diag = this->Check->diag(MD->getLocation(),
-                                        "'%0' initializer is non-string constant and not surrounded by parentheses.");
+                                            "'%0' initializer is non-string constant and not surrounded by parentheses.");
                                     Diag << name << primary.getLiteralData();
                                 }
                             } else if (tok::isLiteral(start.getKind()) && !tok::isStringLiteral(start.getKind()) && MD->getMacroInfo()->getNumTokens() == 1) {
-                                    DiagnosticBuilder Diag = this->Check->diag(MD->getLocation(),
+                                DiagnosticBuilder Diag = this->Check->diag(MD->getLocation(),
                                         "'%0' initializer is non-string constant and not surrounded by parentheses.");
-                                    Diag << name;
-                                
+                                Diag << name;
+
                             }
                         }
                     }
@@ -92,7 +94,7 @@ namespace clang {
                             this->embeddedConstants.insert(std::make_pair(ty, v));
                         }
                     }
-            }
+                }
 
             void Rule1cCheck::registerPPCallbacks(const SourceManager & SM, Preprocessor * PP,
                     Preprocessor * ModuleExpanderPP) {
@@ -177,7 +179,7 @@ namespace clang {
                                     for (auto range : this->declarationRanges) {
                                         if (range.fullyContains(SourceRange(constant))) {
                                             toPrint = false;
-                                            
+
                                         }
                                     }
                                     if (toPrint) {

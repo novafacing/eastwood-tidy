@@ -3,13 +3,49 @@ set(LLVM_LINK_COMPONENTS support)
 add_clang_library(clangTidyEastwoodModule
 
     src/EastwoodTidyModule.cpp
+    src/Rule10aCheck.cpp
+    src/Rule11aCheck.cpp
+    src/Rule11bCheck.cpp
+    src/Rule11cCheck.cpp
+    src/Rule11dCheck.cpp
+    src/Rule11eCheck.cpp
+    src/Rule12aCheck.cpp
+    src/Rule12bCheck.cpp
+    src/Rule12cCheck.cpp
     src/Rule1aCheck.cpp
     src/Rule1bCheck.cpp
     src/Rule1cCheck.cpp
     src/Rule1dCheck.cpp
+    src/Rule2aCheck.cpp
+    src/Rule2bCheck.cpp
+    src/Rule3aCheck.cpp
+    src/Rule3bCheck.cpp
+    src/Rule3cCheck.cpp
+    src/Rule3dCheck.cpp
+    src/Rule3eCheck.cpp
+    src/Rule3fCheck.cpp
     src/Rule4aCheck.cpp
+    src/Rule4bCheck.cpp
     src/Rule4cCheck.cpp
-    src/Rule11eCheck.cpp
+    src/Rule5aCheck.cpp
+    src/Rule5bCheck.cpp
+    src/Rule5cCheck.cpp
+    src/Rule5dCheck.cpp
+    src/Rule5eCheck.cpp
+    src/Rule6aCheck.cpp
+    src/Rule7aCheck.cpp
+    src/Rule8aCheck.cpp
+    src/Rule8bCheck.cpp
+    src/Rule8cCheck.cpp
+    src/Rule8dCheck.cpp
+    src/Rule8eCheck.cpp
+    src/Rule8fCheck.cpp
+    src/Rule8gCheck.cpp
+    src/Rule9aCheck.cpp
+    src/Rule9bCheck.cpp
+    src/Rule9cCheck.cpp
+    src/Rule9dCheck.cpp
+    src/Rule9eCheck.cpp
 
     LINK_LIBS
     clangAnalysis

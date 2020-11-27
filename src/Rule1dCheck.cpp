@@ -6,6 +6,8 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
+//
+// global variables must start with g_
 
 #include "Rule1dCheck.h"
 #include "clang/AST/ASTContext.h"

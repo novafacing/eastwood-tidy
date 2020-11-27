@@ -5,6 +5,8 @@
 // SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 //
 //===----------------------------------------------------------------------===//
+//
+// Rule Description: Variable names must be in all lowercase, separated by underscores
 
 #include "Rule1aCheck.h"
 

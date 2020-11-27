@@ -1,4 +1,5 @@
-//===--- Rule11eCheck.h - clang-tidy ----------------------------*- C++ -*-===//
+
+//===--- Rule11eCheck.h - clang-tidy -----------------------------*- C++ -*-===//
 //
 // Part of the LLVM Project, under the Apache License v2.0 with LLVM Exceptions.
 // See https://llvm.org/LICENSE.txt for license information.
@@ -11,10 +12,12 @@
 
 #include "../ClangTidyCheck.h"
 
+#include "clang/AST/ASTContext.h"
+#include "clang/ASTMatchers/ASTMatchFinder.h"
+
 namespace clang {
     namespace tidy {
         namespace eastwood {
-
 
             class Rule11eCheck : public ClangTidyCheck {
                 public:
@@ -26,7 +29,6 @@ namespace clang {
                     void registerMatchers(ast_matchers::MatchFinder *Finder) override;
                     void check(const ast_matchers::MatchFinder::MatchResult &Result) override;
             }; // Rule11eCheck
-
         } // namespace eastwood
     } // namespace tidy
 } // namespace clang
