@@ -8,6 +8,7 @@
 4. [Usage](#installation)
 5. [Testing](#testing)
 6. [Notes](#notes)
+7. [Wiki](https://github.com/novafacing/eastwood-tidy/wiki)
 
 ## About <a name="about" />
 
