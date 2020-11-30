@@ -14,6 +14,8 @@
 
 #include "clang/AST/ASTContext.h"
 #include "clang/ASTMatchers/ASTMatchFinder.h"
+#include "clang/Lex/PPCallbacks.h"
+#include "clang/Lex/Preprocessor.h"
 
 namespace clang {
     namespace tidy {
@@ -26,6 +28,8 @@ namespace clang {
                         : ClangTidyCheck(Name, Context) {}
 
                     /* Overrides */
+                    void registerPPCallbacks(const SourceManager & SM,
+                            Preprocessor * PP, Preprocessor * ModuleExpanderPP) override;
                     void registerMatchers(ast_matchers::MatchFinder *Finder) override;
                     void check(const ast_matchers::MatchFinder::MatchResult &Result) override;
             }; // Rule8gCheck
