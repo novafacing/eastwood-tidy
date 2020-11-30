@@ -14,47 +14,20 @@
 
 #include "clang/AST/ASTContext.h"
 #include "clang/ASTMatchers/ASTMatchFinder.h"
-#include "clang/Lex/Lexer.h"
-#include "clang/Lex/Token.h"
-#include "clang/AST/RecursiveASTVisitor.h"
-#include <vector>
-#include <iostream>
 
 namespace clang {
     namespace tidy {
         namespace eastwood {
-            class Rule5bVisitor : public RecursiveASTVisitor<Rule5bVisitor> {
-                public:
-                    explicit Rule5bVisitor(ASTContext * Context) : Context(Context) {};
-                    std::vector<SourceLocation> function_decl_ends;
-                    bool VisitDecl(Decl * d) {
-                        if (d->isFunctionOrFunctionTemplate()) {
-                            FunctionDecl * FD = d->getAsFunction();
-                            if (FD->isDefined()) {
-                                FunctionDecl * FDef = FD->getDefinition();
-                                SourceRange FunctionDefinitionRange = FDef->getBody()->getSourceRange();
-                                this->function_decl_ends.push_back(FunctionDefinitionRange.getEnd());
-                            }
-                        }
-                        return true;
-                    }
-                private:
-                    ASTContext * Context;
-            };
 
             class Rule5bCheck : public ClangTidyCheck {
                 public:
                     /* Constructors */
                     Rule5bCheck(StringRef Name, ClangTidyContext *Context)
-                        : ClangTidyCheck(Name, Context), visited(false), checked(false) {}
+                        : ClangTidyCheck(Name, Context) {}
 
                     /* Overrides */
                     void registerMatchers(ast_matchers::MatchFinder *Finder) override;
                     void check(const ast_matchers::MatchFinder::MatchResult &Result) override;
-                    bool visited;
-                    bool checked;
-                    std::vector<SourceLocation> function_decl_ends;
-
             }; // Rule5bCheck
         } // namespace eastwood
     } // namespace tidy
