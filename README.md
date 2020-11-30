@@ -114,10 +114,10 @@ $ clang-tidy -checks "-*,eastwood*" -config="{CheckOptions: [{key: a, value: b},
 
 The options we provide (and an example usage) are below:
 
-| Option               | Default | Type | Example                                                                      |
-| ------               | ------- | ---- | -----------------------------------------------------------------------------|
-| eastwood-Rule1B.Dump | false   | bool | `-config="{CheckOptions: [{key: eastwood-Rule1B.Dump, value: true}]}"`       |
-| eastwood-Rule1C.Dump | false   | bool | `-config="{CheckOptions: [{key: eastwood-Rule1C.Dump, value: true}]}"`       |
+| Option                    | Default | Type | Example                                                                      | Description             |
+| ------                    | ------- | ---- | -----------------------------------------------------------------------------| ------------------------|
+| eastwood-Rule1bCheck.dump | false   | bool | `-config="{CheckOptions: [{key: eastwood-Rule1bCheck.dump, value: true}]}"`  | Dump Names              |
+| eastwood-Rule1cCheck.dump | false   | bool | `-config="{CheckOptions: [{key: eastwood-Rule1cCheck.dump, value: true}]}"`  | Dump Embedded Constants |
 
 ## Testing <a name="testing" />
 
