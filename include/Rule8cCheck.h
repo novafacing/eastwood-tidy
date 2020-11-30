@@ -14,6 +14,10 @@
 
 #include "clang/AST/ASTContext.h"
 #include "clang/ASTMatchers/ASTMatchFinder.h"
+#include "clang/Lex/PPCallbacks.h"
+#include "clang/Lex/Preprocessor.h"
+#include <utility>
+#include <vector>
 
 namespace clang {
     namespace tidy {
@@ -26,8 +30,14 @@ namespace clang {
                         : ClangTidyCheck(Name, Context) {}
 
                     /* Overrides */
+                    void registerPPCallbacks(const SourceManager & SM,
+                            Preprocessor * PP, Preprocessor * ModuleExpanderPP) override;
+                    void onEndOfTranslationUnit() override;
                     void registerMatchers(ast_matchers::MatchFinder *Finder) override;
                     void check(const ast_matchers::MatchFinder::MatchResult &Result) override;
+                    std::vector<std::pair<std::string, SourceLocation>> required_guards;
+                    std::vector<std::string> found_ifndef_checks;
+                    std::vector<std::string> found_defined_macro_guards;
             }; // Rule8cCheck
         } // namespace eastwood
     } // namespace tidy
