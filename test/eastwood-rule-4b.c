@@ -8,9 +8,31 @@
  * ---------------------------------------------------------------------------------------------------- */
 #include "eastwood-rule-4b.h"
 
+/*
+ * good comment
+ */
+
+int foo(int aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa,
+         char * bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb,
+          int xxxxxxxxxxxxxxxxxxxxxxxxxxx) {
+
+    /* BAD: Does not have lined-up indentation */
+
+} /* foo() */
 
 // Put Something That Fails Here
 // CHECK-MESSAGES: :[[@LINE-1]]:[column goes here]:  Failure Message Goes Here
+
+/*
+ * yet another good comment
+ */
+
+int bar(int aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa,
+        char * bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb,
+        int xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx) {
+
+
+} /* bar() */
 
 // OK: Reason
 // Some code that doesn't fail here
