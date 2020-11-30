@@ -2,6 +2,9 @@
 /* --------------------- Test Code Style Section VIII.A 
  * In general, every .c file should have an associated .h file.
  * ------------------------------------------------------------------------------------------------------ */
+
+// #include "eastwood-rule-8x.h"
+#include <stdio.h
 #include "eastwood-rule-8a.h"
 
 

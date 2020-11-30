@@ -14,6 +14,13 @@
 
 #include "clang/AST/ASTContext.h"
 #include "clang/ASTMatchers/ASTMatchFinder.h"
+#include "clang/AST/Expr.h"
+#include "clang/AST/Stmt.h"
+#include "clang/AST/ParentMapContext.h"
+#include "clang/AST/ParentMap.h"
+#include "clang/AST/ASTTypeTraits.h"
+#include "llvm/Support/raw_ostream.h"
+#include <map>
 
 namespace clang {
     namespace tidy {
@@ -28,6 +35,7 @@ namespace clang {
                     /* Overrides */
                     void registerMatchers(ast_matchers::MatchFinder *Finder) override;
                     void check(const ast_matchers::MatchFinder::MatchResult &Result) override;
+                    std::vector<DynTypedNode> paren_nodes;
             }; // Rule11cCheck
         } // namespace eastwood
     } // namespace tidy
