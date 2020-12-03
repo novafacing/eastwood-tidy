@@ -54,10 +54,12 @@ namespace clang {
                             ws_ct++;
                             ws_tokens.push_back(tok);
                         }
-                        if (ws_ct != 1 or std::string(SM.getCharacterData(ws_tokens.back().getLocation()), 
-                                    SM.getCharacterData(ws_tokens.back().getEndLoc())).size() > 1) {
-                            if (SM.getSpellingLineNumber(ws_tokens.back().getLocation()) == SM.getSpellingLineNumber(ws_tokens.back().getEndLoc())) {
-                                diag(tok.getLocation(), "Function footer comment must be separated by 1 space");
+                        if (not ws_tokens.empty()) {
+                            if (ws_ct != 1 or std::string(SM.getCharacterData(ws_tokens.back().getLocation()), 
+                                        SM.getCharacterData(ws_tokens.back().getEndLoc())).size() > 1) {
+                                if (SM.getSpellingLineNumber(ws_tokens.back().getLocation()) == SM.getSpellingLineNumber(ws_tokens.back().getEndLoc())) {
+                                    diag(tok.getLocation(), "Function footer comment must be separated by 1 space");
+                                }
                             }
                         }
                         if (tok.getKind() == tok::comment) {

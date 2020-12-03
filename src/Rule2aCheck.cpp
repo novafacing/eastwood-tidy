@@ -70,7 +70,7 @@ namespace clang {
                                 if (lines >= 2) {
                                     if (tq.at(tq.size() - 1).second == "\r") {
                                         // XI.B Unix newline
-                                        diag(tq.at(tq.size() - 1).first.getLocation(), "Non-Unix newlines are not permitted. Please run dos2unix on your source file.");
+                                        // diag(tq.at(tq.size() - 1).first.getLocation(), "Non-Unix newlines are not permitted. Please run dos2unix on your source file.");
                                     } else if (std::regex_match(tq.at(tq.size() - 2).second, results, trailing_ws)) {
                                         // III.E Trailing Whitespace
                                         diag(tq.at(tq.size() - 1).first.getLocation(), "Trailing whitespace is not permitted.");
@@ -90,7 +90,7 @@ namespace clang {
                                 */
                                 for (auto c : Indentation) {
                                     if (c != ' ') {
-                                        diag(tok.getLocation(), "Indentation must consist of spaces only.");
+                                        //diag(tok.getLocation(), "Indentation must consist of spaces only.");
                                     }
                                 }
 

@@ -10,6 +10,8 @@
 int bad(){
     // Bad: no spacing
     int a = 10+4;
+    int b = 10 +4;
+    int c = 10+ 4;
     // Bad: no spacing
     if (a==14){
         // Bad: no spacing

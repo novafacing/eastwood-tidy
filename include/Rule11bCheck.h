@@ -14,16 +14,33 @@
 
 #include "clang/AST/ASTContext.h"
 #include "clang/ASTMatchers/ASTMatchFinder.h"
+#include "clang/Lex/Token.h"
+#include "clang/Lex/Lexer.h"
+#include "clang/Lex/PPCallbacks.h"
+#include "clang/Lex/Preprocessor.h"
+
+#include <iomanip>
+#include <iostream>
+#include <map>
+#include <regex>
+#include <string>
+#include <utility>
+#include <vector>
 
 namespace clang {
     namespace tidy {
         namespace eastwood {
 
             class Rule11bCheck : public ClangTidyCheck {
+                private:
+                    std::map<std::string, std::vector<SourceLocation>> embeddedConstants;
+                    std::vector<SourceRange> declarationRanges;
+                    std::string dump;
+                    bool checked;
                 public:
                     /* Constructors */
                     Rule11bCheck(StringRef Name, ClangTidyContext *Context)
-                        : ClangTidyCheck(Name, Context) {}
+                        : ClangTidyCheck(Name, Context), checked(false) {}
 
                     /* Overrides */
                     void registerMatchers(ast_matchers::MatchFinder *Finder) override;
