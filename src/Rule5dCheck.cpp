@@ -66,7 +66,7 @@ namespace clang {
                             std::string comment_raw(SM.getCharacterData(tok.getLocation()), SM.getCharacterData(tok.getEndLoc()));
                             std::string correct_annotation("/* " + fname + "() */");
                             if (comment_raw != "/* " + fname + "() */") {
-                                diag(tok.getLocation(), "End of function comment is malformed");
+                                diag(tok.getLocation(), std::string("End of function comment is malformed. Got \"") + comment_raw + "\" Expected \"/* " + fname + "() */\".");
                                 return;
                             } else {
                                 return;

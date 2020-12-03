@@ -5,6 +5,18 @@
  * ----------------------------------------------------------------------------------------------------- */
 #include "eastwood-rule-11d.h"
 
+/*
+ * a comment
+ */
+
+int foo(void) {
+    int a = 10;
+    int b = a + 100;
+    if (a + b < 135) {
+        return 1;
+    }
+    return 0;
+} /* foo() */
 
 // Put Something That Fails Here
 // CHECK-MESSAGES: :[[@LINE-1]]:[column goes here]:  Failure Message Goes Here
