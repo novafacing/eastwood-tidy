@@ -63,7 +63,7 @@ namespace clang {
                             }
                             std::string raw_tok_data = Lexer::getSpelling(tok, SM, Context->getLangOpts());
                             if (raw_tok_data == "\n") {
-                                std::cout << "Got newline token" << std::endl;
+                                //std::cout << "Got newline token" << std::endl;
                             }
                             if (tok.isAtStartOfLine()) {
                                 lines++;

@@ -5,6 +5,21 @@
  * ------------------------------------------------------------------------------------------------------ */
 #include "eastwood-rule-8e.h"
 
+#include <time.h>
+#include <stdlib.h>
+#include <stdio.h>
+
+#include "c.h"
+#include "b.h"
+#include "a.h"
+
+/*
+ * a comment
+ */
+
+int foo(void) {
+    int a = 10;
+} /* foo() */
 
 // Put Something That Fails Here
 // CHECK-MESSAGES: :[[@LINE-1]]:[column goes here]:  Failure Message Goes Here

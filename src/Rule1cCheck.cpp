@@ -164,7 +164,6 @@ namespace clang {
             }
 
             void Rule1cCheck::onEndOfTranslationUnit() {
-                ClangTidyCheck::onEndOfTranslationUnit();
                 if (this->dump == "true") {
                     std::ios init(NULL);
                     init.copyfmt(std::cout);

@@ -7,8 +7,22 @@
 #include "eastwood-rule-5d.h"
 
 
+int foo(void) {
+}
+
+int baz(void) {
+    // Bad: wrong name
+} /* foo() */
+
+int boo(void) {
+    // Bad: too much spacing
+}  /* boo() */
+
 // Put Something That Fails Here
 // CHECK-MESSAGES: :[[@LINE-1]]:[column goes here]:  Failure Message Goes Here
+
+int bar(void) {
+} /* bar() */
 
 // OK: Reason
 // Some code that doesn't fail here
