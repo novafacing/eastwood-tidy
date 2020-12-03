@@ -14,6 +14,9 @@
 
 #include "clang/AST/ASTContext.h"
 #include "clang/ASTMatchers/ASTMatchFinder.h"
+#include "clang/Lex/Lexer.h"
+#include "clang/Lex/Token.h"
+#include <vector>
 
 namespace clang {
     namespace tidy {

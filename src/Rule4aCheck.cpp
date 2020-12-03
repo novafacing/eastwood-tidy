@@ -12,329 +12,314 @@
 #include "clang/Lex/Lexer.h"
 
 #include <iostream>
+#include <iomanip>
 
 using namespace clang::ast_matchers;
 
 namespace clang {
-namespace tidy {
-namespace eastwood {
-namespace {
+    namespace tidy {
+        namespace eastwood {
+            void Rule4aCheck::registerMatchers(MatchFinder *Finder) {
+                Finder->addMatcher(recordDecl().bind("record"), this);
+                Finder->addMatcher(enumDecl().bind("enum"), this);
+                Finder->addMatcher(functionDecl().bind("function"), this);
+                Finder->addMatcher(doStmt().bind("do"), this);
+                Finder->addMatcher(forStmt().bind("for"), this);
+                Finder->addMatcher(ifStmt().bind("if"), this);
+                Finder->addMatcher(switchStmt().bind("switch"), this);
+                Finder->addMatcher(caseStmt().bind("case"), this);
+                Finder->addMatcher(defaultStmt().bind("default"), this);
+                Finder->addMatcher(whileStmt().bind("while"), this);
+            }
 
-tok::TokenKind getTokenKind(SourceLocation Loc, const SourceManager &SM,
-                            const ASTContext *Context) {
-  Token Tok;
-  SourceLocation Beginning =
-      Lexer::GetBeginningOfToken(Loc, SM, Context->getLangOpts());
-  const bool Invalid =
-      Lexer::getRawToken(Beginning, Tok, SM, Context->getLangOpts());
-  assert(!Invalid && "Expected a valid token.");
+            void Rule4aCheck::check(const MatchFinder::MatchResult &Result) {
+                const SourceManager &SM = *Result.SourceManager;
+                this->SMan = Result.SourceManager;
+                ASTContext *Context = Result.Context;
+                if (auto MatchedDecl = Result.Nodes.getNodeAs<RecordDecl>("record")) {
+                    if (not SM.isWrittenInMainFile(MatchedDecl->getBeginLoc())) {
+                        return;
+                    }
+                    if (MatchedDecl->isCompleteDefinition()) {
+                        SourceRange BraceRange = MatchedDecl->getBraceRange();
+                        this->opens.push_back(BraceRange.getBegin());
+                        std::string file_str(SM.getCharacterData(SM.getLocForStartOfFile(SM.getFileID(MatchedDecl->getBeginLoc()))), SM.getCharacterData(this->opens.back()));
 
-  if (Invalid)
-    return tok::NUM_TOKENS;
+                        this->closes.push_back(BraceRange.getEnd().getLocWithOffset(-1));
+                        std::string file_str_close(SM.getCharacterData(SM.getLocForStartOfFile(SM.getFileID(MatchedDecl->getBeginLoc()))), SM.getCharacterData(this->closes.back()));
+                        //std::cout << "Opening at: |" << file_str << "| OPEN" << std::endl << "Closing at: |" << file_str_close << "| CLOSE" << std::endl;
 
-  return Tok.getKind();
-}
 
-SourceLocation forwardSkipWhitespaceAndComments(SourceLocation Loc,
-                                                const SourceManager &SM,
-                                                const ASTContext *Context) {
-  assert(Loc.isValid());
-  for (;;) {
-    while (isWhitespace(*SM.getCharacterData(Loc)))
-      Loc = Loc.getLocWithOffset(1);
+                        if (SM.getSpellingLineNumber(this->opens.back()) !=
+                                SM.getSpellingLineNumber(MatchedDecl->getLocation())) {
+                            diag(this->opens.back(), "Open brace must be located on same line as record.");
+                        }
 
-    tok::TokenKind TokKind = getTokenKind(Loc, SM, Context);
-    if (TokKind == tok::NUM_TOKENS || TokKind != tok::comment)
-      return Loc;
+                        // // std::cout << "RECORD BODY: |" << std::string(SM.getCharacterData(opens.back()),
+                        //SM.getCharacterData(closes.back())) << "|" << std::endl;
+                    }
+                } else if (auto MatchedDecl = Result.Nodes.getNodeAs<EnumDecl>("enum")) {
+                    if (not SM.isWrittenInMainFile(MatchedDecl->getBeginLoc())) {
+                        return;
+                    }
+                    if (MatchedDecl->isCompleteDefinition()) {
+                        SourceRange BraceRange = MatchedDecl->getBraceRange();
+                        this->opens.push_back(BraceRange.getBegin());
+                        std::string file_str(SM.getCharacterData(SM.getLocForStartOfFile(SM.getFileID(MatchedDecl->getBeginLoc()))), SM.getCharacterData(this->opens.back()));
 
-    // Fast-forward current token.
-    Loc = Lexer::getLocForEndOfToken(Loc, 0, SM, Context->getLangOpts());
-  }
-}
+                        this->closes.push_back(BraceRange.getEnd().getLocWithOffset(-1));
+                        std::string file_str_close(SM.getCharacterData(SM.getLocForStartOfFile(SM.getFileID(MatchedDecl->getBeginLoc()))), SM.getCharacterData(this->closes.back()));
 
-SourceLocation findEndLocation(SourceLocation LastTokenLoc,
-                               const SourceManager &SM,
-                               const ASTContext *Context) {
-  SourceLocation Loc =
-      Lexer::GetBeginningOfToken(LastTokenLoc, SM, Context->getLangOpts());
-  // Loc points to the beginning of the last (non-comment non-ws) token
-  // before end or ';'.
-  assert(Loc.isValid());
-  bool SkipEndWhitespaceAndComments = true;
-  tok::TokenKind TokKind = getTokenKind(Loc, SM, Context);
-  if (TokKind == tok::NUM_TOKENS || TokKind == tok::semi ||
-      TokKind == tok::r_brace) {
-    // If we are at ";" or "}", we found the last token. We could use as well
-    // `if (isa<NullStmt>(S))`, but it wouldn't work for nested statements.
-    SkipEndWhitespaceAndComments = false;
-  }
+                        // std::cout << "Opening at: |" << file_str << "| OPEN" << std::endl << "Closing at: |" << file_str_close << "| CLOSE" << std::endl;
+                        if (SM.getSpellingLineNumber(this->opens.back()) !=
+                                SM.getSpellingLineNumber(MatchedDecl->getLocation())) {
+                            diag(this->opens.back(), "Open brace must be located on same line as enum.");
+                        }
+                        // std::cout << "ENUM BODY: |" << std::string(SM.getCharacterData(opens.back()),
+                        //        SM.getCharacterData(closes.back())) << "|" << std::endl;
+                    }
+                } else if (auto MatchedDecl = Result.Nodes.getNodeAs<FunctionDecl>("function")) {
+                    if (not SM.isWrittenInMainFile(MatchedDecl->getBeginLoc())) {
+                        return;
+                    }
+                    if (not this->lexer_initialized) {
+                        SourceRange FunctionDefinitionRange = MatchedDecl->getSourceRange();
+                        std::pair<FileID, unsigned> LocInfo = SM.getDecomposedLoc(FunctionDefinitionRange.getBegin());
+                        SourceLocation StartOfFile = SM.getLocForStartOfFile(SM.getFileID(FunctionDefinitionRange.getBegin()));
+                        StringRef File = SM.getBufferData(SM.getFileID(StartOfFile));
+                        const char * TokenBegin = File.data();
+                        this->lexer = new Lexer(SM.getLocForStartOfFile(LocInfo.first),
+                                Context->getLangOpts(), File.begin(), TokenBegin, File.end());
+                        this->lexer->SetKeepWhitespaceMode(true);
+                        this->lexer_initialized = true;
+                    }
+                    if (MatchedDecl->isThisDeclarationADefinition() and MatchedDecl->doesThisDeclarationHaveABody()) {
+                        SourceLocation StartBrace = MatchedDecl->getBody()->getBeginLoc();
+                        SourceLocation EndBrace = MatchedDecl->getBodyRBrace();
+                        this->opens.push_back(StartBrace);
+                        std::string file_str(SM.getCharacterData(SM.getLocForStartOfFile(SM.getFileID(MatchedDecl->getBeginLoc()))), SM.getCharacterData(this->opens.back()));
+                        this->closes.push_back(EndBrace.getLocWithOffset(-1));
+                        std::string file_str_close(SM.getCharacterData(SM.getLocForStartOfFile(SM.getFileID(MatchedDecl->getBeginLoc()))), SM.getCharacterData(this->closes.back()));
+                        // std::cout << "Opening at: |" << file_str << "| OPEN" << std::endl << "Closing at: |" << file_str_close << "| CLOSE" << std::endl;
+                        if (SM.getSpellingLineNumber(this->opens.back()) !=
+                                SM.getSpellingLineNumber(MatchedDecl->getLocation())
+                                and (MatchedDecl->param_empty() 
+                                    or SM.getSpellingLineNumber(MatchedDecl->parameters().back()->getSourceRange().getEnd()) !=
+                                    SM.getSpellingLineNumber(this->opens.back()))) {
 
-  Loc = Lexer::getLocForEndOfToken(Loc, 0, SM, Context->getLangOpts());
-  // Loc points past the last token before end or after ';'.
-  if (SkipEndWhitespaceAndComments) {
-    Loc = forwardSkipWhitespaceAndComments(Loc, SM, Context);
-    tok::TokenKind TokKind = getTokenKind(Loc, SM, Context);
-    if (TokKind == tok::semi)
-      Loc = Lexer::getLocForEndOfToken(Loc, 0, SM, Context->getLangOpts());
-  }
+                            diag(this->opens.back(), "Open brace must be located on same line as function declaration or after parameters.");
+                        }
+                        // std::cout << "FUNCTION BODY: |" << std::string(SM.getCharacterData(opens.back()),
+                        //        SM.getCharacterData(closes.back())) << "|" << std::endl;
+                    }
+                } else if (auto MatchedDecl = Result.Nodes.getNodeAs<DoStmt>("do")) {
+                    if (not SM.isWrittenInMainFile(MatchedDecl->getBeginLoc())) {
+                        return;
+                    }
+                    this->opens.push_back(MatchedDecl->getBody()->getBeginLoc());
+                    std::string file_str(SM.getCharacterData(SM.getLocForStartOfFile(SM.getFileID(MatchedDecl->getBeginLoc()))), SM.getCharacterData(this->opens.back()));
+                    this->closes.push_back(MatchedDecl->getBody()->getEndLoc().getLocWithOffset(-1));
+                    std::string file_str_close(SM.getCharacterData(SM.getLocForStartOfFile(SM.getFileID(MatchedDecl->getBeginLoc()))), SM.getCharacterData(this->closes.back()));
+                        // std::cout << "Opening at: |" << file_str << "| OPEN" << std::endl << "Closing at: |" << file_str_close << "| CLOSE" << std::endl;
 
-  for (;;) {
-    assert(Loc.isValid());
-    while (isHorizontalWhitespace(*SM.getCharacterData(Loc))) {
-      Loc = Loc.getLocWithOffset(1);
-    }
+                    if (SM.getSpellingLineNumber(this->opens.back()) !=
+                            SM.getSpellingLineNumber(MatchedDecl->getBeginLoc())) {
+                        diag(this->opens.back(), "Open brace must be located on same line as do.");
+                    }
+                    // std::cout << "DO BODY: |" << std::string(SM.getCharacterData(opens.back()),
+                    //        SM.getCharacterData(closes.back())) << "|" << std::endl;
+                } else if (auto MatchedDecl = Result.Nodes.getNodeAs<ForStmt>("for")) {
+                    if (not SM.isWrittenInMainFile(MatchedDecl->getBeginLoc())) {
+                        return;
+                    }
+                    this->opens.push_back(MatchedDecl->getBody()->getBeginLoc());
+                    std::string file_str(SM.getCharacterData(SM.getLocForStartOfFile(SM.getFileID(MatchedDecl->getBeginLoc()))), SM.getCharacterData(this->opens.back()));
+                    this->closes.push_back(MatchedDecl->getBody()->getEndLoc().getLocWithOffset(-1));
+                    std::string file_str_close(SM.getCharacterData(SM.getLocForStartOfFile(SM.getFileID(MatchedDecl->getBeginLoc()))), SM.getCharacterData(this->closes.back()));
+                        // std::cout << "Opening at: |" << file_str << "| OPEN" << std::endl << "Closing at: |" << file_str_close << "| CLOSE" << std::endl;
 
-    if (isVerticalWhitespace(*SM.getCharacterData(Loc))) {
-      // EOL, insert brace before.
-      break;
-    }
-    tok::TokenKind TokKind = getTokenKind(Loc, SM, Context);
-    if (TokKind != tok::comment) {
-      // Non-comment token, insert brace before.
-      break;
-    }
+                    if (SM.getSpellingLineNumber(this->opens.back()) !=
+                            SM.getSpellingLineNumber(MatchedDecl->getBeginLoc())
+                            and SM.getSpellingLineNumber(MatchedDecl->getRParenLoc()) !=
+                            SM.getSpellingLineNumber(this->opens.back())) {
+                        diag(this->opens.back(), "Open brace must be located on same line as for or after split contents.");
+                    }
+                    // std::cout << "FOR BODY: |" << std::string(SM.getCharacterData(opens.back()),
+                    //        SM.getCharacterData(closes.back())) << "|" << std::endl;
+                } else if (auto MatchedDecl = Result.Nodes.getNodeAs<IfStmt>("if")) {
+                    const IfStmt * If = MatchedDecl;
+                    const Stmt * Else = MatchedDecl->getElse(); 
 
-    SourceLocation TokEndLoc =
-        Lexer::getLocForEndOfToken(Loc, 0, SM, Context->getLangOpts());
-    SourceRange TokRange(Loc, TokEndLoc);
-    StringRef Comment = Lexer::getSourceText(
-        CharSourceRange::getTokenRange(TokRange), SM, Context->getLangOpts());
-    if (Comment.startswith("/*") && Comment.find('\n') != StringRef::npos) {
-      // Multi-line block comment, insert brace before.
-      break;
-    }
-    // else: Trailing comment, insert brace after the newline.
+                    SourceLocation StartIf = If->getThen()->getBeginLoc();
+                    SourceLocation EndIf = If->getThen()->getEndLoc();
 
-    // Fast-forward current token.
-    Loc = TokEndLoc;
-  }
-  return Loc;
-}
+                    this->opens.push_back(StartIf);
+                    std::string file_str(SM.getCharacterData(SM.getLocForStartOfFile(SM.getFileID(MatchedDecl->getBeginLoc()))), SM.getCharacterData(this->opens.back()));
 
-} // namespace
+                    this->closes.push_back(EndIf.getLocWithOffset(-1));
+                    std::string file_str_close(SM.getCharacterData(SM.getLocForStartOfFile(SM.getFileID(MatchedDecl->getBeginLoc()))), SM.getCharacterData(this->closes.back()));
+                        // std::cout << "Opening at: |" << file_str << "| OPEN" << std::endl << "Closing at: |" << file_str_close << "| CLOSE" << std::endl;
 
-Rule4aCheck::Rule4aCheck(
-    StringRef Name, ClangTidyContext *Context)
-    : ClangTidyCheck(Name, Context),
-      // Always add braces by default.
-      ShortStatementLines(Options.get("ShortStatementLines", 0U)) {}
+                    if (SM.getSpellingLineNumber(this->opens.back()) !=
+                            SM.getSpellingLineNumber(MatchedDecl->getBeginLoc())) {
+                        diag(this->opens.back(), "Open brace must be located on same line as if.");
+                    }
 
-void Rule4aCheck::storeOptions(
-    ClangTidyOptions::OptionMap &Opts) {
-  Options.store(Opts, "ShortStatementLines", ShortStatementLines);
-}
+                    // std::cout << "IF BODY: |" << std::string(SM.getCharacterData(opens.back()),
+                    //        SM.getCharacterData(closes.back())) << "|" << std::endl;
+                    if (Else) {
+                        if (SM.getSpellingLineNumber(If->getThen()->getEndLoc()) !=
+                                SM.getSpellingLineNumber(Else->getBeginLoc()) - 1) {
+                            diag(Else->getBeginLoc().getLocWithOffset(-1), "Else must be on a new line.");
+                        }
+                        if (const auto * ChildIf = dyn_cast<IfStmt>(Else)) {
+                            SourceLocation StartElse = ChildIf->getThen()->getBeginLoc();
+                            SourceLocation EndElse = ChildIf->getThen()->getEndLoc();
 
-void Rule4aCheck::registerMatchers(MatchFinder *Finder) {
-  Finder->addMatcher(ifStmt().bind("if"), this);
-  Finder->addMatcher(whileStmt().bind("while"), this);
-  Finder->addMatcher(doStmt().bind("do"), this);
-  Finder->addMatcher(forStmt().bind("for"), this);
-  Finder->addMatcher(cxxForRangeStmt().bind("for-range"), this);
-}
+                            // this->opens.push_back(StartElse);
+                            std::string file_str(SM.getCharacterData(SM.getLocForStartOfFile(SM.getFileID(MatchedDecl->getBeginLoc()))), SM.getCharacterData(this->opens.back()));
 
-void Rule4aCheck::check(
-    const MatchFinder::MatchResult &Result) {
-  const SourceManager &SM = *Result.SourceManager;
-  const ASTContext *Context = Result.Context;
+                            // this->closes.push_back(EndElse.getLocWithOffset(-1));
+                            std::string file_str_close(SM.getCharacterData(SM.getLocForStartOfFile(SM.getFileID(MatchedDecl->getBeginLoc()))), SM.getCharacterData(this->closes.back()));
+                        // std::cout << "Opening at: |" << file_str << "| OPEN" << std::endl << "Closing at: |" << file_str_close << "| CLOSE" << std::endl;
 
-  // Get location of closing parenthesis or 'do' to insert opening brace.
-  if (auto S = Result.Nodes.getNodeAs<ForStmt>("for")) {
-    checkStmt(Result, S->getBody(), S->getRParenLoc());
-  } else if (auto S = Result.Nodes.getNodeAs<CXXForRangeStmt>("for-range")) {
-    checkStmt(Result, S->getBody(), S->getRParenLoc());
-  } else if (auto S = Result.Nodes.getNodeAs<DoStmt>("do")) {
-    checkStmt(Result, S->getBody(), S->getDoLoc(), S->getWhileLoc());
-  } else if (auto S = Result.Nodes.getNodeAs<WhileStmt>("while")) {
-    SourceLocation StartLoc = findRParenLoc(S, SM, Context);
-    if (StartLoc.isInvalid())
-      return;
-    checkStmt(Result, S->getBody(), StartLoc);
-  } else if (auto S = Result.Nodes.getNodeAs<IfStmt>("if")) {
-    SourceLocation StartLoc = findRParenLoc(S, SM, Context);
-    if (StartLoc.isInvalid())
-      return;
-    if (ForceBracesStmts.erase(S))
-      ForceBracesStmts.insert(S->getThen());
-    bool BracedIf = checkStmt(Result, S->getThen(), StartLoc, S->getElseLoc());
-    const Stmt *Else = S->getElse();
-    if (Else && BracedIf)
-      ForceBracesStmts.insert(Else);
-    if (Else && !isa<IfStmt>(Else)) {
-      // Omit 'else if' statements here, they will be handled directly.
-      checkStmt(Result, Else, S->getElseLoc());
-    }
-  } else {
-    llvm_unreachable("Invalid match");
-  }
-}
+                            if (SM.getSpellingLineNumber(StartElse) !=
+                                    SM.getSpellingLineNumber(ChildIf->getBeginLoc())) {
+                                diag(this->opens.back(), "Open brace must be located on same line as else.");
+                            }
+                            // std::cout << "ELSE BODY: |" << std::string(SM.getCharacterData(opens.back()),
+                            //        SM.getCharacterData(closes.back())) << "|" << std::endl;
+                        } else {
+                            this->opens.push_back(Else->getBeginLoc());
+                            this->closes.push_back(Else->getEndLoc().getLocWithOffset(-1));
 
-/// Find location of right parenthesis closing condition.
-template <typename IfOrWhileStmt>
-SourceLocation
-Rule4aCheck::findRParenLoc(const IfOrWhileStmt *S,
-                                           const SourceManager &SM,
-                                           const ASTContext *Context) {
-  // Skip macros.
-  if (S->getBeginLoc().isMacroID())
-    return SourceLocation();
 
-  SourceLocation CondEndLoc = S->getCond()->getEndLoc();
-  if (const DeclStmt *CondVar = S->getConditionVariableDeclStmt())
-    CondEndLoc = CondVar->getEndLoc();
+                        }
+                    }
+                } else if (auto MatchedDecl = Result.Nodes.getNodeAs<SwitchStmt>("switch")) {
+                    this->opens.push_back(MatchedDecl->getBody()->getBeginLoc());
+                    std::string file_str(SM.getCharacterData(SM.getLocForStartOfFile(SM.getFileID(MatchedDecl->getBeginLoc()))), SM.getCharacterData(this->opens.back()));
 
-  if (!CondEndLoc.isValid()) {
-    return SourceLocation();
-  }
+                    this->closes.push_back(MatchedDecl->getBody()->getEndLoc().getLocWithOffset(-1));
+                    std::string file_str_close(SM.getCharacterData(SM.getLocForStartOfFile(SM.getFileID(MatchedDecl->getBeginLoc()))), SM.getCharacterData(this->closes.back()));
+                        // std::cout << "Opening at: |" << file_str << "| OPEN" << std::endl << "Closing at: |" << file_str_close << "| CLOSE" << std::endl;
 
-  SourceLocation PastCondEndLoc =
-      Lexer::getLocForEndOfToken(CondEndLoc, 0, SM, Context->getLangOpts());
-  if (PastCondEndLoc.isInvalid())
-    return SourceLocation();
-  SourceLocation RParenLoc =
-      forwardSkipWhitespaceAndComments(PastCondEndLoc, SM, Context);
-  if (RParenLoc.isInvalid())
-    return SourceLocation();
-  tok::TokenKind TokKind = getTokenKind(RParenLoc, SM, Context);
-  if (TokKind != tok::r_paren)
-    return SourceLocation();
-  return RParenLoc;
-}
+                    if (SM.getSpellingLineNumber(this->opens.back()) !=
+                            SM.getSpellingLineNumber(MatchedDecl->getBeginLoc())) {
+                        diag(this->opens.back(), "Open brace must be located on same line as switch.");
+                    }
 
-/// Determine if the statement needs braces around it, and add them if it does.
-/// Returns true if braces where added.
-bool Rule4aCheck::checkStmt(
-    const MatchFinder::MatchResult &Result, const Stmt *S,
-    SourceLocation InitialLoc, SourceLocation EndLocHint) {
-  // 1) If there's a corresponding "else" or "while", the check inserts "} "
-  // right before that token.
-  // 2) If there's a multi-line block comment starting on the same line after
-  // the location we're inserting the closing brace at, or there's a non-comment
-  // token, the check inserts "\n}" right before that token.
-  // 3) Otherwise the check finds the end of line (possibly after some block or
-  // line comments) and inserts "\n}" right before that EOL.
+                    // std::cout << "SWITCH BODY: |" << std::string(SM.getCharacterData(opens.back()),
+                    //        SM.getCharacterData(closes.back())) << "|" << std::endl;
+                } else if (auto MatchedDecl = Result.Nodes.getNodeAs<CaseStmt>("case")) {
+                    this->opens.push_back(MatchedDecl->getBeginLoc());
+                    std::string file_str(SM.getCharacterData(SM.getLocForStartOfFile(SM.getFileID(MatchedDecl->getBeginLoc()))), SM.getCharacterData(this->opens.back()));
 
-  if (!InitialLoc.isValid()) {
-    return false;
-  }
+                    this->closes.push_back(MatchedDecl->getEndLoc().getLocWithOffset(-1));
+                    std::string file_str_close(SM.getCharacterData(SM.getLocForStartOfFile(SM.getFileID(MatchedDecl->getBeginLoc()))), SM.getCharacterData(this->closes.back()));
+                        // std::cout << "Opening at: |" << file_str << "| OPEN" << std::endl << "Closing at: |" << file_str_close << "| CLOSE" << std::endl;
 
-  const SourceManager &SM = *Result.SourceManager;
-  const ASTContext *Context = Result.Context;
+                    // std::cout << "CASE BODY: |" << std::string(SM.getCharacterData(opens.back()),
+                    //        SM.getCharacterData(closes.back())) << "|" << std::endl;
+                } else if (auto MatchedDecl = Result.Nodes.getNodeAs<DefaultStmt>("default")) {
+                    this->opens.push_back(MatchedDecl->getBeginLoc());
+                    std::string file_str(SM.getCharacterData(SM.getLocForStartOfFile(SM.getFileID(MatchedDecl->getBeginLoc()))), SM.getCharacterData(this->opens.back()));
 
-  // Treat macros.
-  CharSourceRange FileRange = Lexer::makeFileCharRange(
-      CharSourceRange::getTokenRange(S->getSourceRange()), SM,
-      Context->getLangOpts());
-  if (FileRange.isInvalid())
-    return false;
+                    this->closes.push_back(MatchedDecl->getEndLoc().getLocWithOffset(-1));
+                    std::string file_str_close(SM.getCharacterData(SM.getLocForStartOfFile(SM.getFileID(MatchedDecl->getBeginLoc()))), SM.getCharacterData(this->closes.back()));
+                        // std::cout << "Opening at: |" << file_str << "| OPEN" << std::endl << "Closing at: |" << file_str_close << "| CLOSE" << std::endl;
+                } else if (auto MatchedDecl = Result.Nodes.getNodeAs<WhileStmt>("while")) {
+                    this->opens.push_back(MatchedDecl->getBody()->getBeginLoc());
+                    std::string file_str(SM.getCharacterData(SM.getLocForStartOfFile(SM.getFileID(MatchedDecl->getBeginLoc()))), SM.getCharacterData(this->opens.back()));
 
-  // Convert InitialLoc to file location, if it's on the same macro expansion
-  // level as the start of the statement. We also need file locations for
-  // Lexer::getLocForEndOfToken working properly.
-  InitialLoc = Lexer::makeFileCharRange(
-                   CharSourceRange::getCharRange(InitialLoc, S->getBeginLoc()),
-                   SM, Context->getLangOpts())
-                   .getBegin();
-  if (InitialLoc.isInvalid())
-    return false;
-  SourceLocation StartLoc =
-      Lexer::getLocForEndOfToken(InitialLoc, 0, SM, Context->getLangOpts());
+                    this->closes.push_back(MatchedDecl->getBody()->getEndLoc().getLocWithOffset(-1));
+                    std::string file_str_close(SM.getCharacterData(SM.getLocForStartOfFile(SM.getFileID(MatchedDecl->getBeginLoc()))), SM.getCharacterData(this->closes.back()));
+                        // std::cout << "Opening at: |" << file_str << "| OPEN" << std::endl << "Closing at: |" << file_str_close << "| CLOSE" << std::endl;
 
-  // StartLoc points at the location of the opening brace to be inserted.
-  SourceLocation EndLoc;
-  std::string ClosingInsertion;
-  if (EndLocHint.isValid()) {
-    EndLoc = EndLocHint;
-    ClosingInsertion = "} ";
-  } else {
-    const auto FREnd = FileRange.getEnd().getLocWithOffset(-1);
-    EndLoc = findEndLocation(FREnd, SM, Context);
-    ClosingInsertion = "\n}";
-  }
+                    // std::cout << "WHILE BODY: |" << std::string(SM.getCharacterData(opens.back()),
+                    //        SM.getCharacterData(closes.back())) << "|" << std::endl;
 
-  assert(StartLoc.isValid());
-  assert(EndLoc.isValid());
+                    if (SM.getSpellingLineNumber(this->opens.back()) !=
+                            SM.getSpellingLineNumber(MatchedDecl->getBeginLoc())) {
+                        diag(this->opens.back(), "Open brace must be located on same line as while.");
+                    }
+                }
+            }
 
-  if (!S || isa<CompoundStmt>(S)) {
-    // Already inside braces.
-    //
-    // Therefore must make the following checks:
-    //    - opening brace must be placed on same line as if/for/do/while
-    //    - The line with the end brace should be of the form \n[ ]*}\n
-    
-    bool errors_found = false;
+            size_t spc_ct(std::string s) {
+                size_t ct = 0;
+                for (auto c : s) {
+                    if (c == ' ') {
+                        ct++;
+                    }
+                }
+                return ct;
+            }
 
-    if (!isHorizontalWhitespace(*SM.getCharacterData(StartLoc)) ||
-        *SM.getCharacterData(StartLoc.getLocWithOffset(1)) != '{' ||
-        !isVerticalWhitespace(*SM.getCharacterData(StartLoc.getLocWithOffset(2)))) {
-
-      errors_found = true;
-      diag(StartLoc, "[Rule IV.A] There should be exactly once space between"
-                     " control statement and opening brace");
-    }
-
-    SourceLocation EndLocItr = EndLoc;
-    if (*SM.getCharacterData(EndLocItr) != '\n') {
-      // Else, Do/While
-      // EndLocItr is at the 'e' in else or the 'w' in while at this point
-      char type = *SM.getCharacterData(EndLocItr);
-
-      // Go back from the "else" / "while" to the closing brace, counting newlines
-      // along the way
-      EndLocItr = EndLocItr.getLocWithOffset(-1);
-      int num_lines = 0;
-      while (*SM.getCharacterData(EndLocItr) != '}') {
-        if (*SM.getCharacterData(EndLocItr) == '\n') {
-          num_lines++;
-        }
-
-        EndLocItr = EndLocItr.getLocWithOffset(-1);
-      }
-
-      // There should be exactly one newline between else/while and the closing brace
-      if (type == 'e' && num_lines != 1) {
-        errors_found = true;
-
-        diag(EndLoc, "[Rule IV.A] Else should start on its own line directly after"
-                       " the closing brace of the if statement");
-      }
-    } else {
-      // If, For, While
-      // EndLocItr is at the newline after the closing brace in this case
-      
-      while (*SM.getCharacterData(EndLocItr) != '}') {
-        EndLocItr = EndLocItr.getLocWithOffset(-1);
-      }
-    }
-      
-    
-    // At this point no matter what kind of block we were given, we are now at the
-    // closing brace and need to check that the current line is formatted like so:
-    // \n[whitespace]*[}]
-    EndLocItr = EndLocItr.getLocWithOffset(-1);
-
-    while (isHorizontalWhitespace(*SM.getCharacterData(EndLocItr))) {
-      EndLocItr = EndLocItr.getLocWithOffset(-1);
-    }
-
-    if (*SM.getCharacterData(EndLocItr) != '\n') {
-      errors_found = true;
-      diag(EndLoc, "[Rule IV.A] Closing brace should be on its own line");
-    }
-
-    return errors_found;
-  } else {
-    auto Diag = diag(StartLoc, "[Rule IV.A] Statement should be inside braces");
-    Diag << FixItHint::CreateInsertion(StartLoc, " {")
-         << FixItHint::CreateInsertion(EndLoc, ClosingInsertion);
-    return true;
-  }
-}
-
-void Rule4aCheck::onEndOfTranslationUnit() {
-  ForceBracesStmts.clear();
-}
-
-} // namespace eastwood
-} // namespace tidy
-} // namespace clang
+            void Rule4aCheck::onEndOfTranslationUnit(void) {
+                if (not this->lexer_initialized) {
+                    return;
+                }
+                size_t indent_amount = 0;
+                Token tok;
+                std::vector<Token> tokens;
+                std::sort(opens.begin(), opens.end());
+                std::sort(closes.begin(), closes.end());
+                while (!this->lexer->LexFromRawLexer(tok)) {
+                    if (not this->SMan->isWrittenInMainFile(tok.getLocation()) or
+                            not this->SMan->isWrittenInMainFile(tok.getEndLoc())) {
+                        continue;
+                    }
+                    tokens.push_back(tok);
+                    SourceRange TokenSourceRange(tok.getLocation(), tok.getEndLoc());
+                    /*
+                       if (TokenSourceRange.fullyContains(SourceRange(opens.front()))) {
+                       */
+                    while (not opens.empty() and this->SMan->isBeforeInTranslationUnit(opens.front(), tok.getLocation())) {
+                        /*
+                           std::string ws(this->SMan->getCharacterData(opens.front()),
+                           this->SMan->getCharacterData(tok.getEndLoc()));
+                        std::string cur(this->SMan->getCharacterData(tokens.at(0).getLocation()),
+                                this->SMan->getCharacterData(tok.getLocation()));
+                           */
+                        opens.pop_front();
+                        indent_amount += 2;
+                        //std::cout << "Increasing indent at location |" << cur << "| ++Indent " << indent_amount << std::endl;
+                    }
+                    /*
+                       if (TokenSourceRange.fullyContains(SourceRange(closes.front()))) {
+                       */
+                    while (not closes.empty() and this->SMan->isBeforeInTranslationUnit(closes.front(), tok.getLocation())) {
+                        /*
+                           std::string ws(this->SMan->getCharacterData(closes.front()),
+                           this->SMan->getCharacterData(tok.getEndLoc()));
+                        std::string cur(this->SMan->getCharacterData(tokens.at(0).getLocation()),
+                                this->SMan->getCharacterData(tok.getLocation()));
+                           */
+                        closes.pop_front();
+                        indent_amount -= 2;
+                        //std::cout << "Decreasing indent at location |" << cur << "|---Indent " << indent_amount << std::endl;
+                    }
+                    if (tok.isAtStartOfLine() and tokens.size() > 1) {
+                        std::string ws(this->SMan->getCharacterData(tokens.at(tokens.size() - 2).getLocation()),
+                                this->SMan->getCharacterData(tokens.at(tokens.size() - 2).getEndLoc()));
+                        /*
+                        std::cout << "WS: |";
+                        for (auto c : ws) {
+                            std::cout << "," << std::hex << (int)c;
+                        }
+                        std::cout << "|" << std::endl;
+                        */
+                        if (spc_ct(ws) != indent_amount) {
+                            diag(tok.getLocation(), "Incorrect indentation level. Expected %0, got %1") << std::to_string(indent_amount) << std::to_string(spc_ct(ws));
+                            //std::cout << "reporting incorrect indentation level. Expected " << indent_amount << " got " << spc_ct(ws) << std::endl;
+                        }
+                    }
+                }
+                // std::cout << "Opens to consume: " << opens.size() << std::endl;
+                // std::cout << "closes to consume: " << closes.size() << std::endl;
+                }
+                } // namespace eastwood
+            } // namespace tidy
+        } // namespace clang
 

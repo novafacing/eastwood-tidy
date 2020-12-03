@@ -4,7 +4,8 @@
  * ouble quotes should only be used for include files that exist in the local di
  * rectory structure.
  * ------------------------------------------------------------------------------------------------------ */
-#include "eastwood-rule-8g.h"
+#include <eastwood-rule-8g.h>
+#include "stdio.h"
 
 
 // Put Something That Fails Here

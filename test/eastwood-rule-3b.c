@@ -4,12 +4,14 @@
  * ors; except for unary and data reference  operators (i.e. [], ., &, *, ->).
  * ----------------------------------------------------------------------------------------------------- */
 #include "eastwood-rule-3b.h"
-
+#include <stdlib.h>
 
 // Put Something That Fails Here
 int bad(){
     // Bad: no spacing
     int a = 10+4;
+    int b = 10 +4;
+    int c = 10+ 4;
     // Bad: no spacing
     if (a==14){
         // Bad: no spacing
@@ -24,16 +26,21 @@ int bad(){
 
 // OK: Reason
 int good() {
-    // Bad: no spacing
+    // OK: spacing
     int a = 10 + 4;
-    // Bad: no spacing
+    // OK: spacing
     if (a == 14) {
-        // Bad: no spacing
+        // OK: spacing
         if (a == 14 && 10 == 10) {
-            // Bad: no spacing
+            // OK: spacing
             int i = (5, 10);
         }
     }
+    struct x {
+        int y;
+    };
+    struct x * z = (struct x*)malloc(sizeof(struct x));
+    z->y = 0; // OK: no spacing required for ptr ops
     return a;
 }
 // Some code that doesn't fail here

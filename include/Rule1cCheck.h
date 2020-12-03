@@ -39,17 +39,14 @@ namespace clang {
 
                 public:
                     /* Constructors */
-                    Rule1cCheck(StringRef Name, ClangTidyContext *Context);
+                    Rule1cCheck(StringRef Name, ClangTidyContext *Context) :
+                         ClangTidyCheck(Name, Context) {}
 
                     /* Overrides */
                     void registerPPCallbacks(const SourceManager &SM, Preprocessor *PP,
                             Preprocessor *ModuleExpanderPP) override;
                     void registerMatchers(ast_matchers::MatchFinder * Finder) override;
                     void check(const ast_matchers::MatchFinder::MatchResult & Result) override;
-                    void onEndOfTranslationUnit() override;
-                    void storeOptions(ClangTidyOptions::OptionMap & Opts) override;
-
-                    void saveEmbeddedConstant(SourceLocation loc, std::string type);
             }; // Rule1cCheck
 
         } // namespace eastwood

@@ -1,4 +1,5 @@
-//===--- Rule4aCheck.h - clang-tidy -------------*- C++ -*-===//
+
+//===--- Rule4bCheck.h - clang-tidy -----------------------------*- C++ -*-===//
 //
 // Part of the LLVM Project, under the Apache License v2.0 with LLVM Exceptions.
 // See https://llvm.org/LICENSE.txt for license information.
@@ -11,59 +12,34 @@
 
 #include "../ClangTidyCheck.h"
 
+#include "clang/AST/ASTContext.h"
+#include "clang/ASTMatchers/ASTMatchFinder.h"
+#include "clang/Lex/Lexer.h"
+#include "clang/Lex/Token.h"
+#include <deque>
+
 namespace clang {
     namespace tidy {
         namespace eastwood {
 
-            /// Checks that bodies of `if` statements and loops (`for`, `range-for`,
-            /// `do-while`, and `while`) are inside braces
-            ///
-            /// Before:
-            ///
-            /// \code
-            ///   if (condition)
-            ///     statement;
-            /// \endcode
-            ///
-            /// After:
-            ///
-            /// \code
-            ///   if (condition) {
-            ///     statement;
-            ///   }
-            /// \endcode
-            ///
-            /// Additionally, one can define an option `ShortStatementLines` defining the
-            /// minimal number of lines that the statement should have in order to trigger
-            /// this check.
-            ///
-            /// The number of lines is counted from the end of condition or initial keyword
-            /// (`do`/`else`) until the last line of the inner statement.  Default value 0
-            /// means that braces will be added to all statements (not having them already).
             class Rule4aCheck : public ClangTidyCheck {
                 public:
                     /* Constructors */
-                    Rule4aCheck(StringRef Name, ClangTidyContext *Context);
+                    Rule4aCheck(StringRef Name, ClangTidyContext *Context)
+                        : ClangTidyCheck(Name, Context), indent_level(0), lexer_initialized(false) {
+                    }
 
                     /* Overrides */
-                    void storeOptions(ClangTidyOptions::OptionMap &Opts) override;
                     void registerMatchers(ast_matchers::MatchFinder *Finder) override;
                     void check(const ast_matchers::MatchFinder::MatchResult &Result) override;
-                    void onEndOfTranslationUnit() override;
-
-                private:
-                    bool checkStmt(const ast_matchers::MatchFinder::MatchResult &Result,
-                            const Stmt *S, SourceLocation StartLoc,
-                            SourceLocation EndLocHint = SourceLocation());
-                    template <typename IfOrWhileStmt>
-                        SourceLocation findRParenLoc(const IfOrWhileStmt *S, const SourceManager &SM,
-                                const ASTContext *Context);
-
-                private:
-                    std::set<const Stmt *> ForceBracesStmts;
-                    const unsigned ShortStatementLines;
-            };
-
+                    void onEndOfTranslationUnit(void) override;
+                    size_t indent_level;
+                    std::deque<SourceLocation> opens;
+                    std::deque<SourceLocation> closes;
+                    Lexer * lexer;
+                    const SourceManager * SMan;
+                    bool lexer_initialized;
+            }; // Rule4bCheck
         } // namespace eastwood
     } // namespace tidy
 } // namespace clang

@@ -23,11 +23,13 @@ namespace clang {
                 public:
                     /* Constructors */
                     Rule12aCheck(StringRef Name, ClangTidyContext *Context)
-                        : ClangTidyCheck(Name, Context) {}
+                        : ClangTidyCheck(Name, Context), last_line(0) {}
 
                     /* Overrides */
                     void registerMatchers(ast_matchers::MatchFinder *Finder) override;
                     void check(const ast_matchers::MatchFinder::MatchResult &Result) override;
+                    unsigned last_line;
+                    bool first;
             }; // Rule12aCheck
         } // namespace eastwood
     } // namespace tidy

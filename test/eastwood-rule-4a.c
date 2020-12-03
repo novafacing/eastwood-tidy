@@ -10,9 +10,71 @@
  * ---------------------------------------------------------------------------------------------------- */
 #include "eastwood-rule-4a.h"
 
+typedef struct a
+{
+  int a;
+  int b;
+  int c;
+};
+
+/* 
+ * Header comment
+ */
+
+int foo(void)
+{
+    if (1)
+    {
+        while (1)
+        {
+            int a = 10;
+        }
+        do
+        {
+            int a = 10;
+        } while (1);
+    } else if (0)
+    {
+        int a = 10;
+    } else
+    {
+        int a = 10;
+    }
+} /* foo() */
 
 // Put Something That Fails Here
 // CHECK-MESSAGES: :[[@LINE-1]]:[column goes here]:  Failure Message Goes Here
+
+/*
+ * good header comment
+ */
+
+int bar(void) {
+  if (1) {
+    while (1) {
+      int a = 10;
+    }
+    do {
+      int a = 10;
+    } while (1);
+  }
+  else if (0) {
+    int a = 10;
+    switch (a) {
+      case 10: {
+        a = 5;
+        break;
+      }
+      default: {
+        a = 2;
+        break;
+      }
+    }
+  }
+  else {
+    int a = 10;
+  }
+} /* bar() */
 
 // OK: Reason
 // Some code that doesn't fail here
