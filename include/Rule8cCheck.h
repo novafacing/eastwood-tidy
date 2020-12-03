@@ -18,6 +18,7 @@
 #include "clang/Lex/Preprocessor.h"
 #include <utility>
 #include <vector>
+#include <map>
 
 namespace clang {
     namespace tidy {
@@ -38,6 +39,7 @@ namespace clang {
                     std::vector<std::pair<std::string, SourceLocation>> required_guards;
                     std::vector<std::string> found_ifndef_checks;
                     std::vector<std::string> found_defined_macro_guards;
+                    std::map<std::string, std::string> filenames_guards;
             }; // Rule8cCheck
         } // namespace eastwood
     } // namespace tidy
