@@ -39,7 +39,7 @@ namespace clang {
                                         this->Check->diag(HashLoc, "All global includes must preceed any local include, less the associated header.");
                                     }
                                     if (this->Check->incls.back().first == isAngled) {
-                                        std::cout << "Checking" << this->Check->incls.back().second << " vs " << FileName.str() << " " << (this->Check->incls.back().second > FileName.str()) << std::endl;
+                                        // std::cout << "Checking" << this->Check->incls.back().second << " vs " << FileName.str() << " " << (this->Check->incls.back().second > FileName.str()) << std::endl;
                                         if (this->Check->incls.back().second > FileName.str()) {
                                             this->Check->diag(HashLoc, "Includes should be ordered lexicographically ascending.");
                                         }
