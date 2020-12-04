@@ -5,6 +5,25 @@
  * ---------------------------------------------------------------------------------------------------- */
 #include "eastwood-rule-6a.h"
 
+/*
+ * header
+ */
+
+int foo(void) {
+    int a = 10;
+    int b = 2;
+    if (a == 10 && b == 2) {
+    }
+
+    if ((a == 10) && (b == 2)) {
+    }
+
+    if (a == 10) {
+    }
+
+    if (((a + 4) == 14) && 4 == (b + 2)) {
+    }
+}
 
 // Put Something That Fails Here
 // CHECK-MESSAGES: :[[@LINE-1]]:[column goes here]:  Failure Message Goes Here

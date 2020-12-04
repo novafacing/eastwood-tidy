@@ -27,7 +27,9 @@ namespace clang {
 
                     /* Overrides */
                     void registerMatchers(ast_matchers::MatchFinder *Finder) override;
+                    void checkBinaryParens(Expr * LHS, SourceManager & SM);
                     void check(const ast_matchers::MatchFinder::MatchResult &Result) override;
+                    std::vector<Expr> toplevels;
             }; // Rule6aCheck
         } // namespace eastwood
     } // namespace tidy
