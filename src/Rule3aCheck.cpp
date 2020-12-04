@@ -138,6 +138,9 @@ namespace clang {
                 std::string name = "";
                 std::string type = "";
                 if (auto MatchedDecl = Result.Nodes.getNodeAs<WhileStmt>("while_end")) {
+                    if (SM.isWrittenInMainFile(MatchedDecl->getBeginLoc())) {
+                        return;
+                    }
                     // Set up the lexer
                     CharSourceRange Range = CharSourceRange::getTokenRange(MatchedDecl->getBeginLoc(), 
                             MatchedDecl->getRParenLoc().getLocWithOffset(1));
@@ -145,6 +148,10 @@ namespace clang {
                     std::pair<FileID, unsigned> LocInfo = Sources.getDecomposedLoc(Range.getEnd());
                     StringRef File = Sources.getBufferData(LocInfo.first);
                     const char * TokenBegin = File.data() + LocInfo.second;
+                    if (not Sources.getLocForStartOfFile(LocInfo.first).isValid() or 
+                            not SM.isWrittenInMainFile(Sources.getLocForStartOfFile(LocInfo.first))) {
+                        return;
+                    }
                     Lexer RawLexer(Sources.getLocForStartOfFile(LocInfo.first),
                             Result.Context->getLangOpts(), File.begin(), TokenBegin,
                             File.end());
@@ -165,6 +172,9 @@ namespace clang {
                     }
 
                 } else if (auto MatchedDecl = Result.Nodes.getNodeAs<WhileStmt>("while_beg")) {
+                    if (SM.isWrittenInMainFile(MatchedDecl->getBeginLoc())) {
+                        return;
+                    }
                     // Set up the lexer
                     CharSourceRange Range = CharSourceRange::getTokenRange(MatchedDecl->getBeginLoc().getLocWithOffset(1), 
                             MatchedDecl->getLParenLoc());
@@ -173,6 +183,10 @@ namespace clang {
                     std::pair<FileID, unsigned> LocInfo = Sources.getDecomposedLoc(Range.getBegin());
                     StringRef File = Sources.getBufferData(LocInfo.first);
                     const char * TokenBegin = File.data() + LocInfo.second;
+                    if (not Sources.getLocForStartOfFile(LocInfo.first).isValid() or 
+                            not SM.isWrittenInMainFile(Sources.getLocForStartOfFile(LocInfo.first))) {
+                        return;
+                    }
                     Lexer RawLexer(Sources.getLocForStartOfFile(LocInfo.first),
                             Result.Context->getLangOpts(), File.begin(), TokenBegin,
                             File.end());
@@ -192,12 +206,19 @@ namespace clang {
                         tokens.push_back(tok);
                     }
                 } else if (auto MatchedDecl = Result.Nodes.getNodeAs<ForStmt>("for_end")) {
+                    if (SM.isWrittenInMainFile(MatchedDecl->getBeginLoc())) {
+                        return;
+                    }
                     CharSourceRange Range = CharSourceRange::getTokenRange(MatchedDecl->getBeginLoc(), 
                             MatchedDecl->getRParenLoc().getLocWithOffset(1));
                     const SourceManager & Sources = *Result.SourceManager;
                     std::pair<FileID, unsigned> LocInfo = Sources.getDecomposedLoc(Range.getEnd());
                     StringRef File = Sources.getBufferData(LocInfo.first);
                     const char * TokenBegin = File.data() + LocInfo.second;
+                    if (not Sources.getLocForStartOfFile(LocInfo.first).isValid() or 
+                            not SM.isWrittenInMainFile(Sources.getLocForStartOfFile(LocInfo.first))) {
+                        return;
+                    }
                     Lexer RawLexer(Sources.getLocForStartOfFile(LocInfo.first),
                             Result.Context->getLangOpts(), File.begin(), TokenBegin,
                             File.end());
@@ -217,6 +238,9 @@ namespace clang {
                         tokens.push_back(tok);
                     }
                 } else if (auto MatchedDecl = Result.Nodes.getNodeAs<ForStmt>("for_beg")) {
+                    if (SM.isWrittenInMainFile(MatchedDecl->getBeginLoc())) {
+                        return;
+                    }
                     CharSourceRange Range = CharSourceRange::getTokenRange(MatchedDecl->getBeginLoc().getLocWithOffset(1), 
                             MatchedDecl->getLParenLoc());
 
@@ -224,6 +248,10 @@ namespace clang {
                     std::pair<FileID, unsigned> LocInfo = Sources.getDecomposedLoc(Range.getBegin());
                     StringRef File = Sources.getBufferData(LocInfo.first);
                     const char * TokenBegin = File.data() + LocInfo.second;
+                    if (not Sources.getLocForStartOfFile(LocInfo.first).isValid() or 
+                            not SM.isWrittenInMainFile(Sources.getLocForStartOfFile(LocInfo.first))) {
+                        return;
+                    }
                     Lexer RawLexer(Sources.getLocForStartOfFile(LocInfo.first),
                             Result.Context->getLangOpts(), File.begin(), TokenBegin,
                             File.end());
@@ -243,14 +271,29 @@ namespace clang {
                         tokens.push_back(tok);
                     }
                 } else if (auto MatchedDecl = Result.Nodes.getNodeAs<IfStmt>("if_end")) {
+                    if (SM.isWrittenInMainFile(MatchedDecl->getBeginLoc())) {
+                        return;
+                    }
                 } else if (auto MatchedDecl = Result.Nodes.getNodeAs<IfStmt>("if_beg")) {
+                    if (SM.isWrittenInMainFile(MatchedDecl->getBeginLoc())) {
+                        return;
+                    }
                     CharSourceRange Range = CharSourceRange::getTokenRange(MatchedDecl->getBeginLoc().getLocWithOffset(1), 
                             MatchedDecl->getLParenLoc());
+
 
                     const SourceManager & Sources = *Result.SourceManager;
                     std::pair<FileID, unsigned> LocInfo = Sources.getDecomposedLoc(Range.getBegin());
                     StringRef File = Sources.getBufferData(LocInfo.first);
                     const char * TokenBegin = File.data() + LocInfo.second;
+                    if (not Sources.getLocForStartOfFile(LocInfo.first).isValid() or 
+                            not SM.isWrittenInMainFile(Sources.getLocForStartOfFile(LocInfo.first))) {
+                        return;
+                    }
+                    if (not Sources.getLocForStartOfFile(LocInfo.first).isValid() or 
+                            not SM.isWrittenInMainFile(Sources.getLocForStartOfFile(LocInfo.first))) {
+                        return;
+                    }
                     Lexer RawLexer(Sources.getLocForStartOfFile(LocInfo.first),
                             Result.Context->getLangOpts(), File.begin(), TokenBegin,
                             File.end());
@@ -270,7 +313,13 @@ namespace clang {
                         tokens.push_back(tok);
                     }
                 } else if (auto MatchedDecl = Result.Nodes.getNodeAs<DoStmt>("do")) {
+                    if (SM.isWrittenInMainFile(MatchedDecl->getBeginLoc())) {
+                        return;
+                    }
                 } else if (auto MatchedDecl = Result.Nodes.getNodeAs<SwitchStmt>("switch_end")) {
+                    if (SM.isWrittenInMainFile(MatchedDecl->getBeginLoc())) {
+                        return;
+                    }
                     CharSourceRange Range = CharSourceRange::getTokenRange(MatchedDecl->getBeginLoc(), 
                             MatchedDecl->getRParenLoc().getLocWithOffset(1));
                     const SourceManager & Sources = *Result.SourceManager;
@@ -279,6 +328,10 @@ namespace clang {
                     std::pair<FileID, unsigned> LocInfo = Sources.getDecomposedLoc(Range.getEnd());
                     StringRef File = Sources.getBufferData(LocInfo.first);
                     const char * TokenBegin = File.data() + LocInfo.second;
+                    if (not Sources.getLocForStartOfFile(LocInfo.first).isValid() or 
+                            not SM.isWrittenInMainFile(Sources.getLocForStartOfFile(LocInfo.first))) {
+                        return;
+                    }
                     Lexer RawLexer(Sources.getLocForStartOfFile(LocInfo.first),
                             Result.Context->getLangOpts(), File.begin(), TokenBegin,
                             File.end());
@@ -298,6 +351,9 @@ namespace clang {
                         tokens.push_back(tok);
                     }
                 } else if (auto MatchedDecl = Result.Nodes.getNodeAs<SwitchStmt>("switch_beg")) {
+                    if (SM.isWrittenInMainFile(MatchedDecl->getBeginLoc())) {
+                        return;
+                    }
                     CharSourceRange Range = CharSourceRange::getTokenRange(MatchedDecl->getBeginLoc().getLocWithOffset(1), 
                             MatchedDecl->getLParenLoc());
 
@@ -305,6 +361,10 @@ namespace clang {
                     std::pair<FileID, unsigned> LocInfo = Sources.getDecomposedLoc(Range.getBegin());
                     StringRef File = Sources.getBufferData(LocInfo.first);
                     const char * TokenBegin = File.data() + LocInfo.second;
+                    if (not Sources.getLocForStartOfFile(LocInfo.first).isValid() or 
+                            not SM.isWrittenInMainFile(Sources.getLocForStartOfFile(LocInfo.first))) {
+                        return;
+                    }
                     Lexer RawLexer(Sources.getLocForStartOfFile(LocInfo.first),
                             Result.Context->getLangOpts(), File.begin(), TokenBegin,
                             File.end());
