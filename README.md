@@ -14,7 +14,7 @@
 
 `eastwood-tidy` is a port of the Eastwood C language linter to the clang-tidy check system.
 
-Initial work was done by Connor McMillin. The project is now maintained by Rowan Hart.
+Initial work was done by Connor McMillin. The project is now maintained by Rowan Hart <rowanbhart@gmail.com>.
 
 ## Building <a name="building" />
 
@@ -53,10 +53,10 @@ $ cp llvm-project/clang-tools-extra/clang-tidy/eastwood/setup/ClangTidyForceLink
 4. Use CMake + Make to build the new clang-tidy
 
 ```
-cd 
+cd llvm
 mkdir build
 cd build
-cmake -DLLVM_ENABLE_PROJECTS='clang;clang-tools-extra' ..
+cmake -DLLVM_ENABLE_PROJECTS='clang;clang-tools-extra' -DCMAKE_BUILD_TYPE=Release ..
 make -j NN clang-tidy
 ```
 

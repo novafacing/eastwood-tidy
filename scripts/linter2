@@ -1,0 +1,7 @@
+#!/bin/bash
+
+if [[ $1 == "--grade"]]; then
+    ~cs240/bin/clang-tidy --config='{CheckOptions: [{key: eastwood-Rule1bCheck.dump, value: true}, {key: eastwood-Rule11dCheck.dump, value: true}]}' --checks "-*,eastwood*" "$2"
+else
+    ~cs240/bin/clang-tidy --checks "-*,eastwood*" "$1"
+fi
