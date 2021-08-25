@@ -45,7 +45,7 @@ endif()
 
 # Checks.
 # If you add a check, also add it to ClangTidyForceLinker.h in this directory.
-add_subdirectory(eastwood)
+add_subdirectory(eastwood-tidy)
 set(ALL_CLANG_TIDY_CHECKS
   clangTidyEastwoodModule
   )

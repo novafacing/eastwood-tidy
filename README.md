@@ -20,44 +20,32 @@ Initial work was done by Connor McMillin. The project is now maintained by Rowan
 
 1. Get the llvm github repo:
 
-```
+```bash
 $ git clone https://github.com/llvm/llvm-project.git
 ```
     
-2. Clone this repo as a submodule (if you fork llvm-project) or simple clone (if you don't). You probably want simple clone.
+2. Clone this repo:
 
-Submodule:
-
-```
-$ git submodule add https://github.com/novafacing/eastwood-tidy.git \
-    llvm-project/clang-tools-extra/clang-tidy/eastwood
+```bash
+$ git clone https://github.com/novafacing/eastwood-tidy.git
 ```
 
-Simple clone:
+3. Link files from eastwood/setup to the proper places in llvm-project/clang-tools-extra/clang-tidy/
 
+```bash
+$ rm llvm-project/clang-tools-extra/clang-tidy/CMakeLists.txt llvm-project/clang-tools-extra/clang-tidy/ClangTidyForceLinker.h
+$ ln -s $(pwd)/eastwood-tidy/setup/CMakeLists.txt $(pwd)/llvm-project/clang-tools-extra/clang-tidy/CMakeLists.txt
+$ ln -s $(pwd)/eastwood-tidy/setup/ClangTidyForceLinker.h $(pwd)/llvm-project/clang-tools-extra/clang-tidy/ClangTidyForceLinker.h
+$ ln -s $(pwd)/eastwood-tidy/ $(pwd)/llvm-project/clang-tools-extra/clang-tidy/eastwood/
 ```
-$ git clone https://github.com/novafacing/eastwood-tidy.git \
-    llvm-project/clang-tools-extra/clang-tidy/eastwood
-```
-
-3. Copy files from eastwood/setup to the proper places in llvm-project/clang-tools-extra/clang-tidy/
-
-```
-$ cp llvm-project/clang-tools-extra/clang-tidy/eastwood/setup/CMakeLists.txt \
-    llvm-project/clang-tools-extra/clang-tidy/
-
-$ cp llvm-project/clang-tools-extra/clang-tidy/eastwood/setup/ClangTidyForceLinker.h \
-    llvm-project/clang-tools-extra/clang-tidy/
-```
-    
 4. Use CMake + Make to build the new clang-tidy
 
 ```
-cd llvm
+cd llvm-project/llvm
 mkdir build
 cd build
 cmake -DLLVM_ENABLE_PROJECTS='clang;clang-tools-extra' -DCMAKE_BUILD_TYPE=Release ..
-make -j NN clang-tidy
+make -j NN clang-tidy # Where NN is the number of cores in your machine + 1
 ```
 
 5. Binary will be located at `llvm-project/llvm/build/bin/clang-tidy`
