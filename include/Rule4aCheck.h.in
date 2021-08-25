@@ -1,0 +1,47 @@
+
+//===--- Rule4bCheck.h - clang-tidy -----------------------------*- C++ -*-===//
+//
+// Part of the LLVM Project, under the Apache License v2.0 with LLVM Exceptions.
+// See https://llvm.org/LICENSE.txt for license information.
+// SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
+//
+//===----------------------------------------------------------------------===//
+
+#ifndef LLVM_CLANG_TOOLS_EXTRA_CLANG_TIDY_EASTWOOD_RULE4ACHECK_H
+#define LLVM_CLANG_TOOLS_EXTRA_CLANG_TIDY_EASTWOOD_RULE4ACHECK_H
+
+#include "@CLANG_TIDY_TOPLEVEL@/ClangTidyCheck.h"
+
+#include "clang/AST/ASTContext.h"
+#include "clang/ASTMatchers/ASTMatchFinder.h"
+#include "clang/Lex/Lexer.h"
+#include "clang/Lex/Token.h"
+#include <deque>
+
+namespace clang {
+    namespace tidy {
+        namespace eastwood {
+
+            class Rule4aCheck : public ClangTidyCheck {
+            public:
+                /* Constructors */
+                Rule4aCheck(StringRef Name, ClangTidyContext *Context)
+                    : ClangTidyCheck(Name, Context), indent_level(0), lexer_initialized(false) {
+                }
+
+                /* Overrides */
+                void registerMatchers(ast_matchers::MatchFinder *Finder) override;
+                void check(const ast_matchers::MatchFinder::MatchResult &Result) override;
+                void onEndOfTranslationUnit(void) override;
+                size_t indent_level;
+                std::deque<SourceLocation> opens;
+                std::deque<SourceLocation> closes;
+                Lexer *lexer;
+                const SourceManager *SMan;
+                bool lexer_initialized;
+            }; // Rule4bCheck
+        }      // namespace eastwood
+    }          // namespace tidy
+} // namespace clang
+
+#endif // LLVM_CLANG_TOOLS_EXTRA_CLANG_TIDY_EASTWOOD_RULE4ACHECK_H

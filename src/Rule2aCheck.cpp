@@ -11,38 +11,36 @@
 
 #include "Rule2aCheck.h"
 #include <fstream>
-#include <sstream>
-#include <regex>
 #include <iostream>
+#include <regex>
+#include <sstream>
 #include <vector>
 
 #include "clang/Lex/Lexer.h"
 #include "clang/Lex/Token.h"
-#include "../utils/LexerUtils.h"
 
 #define MAX_LINE_LEN (80)
-
 
 using namespace clang::ast_matchers;
 
 namespace clang {
     namespace tidy {
         namespace eastwood {
-            void Rule2aCheck::registerMatchers(MatchFinder * Finder) {
+            void Rule2aCheck::registerMatchers(MatchFinder *Finder) {
                 Finder->addMatcher(functionDecl().bind("function"), this);
             }
 
-            void Rule2aCheck::check(const MatchFinder::MatchResult & Result) {
+            void Rule2aCheck::check(const MatchFinder::MatchResult &Result) {
 
-                const SourceManager & SM = *Result.SourceManager;
-                const ASTContext * Context = Result.Context;
+                const SourceManager &SM = *Result.SourceManager;
+                const ASTContext *Context = Result.Context;
 
                 if (auto MatchedDecl = Result.Nodes.getNodeAs<FunctionDecl>("function")) {
                     if (not this->checked) {
                         SourceLocation Location = MatchedDecl->getSourceRange().getBegin();
                         SourceLocation StartOfFile = SM.getLocForStartOfFile(SM.getFileID(Location));
                         StringRef File = SM.getBufferData(SM.getFileID(StartOfFile));
-                        const char * TokenBegin = File.data();
+                        const char *TokenBegin = File.data();
                         Lexer RawLexer(StartOfFile, Context->getLangOpts(), File.begin(), TokenBegin, File.end());
 
                         RawLexer.SetKeepWhitespaceMode(true);
@@ -93,7 +91,6 @@ namespace clang {
                                         //diag(tok.getLocation(), "Indentation must consist of spaces only.");
                                     }
                                 }
-
                             }
                             tq.push_back(std::make_pair(tok, raw_tok_data));
                         }
@@ -102,5 +99,5 @@ namespace clang {
                 }
             }
         } // namespace eastwood
-    } // namespace tidy
+    }     // namespace tidy
 } // namespace clang

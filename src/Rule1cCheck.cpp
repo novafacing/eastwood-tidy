@@ -13,12 +13,12 @@
 using namespace clang::ast_matchers;
 
 /* This may be overly permissive */
-static bool isSurroundedLeft(const clang::Token & T) {
+static bool isSurroundedLeft(const clang::Token &T) {
     return T.isOneOf(clang::tok::l_paren, clang::tok::l_brace, clang::tok::l_square, clang::tok::comma, clang::tok::semi);
 }
 
 /* This may be overly permissive */
-static bool isSurroundedRight(const clang::Token & T) {
+static bool isSurroundedRight(const clang::Token &T) {
     return T.isOneOf(clang::tok::r_paren, clang::tok::r_brace, clang::tok::r_square, clang::tok::comma, clang::tok::semi);
 }
 
@@ -27,65 +27,63 @@ namespace clang {
         namespace eastwood {
 
             class Rule1cPPCallBack : public PPCallbacks {
-                private:
-                    Rule1cCheck * Check;
-                    Preprocessor * PP;
+            private:
+                Rule1cCheck *Check;
+                Preprocessor *PP;
 
-                public:
-                    Rule1cPPCallBack(Rule1cCheck * Check, Preprocessor * PP) 
-                        : Check(Check), PP(PP) {
-                        }
+            public:
+                Rule1cPPCallBack(Rule1cCheck *Check, Preprocessor *PP)
+                    : Check(Check), PP(PP) {
+                }
 
-                    /* Can also implement:
+                /* Can also implement:
                      *  - MacroExpands (whenever macro is expanded)
                      *  - MacroUndefined (whenever #undef <x>
                      *  - Defined (whenever `defined` token
                      *  - Ifdef
                      *  - Ifndef
                      */
-                    void MacroDefined(const Token & MacroNameTok, const MacroDirective * MD) override {
-                        if (this->PP->getSourceManager().isWrittenInBuiltinFile(MD->getLocation()) ||
-                                !this->PP->getSourceManager().isWrittenInMainFile(MD->getLocation()) ||
-                                MD->getMacroInfo()->isUsedForHeaderGuard() ||
-                                MD->getMacroInfo()->getNumTokens() == 0) {
-                            return;
-                        }
-                        std::regex defineNameRegex{R"([A-Z0-9_][A-Z0-9_]+)"};
-                        std::smatch results;
-                        std::string name = this->PP->getSpelling(MacroNameTok);
-                        if (!std::regex_match(name, results, defineNameRegex)) {
-                            DiagnosticBuilder Diag = this->Check->diag(MD->getLocation(), 
-                                    "'%0' is not all uppercase, separated by underscores, and >= 2 characters in length.");
+                void MacroDefined(const Token &MacroNameTok, const MacroDirective *MD) override {
+                    if (this->PP->getSourceManager().isWrittenInBuiltinFile(MD->getLocation()) ||
+                        !this->PP->getSourceManager().isWrittenInMainFile(MD->getLocation()) ||
+                        MD->getMacroInfo()->isUsedForHeaderGuard() ||
+                        MD->getMacroInfo()->getNumTokens() == 0) {
+                        return;
+                    }
+                    std::regex defineNameRegex{R"([A-Z0-9_][A-Z0-9_]+)"};
+                    std::smatch results;
+                    std::string name = this->PP->getSpelling(MacroNameTok);
+                    if (!std::regex_match(name, results, defineNameRegex)) {
+                        DiagnosticBuilder Diag = this->Check->diag(MD->getLocation(),
+                                                                   "'%0' is not all uppercase, separated by underscores, and >= 2 characters in length.");
+                        Diag << name;
+                    }
+
+                    /* A constant declaration with #define will either be "string" or (val) (1 / 3 toks) */
+                    // TODO: Still failing the correct case....not sure why. TODO!!!!
+                    if (MD->getMacroInfo()->getNumTokens() == 1 || MD->getMacroInfo()->getNumTokens() == 3) {
+                        const Token &start = *(MD->getMacroInfo()->tokens_begin());
+                        const Token &primary = *(MD->getMacroInfo()->tokens_begin() + 1);
+                        const Token &end = *(MD->getMacroInfo()->tokens_begin() + 2);
+                        if (tok::isLiteral(primary.getKind()) && !tok::isStringLiteral(primary.getKind())) {
+                            if (isSurroundedLeft(start) && isSurroundedRight(end)) {
+                                return;
+                            } else {
+                                DiagnosticBuilder Diag = this->Check->diag(MD->getLocation(),
+                                                                           "'%0' initializer is non-string constant and not surrounded by parentheses.");
+                                Diag << name << primary.getLiteralData();
+                            }
+                        } else if (tok::isLiteral(start.getKind()) && !tok::isStringLiteral(start.getKind()) && MD->getMacroInfo()->getNumTokens() == 1) {
+                            DiagnosticBuilder Diag = this->Check->diag(MD->getLocation(),
+                                                                       "'%0' initializer is non-string constant and not surrounded by parentheses.");
                             Diag << name;
                         }
-
-
-                        /* A constant declaration with #define will either be "string" or (val) (1 / 3 toks) */
-                        // TODO: Still failing the correct case....not sure why. TODO!!!!
-                        if (MD->getMacroInfo()->getNumTokens() == 1 || MD->getMacroInfo()->getNumTokens() == 3) {
-                            const Token & start = *(MD->getMacroInfo()->tokens_begin());
-                            const Token & primary = *(MD->getMacroInfo()->tokens_begin() + 1);
-                            const Token & end = *(MD->getMacroInfo()->tokens_begin() + 2);
-                            if (tok::isLiteral(primary.getKind()) && !tok::isStringLiteral(primary.getKind())) {
-                                if (isSurroundedLeft(start) && isSurroundedRight(end)) {
-                                    return;
-                                } else {
-                                    DiagnosticBuilder Diag = this->Check->diag(MD->getLocation(),
-                                            "'%0' initializer is non-string constant and not surrounded by parentheses.");
-                                    Diag << name << primary.getLiteralData();
-                                }
-                            } else if (tok::isLiteral(start.getKind()) && !tok::isStringLiteral(start.getKind()) && MD->getMacroInfo()->getNumTokens() == 1) {
-                                DiagnosticBuilder Diag = this->Check->diag(MD->getLocation(),
-                                        "'%0' initializer is non-string constant and not surrounded by parentheses.");
-                                Diag << name;
-
-                            }
-                        }
                     }
+                }
             };
 
-            void Rule1cCheck::registerPPCallbacks(const SourceManager & SM, Preprocessor * PP,
-                    Preprocessor * ModuleExpanderPP) {
+            void Rule1cCheck::registerPPCallbacks(const SourceManager &SM, Preprocessor *PP,
+                                                  Preprocessor *ModuleExpanderPP) {
                 PP->addPPCallbacks(std::make_unique<Rule1cPPCallBack>(this, PP));
             }
 
@@ -148,5 +146,5 @@ namespace clang {
             }
 
         } // namespace eastwood
-    } // namespace tidy
+    }     // namespace tidy
 } // namespace clang

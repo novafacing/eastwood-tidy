@@ -42,9 +42,13 @@ if(CLANG_TIDY_ENABLE_STATIC_ANALYZER)
     clangStaticAnalyzerFrontend
   )
 endif()
+if(CLANG_TIDY_ENABLE_STATIC_ANALYZER)
+  add_subdirectory(mpi)
+endif()
 
 # Checks.
 # If you add a check, also add it to ClangTidyForceLinker.h in this directory.
+set(CLANG_TIDY_TOPLEVEL ${CMAKE_CURRENT_SOURCE_DIR})
 add_subdirectory(eastwood-tidy)
 set(ALL_CLANG_TIDY_CHECKS
   clangTidyEastwoodModule

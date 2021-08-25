@@ -14,11 +14,11 @@ using namespace clang::ast_matchers;
 namespace clang {
     namespace tidy {
         namespace eastwood {
-            void Rule4bCheck::registerMatchers(MatchFinder * Finder) {
+            void Rule4bCheck::registerMatchers(MatchFinder *Finder) {
                 Finder->addMatcher(functionDecl().bind("function_decl"), this);
             }
-            void Rule4bCheck::check(const MatchFinder::MatchResult & Result) {
-                const SourceManager & SM = *Result.SourceManager;
+            void Rule4bCheck::check(const MatchFinder::MatchResult &Result) {
+                const SourceManager &SM = *Result.SourceManager;
                 if (auto MatchedDecl = Result.Nodes.getNodeAs<FunctionDecl>("function_decl")) {
                     if (MatchedDecl->param_size() < 2) {
                         return;
@@ -37,5 +37,5 @@ namespace clang {
                 }
             }
         } // namespace eastwood
-    } // namespace tidy
+    }     // namespace tidy
 } // namespace clang

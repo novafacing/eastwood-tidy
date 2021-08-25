@@ -1,7 +1,60 @@
 set(LLVM_LINK_COMPONENTS support)
+if(NOT DEFINED CLANG_TIDY_TOPLEVEL)
+message(FATAL_ERROR "CLANG_TIDY_TOPLEVEL IS NOT SET. EXITING.")
+endif()
+
+configure_file(${CMAKE_CURRENT_SOURCE_DIR}/include/Rule1aCheck.h.in ${CMAKE_CURRENT_SOURCE_DIR}/include/Rule1aCheck.h)
+configure_file(${CMAKE_CURRENT_SOURCE_DIR}/include/Rule1bCheck.h.in ${CMAKE_CURRENT_SOURCE_DIR}/include/Rule1bCheck.h)
+configure_file(${CMAKE_CURRENT_SOURCE_DIR}/include/Rule1cCheck.h.in ${CMAKE_CURRENT_SOURCE_DIR}/include/Rule1cCheck.h)
+configure_file(${CMAKE_CURRENT_SOURCE_DIR}/include/Rule1dCheck.h.in ${CMAKE_CURRENT_SOURCE_DIR}/include/Rule1dCheck.h)
+configure_file(${CMAKE_CURRENT_SOURCE_DIR}/include/Rule2aCheck.h.in ${CMAKE_CURRENT_SOURCE_DIR}/include/Rule2aCheck.h)
+configure_file(${CMAKE_CURRENT_SOURCE_DIR}/include/Rule2bCheck.h.in ${CMAKE_CURRENT_SOURCE_DIR}/include/Rule2bCheck.h)
+configure_file(${CMAKE_CURRENT_SOURCE_DIR}/include/Rule3aCheck.h.in ${CMAKE_CURRENT_SOURCE_DIR}/include/Rule3aCheck.h)
+configure_file(${CMAKE_CURRENT_SOURCE_DIR}/include/Rule3bCheck.h.in ${CMAKE_CURRENT_SOURCE_DIR}/include/Rule3bCheck.h)
+configure_file(${CMAKE_CURRENT_SOURCE_DIR}/include/Rule3cCheck.h.in ${CMAKE_CURRENT_SOURCE_DIR}/include/Rule3cCheck.h)
+configure_file(${CMAKE_CURRENT_SOURCE_DIR}/include/Rule3dCheck.h.in ${CMAKE_CURRENT_SOURCE_DIR}/include/Rule3dCheck.h)
+configure_file(${CMAKE_CURRENT_SOURCE_DIR}/include/Rule3eCheck.h.in ${CMAKE_CURRENT_SOURCE_DIR}/include/Rule3eCheck.h)
+configure_file(${CMAKE_CURRENT_SOURCE_DIR}/include/Rule3fCheck.h.in ${CMAKE_CURRENT_SOURCE_DIR}/include/Rule3fCheck.h)
+configure_file(${CMAKE_CURRENT_SOURCE_DIR}/include/Rule4aCheck.h.in ${CMAKE_CURRENT_SOURCE_DIR}/include/Rule4aCheck.h)
+configure_file(${CMAKE_CURRENT_SOURCE_DIR}/include/Rule4bCheck.h.in ${CMAKE_CURRENT_SOURCE_DIR}/include/Rule4bCheck.h)
+configure_file(${CMAKE_CURRENT_SOURCE_DIR}/include/Rule4cCheck.h.in ${CMAKE_CURRENT_SOURCE_DIR}/include/Rule4cCheck.h)
+configure_file(${CMAKE_CURRENT_SOURCE_DIR}/include/Rule5aCheck.h.in ${CMAKE_CURRENT_SOURCE_DIR}/include/Rule5aCheck.h)
+configure_file(${CMAKE_CURRENT_SOURCE_DIR}/include/Rule5bCheck.h.in ${CMAKE_CURRENT_SOURCE_DIR}/include/Rule5bCheck.h)
+configure_file(${CMAKE_CURRENT_SOURCE_DIR}/include/Rule5cCheck.h.in ${CMAKE_CURRENT_SOURCE_DIR}/include/Rule5cCheck.h)
+configure_file(${CMAKE_CURRENT_SOURCE_DIR}/include/Rule5dCheck.h.in ${CMAKE_CURRENT_SOURCE_DIR}/include/Rule5dCheck.h)
+configure_file(${CMAKE_CURRENT_SOURCE_DIR}/include/Rule5eCheck.h.in ${CMAKE_CURRENT_SOURCE_DIR}/include/Rule5eCheck.h)
+configure_file(${CMAKE_CURRENT_SOURCE_DIR}/include/Rule6aCheck.h.in ${CMAKE_CURRENT_SOURCE_DIR}/include/Rule6aCheck.h)
+configure_file(${CMAKE_CURRENT_SOURCE_DIR}/include/Rule7aCheck.h.in ${CMAKE_CURRENT_SOURCE_DIR}/include/Rule7aCheck.h)
+configure_file(${CMAKE_CURRENT_SOURCE_DIR}/include/Rule8aCheck.h.in ${CMAKE_CURRENT_SOURCE_DIR}/include/Rule8aCheck.h)
+configure_file(${CMAKE_CURRENT_SOURCE_DIR}/include/Rule8bCheck.h.in ${CMAKE_CURRENT_SOURCE_DIR}/include/Rule8bCheck.h)
+configure_file(${CMAKE_CURRENT_SOURCE_DIR}/include/Rule8cCheck.h.in ${CMAKE_CURRENT_SOURCE_DIR}/include/Rule8cCheck.h)
+configure_file(${CMAKE_CURRENT_SOURCE_DIR}/include/Rule8dCheck.h.in ${CMAKE_CURRENT_SOURCE_DIR}/include/Rule8dCheck.h)
+configure_file(${CMAKE_CURRENT_SOURCE_DIR}/include/Rule8eCheck.h.in ${CMAKE_CURRENT_SOURCE_DIR}/include/Rule8eCheck.h)
+configure_file(${CMAKE_CURRENT_SOURCE_DIR}/include/Rule8fCheck.h.in ${CMAKE_CURRENT_SOURCE_DIR}/include/Rule8fCheck.h)
+configure_file(${CMAKE_CURRENT_SOURCE_DIR}/include/Rule8gCheck.h.in ${CMAKE_CURRENT_SOURCE_DIR}/include/Rule8gCheck.h)
+configure_file(${CMAKE_CURRENT_SOURCE_DIR}/include/Rule9aCheck.h.in ${CMAKE_CURRENT_SOURCE_DIR}/include/Rule9aCheck.h)
+configure_file(${CMAKE_CURRENT_SOURCE_DIR}/include/Rule9bCheck.h.in ${CMAKE_CURRENT_SOURCE_DIR}/include/Rule9bCheck.h)
+configure_file(${CMAKE_CURRENT_SOURCE_DIR}/include/Rule9cCheck.h.in ${CMAKE_CURRENT_SOURCE_DIR}/include/Rule9cCheck.h)
+configure_file(${CMAKE_CURRENT_SOURCE_DIR}/include/Rule9dCheck.h.in ${CMAKE_CURRENT_SOURCE_DIR}/include/Rule9dCheck.h)
+configure_file(${CMAKE_CURRENT_SOURCE_DIR}/include/Rule9eCheck.h.in ${CMAKE_CURRENT_SOURCE_DIR}/include/Rule9eCheck.h)
+configure_file(${CMAKE_CURRENT_SOURCE_DIR}/include/Rule10aCheck.h.in ${CMAKE_CURRENT_SOURCE_DIR}/include/Rule10aCheck.h)
+configure_file(${CMAKE_CURRENT_SOURCE_DIR}/include/Rule11aCheck.h.in ${CMAKE_CURRENT_SOURCE_DIR}/include/Rule11aCheck.h)
+configure_file(${CMAKE_CURRENT_SOURCE_DIR}/include/Rule11bCheck.h.in ${CMAKE_CURRENT_SOURCE_DIR}/include/Rule11bCheck.h)
+configure_file(${CMAKE_CURRENT_SOURCE_DIR}/include/Rule11cCheck.h.in ${CMAKE_CURRENT_SOURCE_DIR}/include/Rule11cCheck.h)
+configure_file(${CMAKE_CURRENT_SOURCE_DIR}/include/Rule11dCheck.h.in ${CMAKE_CURRENT_SOURCE_DIR}/include/Rule11dCheck.h)
+configure_file(${CMAKE_CURRENT_SOURCE_DIR}/include/Rule11eCheck.h.in ${CMAKE_CURRENT_SOURCE_DIR}/include/Rule11eCheck.h)
+configure_file(${CMAKE_CURRENT_SOURCE_DIR}/include/Rule12aCheck.h.in ${CMAKE_CURRENT_SOURCE_DIR}/include/Rule12aCheck.h)
+configure_file(${CMAKE_CURRENT_SOURCE_DIR}/include/Rule12bCheck.h.in ${CMAKE_CURRENT_SOURCE_DIR}/include/Rule12bCheck.h)
+configure_file(${CMAKE_CURRENT_SOURCE_DIR}/include/Rule12cCheck.h.in ${CMAKE_CURRENT_SOURCE_DIR}/include/Rule12cCheck.h)
+configure_file(${CMAKE_CURRENT_SOURCE_DIR}/include/EastwoodTidyModule.h.in ${CMAKE_CURRENT_SOURCE_DIR}/include/EastwoodTidyModule.h)
+
+message(STATUS "INCLUDING CURRENT SOURCE DIR ${CMAKE_CURRENT_SOURCE_DIR}")
+include_directories(
+    BEFORE
+        ${CMAKE_CURRENT_SOURCE_DIR}/include/
+)
 
 add_clang_library(clangTidyEastwoodModule
-
     src/EastwoodTidyModule.cpp
     src/Rule10aCheck.cpp
     src/Rule11aCheck.cpp
@@ -57,9 +110,4 @@ add_clang_library(clangTidyEastwoodModule
     clangTidy
     clangTidyUtils
     clangTooling
-)
-
-include_directories(
-    BEFORE
-        include/
 )

@@ -39,5 +39,5 @@ namespace clang {
             }
 
         } // namespace eastwood
-    } // namespace tidy
+    }     // namespace tidy
 } // namespace clang

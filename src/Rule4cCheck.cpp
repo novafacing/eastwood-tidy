@@ -21,7 +21,7 @@ namespace clang {
             namespace {
 
                 tok::TokenKind getTokenKind(SourceLocation Loc, const SourceManager &SM,
-                        const ASTContext *Context) {
+                                            const ASTContext *Context) {
                     Token Tok;
                     SourceLocation Beginning =
                         Lexer::GetBeginningOfToken(Loc, SM, Context->getLangOpts());
@@ -36,8 +36,8 @@ namespace clang {
                 }
 
                 SourceLocation forwardSkipWhitespaceAndComments(SourceLocation Loc,
-                        const SourceManager &SM,
-                        const ASTContext *Context) {
+                                                                const SourceManager &SM,
+                                                                const ASTContext *Context) {
                     assert(Loc.isValid());
                     for (;;) {
                         while (isWhitespace(*SM.getCharacterData(Loc)))
@@ -53,8 +53,8 @@ namespace clang {
                 }
 
                 SourceLocation findEndLocation(SourceLocation LastTokenLoc,
-                        const SourceManager &SM,
-                        const ASTContext *Context) {
+                                               const SourceManager &SM,
+                                               const ASTContext *Context) {
                     SourceLocation Loc =
                         Lexer::GetBeginningOfToken(LastTokenLoc, SM, Context->getLangOpts());
                     // Loc points to the beginning of the last (non-comment non-ws) token
@@ -63,7 +63,7 @@ namespace clang {
                     bool SkipEndWhitespaceAndComments = true;
                     tok::TokenKind TokKind = getTokenKind(Loc, SM, Context);
                     if (TokKind == tok::NUM_TOKENS || TokKind == tok::semi ||
-                            TokKind == tok::r_brace) {
+                        TokKind == tok::r_brace) {
                         // If we are at ";" or "}", we found the last token. We could use as well
                         // `if (isa<NullStmt>(S))`, but it wouldn't work for nested statements.
                         SkipEndWhitespaceAndComments = false;
@@ -98,7 +98,7 @@ namespace clang {
                             Lexer::getLocForEndOfToken(Loc, 0, SM, Context->getLangOpts());
                         SourceRange TokRange(Loc, TokEndLoc);
                         StringRef Comment = Lexer::getSourceText(
-                                CharSourceRange::getTokenRange(TokRange), SM, Context->getLangOpts());
+                            CharSourceRange::getTokenRange(TokRange), SM, Context->getLangOpts());
                         if (Comment.startswith("/*") && Comment.find('\n') != StringRef::npos) {
                             // Multi-line block comment, insert brace before.
                             break;
@@ -114,7 +114,7 @@ namespace clang {
             } // namespace
 
             Rule4cCheck::Rule4cCheck(
-                    StringRef Name, ClangTidyContext *Context)
+                StringRef Name, ClangTidyContext *Context)
                 : ClangTidyCheck(Name, Context) {}
 
             void Rule4cCheck::registerMatchers(MatchFinder *Finder) {
@@ -122,7 +122,7 @@ namespace clang {
             }
 
             void Rule4cCheck::check(
-                    const MatchFinder::MatchResult &Result) {
+                const MatchFinder::MatchResult &Result) {
 
                 // Get location of closing 'do'
                 if (auto S = Result.Nodes.getNodeAs<DoStmt>("do")) {
@@ -133,8 +133,8 @@ namespace clang {
             }
 
             bool Rule4cCheck::checkStmt(
-                    const MatchFinder::MatchResult &Result, const Stmt *S,
-                    SourceLocation InitialLoc, SourceLocation EndLocHint) {
+                const MatchFinder::MatchResult &Result, const Stmt *S,
+                SourceLocation InitialLoc, SourceLocation EndLocHint) {
 
                 if (!InitialLoc.isValid()) {
                     return false;
@@ -145,8 +145,8 @@ namespace clang {
 
                 // Treat macros.
                 CharSourceRange FileRange = Lexer::makeFileCharRange(
-                        CharSourceRange::getTokenRange(S->getSourceRange()), SM,
-                        Context->getLangOpts());
+                    CharSourceRange::getTokenRange(S->getSourceRange()), SM,
+                    Context->getLangOpts());
                 if (FileRange.isInvalid())
                     return false;
 
@@ -154,9 +154,9 @@ namespace clang {
                 // level as the start of the statement. We also need file locations for
                 // Lexer::getLocForEndOfToken working properly.
                 InitialLoc = Lexer::makeFileCharRange(
-                        CharSourceRange::getCharRange(InitialLoc, S->getBeginLoc()),
-                        SM, Context->getLangOpts())
-                    .getBegin();
+                                 CharSourceRange::getCharRange(InitialLoc, S->getBeginLoc()),
+                                 SM, Context->getLangOpts())
+                                 .getBegin();
                 if (InitialLoc.isInvalid())
                     return false;
 
@@ -174,11 +174,11 @@ namespace clang {
 
                 EndLoc = EndLoc.getLocWithOffset(-1);
 
-                // Check that 
+                // Check that
                 while (*SM.getCharacterData(EndLoc) != '}') {
                     if (*SM.getCharacterData(EndLoc) == '\n') {
                         diag(EndLoc, "While statement in a do-while must be on same "
-                                "line as the closing brace.");
+                                     "line as the closing brace.");
                         return true;
                     }
 
@@ -188,5 +188,5 @@ namespace clang {
                 return false;
             }
         } // namespace eastwood
-    } // namespace tidy
+    }     // namespace tidy
 } // namespace clang

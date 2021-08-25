@@ -11,8 +11,8 @@
 #include "clang/ASTMatchers/ASTMatchers.h"
 #include "clang/Lex/Lexer.h"
 
-#include <iostream>
 #include <iomanip>
+#include <iostream>
 
 using namespace clang::ast_matchers;
 
@@ -49,9 +49,8 @@ namespace clang {
                         //std::string file_str_close(SM.getCharacterData(SM.getLocForStartOfFile(SM.getFileID(MatchedDecl->getBeginLoc()))), SM.getCharacterData(this->closes.back()));
                         //std::cout << "Opening at: |" << file_str << "| OPEN" << std::endl << "Closing at: |" << file_str_close << "| CLOSE" << std::endl;
 
-
                         if (SM.getSpellingLineNumber(this->opens.back()) !=
-                                SM.getSpellingLineNumber(MatchedDecl->getLocation())) {
+                            SM.getSpellingLineNumber(MatchedDecl->getLocation())) {
                             diag(this->opens.back(), "Open brace must be located on same line as record.");
                         }
 
@@ -72,7 +71,7 @@ namespace clang {
 
                         // std::cout << "Opening at: |" << file_str << "| OPEN" << std::endl << "Closing at: |" << file_str_close << "| CLOSE" << std::endl;
                         if (SM.getSpellingLineNumber(this->opens.back()) !=
-                                SM.getSpellingLineNumber(MatchedDecl->getLocation())) {
+                            SM.getSpellingLineNumber(MatchedDecl->getLocation())) {
                             diag(this->opens.back(), "Open brace must be located on same line as enum.");
                         }
                         // std::cout << "ENUM BODY: |" << std::string(SM.getCharacterData(opens.back()),
@@ -87,9 +86,9 @@ namespace clang {
                         std::pair<FileID, unsigned> LocInfo = SM.getDecomposedLoc(FunctionDefinitionRange.getBegin());
                         SourceLocation StartOfFile = SM.getLocForStartOfFile(SM.getFileID(FunctionDefinitionRange.getBegin()));
                         StringRef File = SM.getBufferData(SM.getFileID(StartOfFile));
-                        const char * TokenBegin = File.data();
+                        const char *TokenBegin = File.data();
                         this->lexer = new Lexer(SM.getLocForStartOfFile(LocInfo.first),
-                                Context->getLangOpts(), File.begin(), TokenBegin, File.end());
+                                                Context->getLangOpts(), File.begin(), TokenBegin, File.end());
                         this->lexer->SetKeepWhitespaceMode(true);
                         this->lexer_initialized = true;
                     }
@@ -102,10 +101,9 @@ namespace clang {
                         //std::string file_str_close(SM.getCharacterData(SM.getLocForStartOfFile(SM.getFileID(MatchedDecl->getBeginLoc()))), SM.getCharacterData(this->closes.back()));
                         // std::cout << "Opening at: |" << file_str << "| OPEN" << std::endl << "Closing at: |" << file_str_close << "| CLOSE" << std::endl;
                         if (SM.getSpellingLineNumber(this->opens.back()) !=
-                                SM.getSpellingLineNumber(MatchedDecl->getLocation())
-                                and (MatchedDecl->param_empty() 
-                                    or SM.getSpellingLineNumber(MatchedDecl->parameters().back()->getSourceRange().getEnd()) !=
-                                    SM.getSpellingLineNumber(this->opens.back()))) {
+                                SM.getSpellingLineNumber(MatchedDecl->getLocation()) and
+                            (MatchedDecl->param_empty() or SM.getSpellingLineNumber(MatchedDecl->parameters().back()->getSourceRange().getEnd()) !=
+                                                               SM.getSpellingLineNumber(this->opens.back()))) {
 
                             diag(this->opens.back(), "Open brace must be located on same line as function declaration or after parameters.");
                         }
@@ -120,10 +118,10 @@ namespace clang {
                     //std::string file_str(SM.getCharacterData(SM.getLocForStartOfFile(SM.getFileID(MatchedDecl->getBeginLoc()))), SM.getCharacterData(this->opens.back()));
                     this->closes.push_back(MatchedDecl->getBody()->getEndLoc().getLocWithOffset(-1));
                     //std::string file_str_close(SM.getCharacterData(SM.getLocForStartOfFile(SM.getFileID(MatchedDecl->getBeginLoc()))), SM.getCharacterData(this->closes.back()));
-                        // std::cout << "Opening at: |" << file_str << "| OPEN" << std::endl << "Closing at: |" << file_str_close << "| CLOSE" << std::endl;
+                    // std::cout << "Opening at: |" << file_str << "| OPEN" << std::endl << "Closing at: |" << file_str_close << "| CLOSE" << std::endl;
 
                     if (SM.getSpellingLineNumber(this->opens.back()) !=
-                            SM.getSpellingLineNumber(MatchedDecl->getBeginLoc())) {
+                        SM.getSpellingLineNumber(MatchedDecl->getBeginLoc())) {
                         diag(this->opens.back(), "Open brace must be located on same line as do.");
                     }
                     // std::cout << "DO BODY: |" << std::string(SM.getCharacterData(opens.back()),
@@ -136,11 +134,11 @@ namespace clang {
                     //std::string file_str(SM.getCharacterData(SM.getLocForStartOfFile(SM.getFileID(MatchedDecl->getBeginLoc()))), SM.getCharacterData(this->opens.back()));
                     this->closes.push_back(MatchedDecl->getBody()->getEndLoc().getLocWithOffset(-1));
                     //std::string file_str_close(SM.getCharacterData(SM.getLocForStartOfFile(SM.getFileID(MatchedDecl->getBeginLoc()))), SM.getCharacterData(this->closes.back()));
-                        // std::cout << "Opening at: |" << file_str << "| OPEN" << std::endl << "Closing at: |" << file_str_close << "| CLOSE" << std::endl;
+                    // std::cout << "Opening at: |" << file_str << "| OPEN" << std::endl << "Closing at: |" << file_str_close << "| CLOSE" << std::endl;
 
                     if (SM.getSpellingLineNumber(this->opens.back()) !=
-                            SM.getSpellingLineNumber(MatchedDecl->getBeginLoc())
-                            and SM.getSpellingLineNumber(MatchedDecl->getRParenLoc()) !=
+                            SM.getSpellingLineNumber(MatchedDecl->getBeginLoc()) and
+                        SM.getSpellingLineNumber(MatchedDecl->getRParenLoc()) !=
                             SM.getSpellingLineNumber(this->opens.back())) {
                         diag(this->opens.back(), "Open brace must be located on same line as for or after split contents.");
                     }
@@ -150,8 +148,8 @@ namespace clang {
                     if (not SM.isWrittenInMainFile(MatchedDecl->getBeginLoc()) or not MatchedDecl->getBeginLoc().isValid() or SM.isMacroArgExpansion(MatchedDecl->getBeginLoc()) or SM.isMacroBodyExpansion(MatchedDecl->getBeginLoc())) {
                         return;
                     }
-                    const IfStmt * If = MatchedDecl;
-                    const Stmt * Else = MatchedDecl->getElse(); 
+                    const IfStmt *If = MatchedDecl;
+                    const Stmt *Else = MatchedDecl->getElse();
 
                     SourceLocation StartIf = If->getThen()->getBeginLoc();
                     SourceLocation EndIf = If->getThen()->getEndLoc();
@@ -161,10 +159,10 @@ namespace clang {
 
                     this->closes.push_back(EndIf.getLocWithOffset(-1));
                     //std::string file_str_close(SM.getCharacterData(SM.getLocForStartOfFile(SM.getFileID(MatchedDecl->getBeginLoc()))), SM.getCharacterData(this->closes.back()));
-                        // std::cout << "Opening at: |" << file_str << "| OPEN" << std::endl << "Closing at: |" << file_str_close << "| CLOSE" << std::endl;
+                    // std::cout << "Opening at: |" << file_str << "| OPEN" << std::endl << "Closing at: |" << file_str_close << "| CLOSE" << std::endl;
 
                     if (SM.getSpellingLineNumber(this->opens.back()) !=
-                            SM.getSpellingLineNumber(MatchedDecl->getBeginLoc())) {
+                        SM.getSpellingLineNumber(MatchedDecl->getBeginLoc())) {
                         diag(this->opens.back(), "Open brace must be located on same line as if.");
                     }
 
@@ -172,10 +170,10 @@ namespace clang {
                     //        SM.getCharacterData(closes.back())) << "|" << std::endl;
                     if (Else) {
                         if (SM.getSpellingLineNumber(If->getThen()->getEndLoc()) !=
-                                SM.getSpellingLineNumber(Else->getBeginLoc()) - 1) {
+                            SM.getSpellingLineNumber(Else->getBeginLoc()) - 1) {
                             diag(Else->getBeginLoc().getLocWithOffset(-1), "Else must be on a new line.");
                         }
-                        if (const auto * ChildIf = dyn_cast<IfStmt>(Else)) {
+                        if (const auto *ChildIf = dyn_cast<IfStmt>(Else)) {
                             SourceLocation StartElse = ChildIf->getThen()->getBeginLoc();
                             SourceLocation EndElse = ChildIf->getThen()->getEndLoc();
 
@@ -184,10 +182,10 @@ namespace clang {
 
                             // this->closes.push_back(EndElse.getLocWithOffset(-1));
                             //std::string file_str_close(SM.getCharacterData(SM.getLocForStartOfFile(SM.getFileID(MatchedDecl->getBeginLoc()))), SM.getCharacterData(this->closes.back()));
-                        // std::cout << "Opening at: |" << file_str << "| OPEN" << std::endl << "Closing at: |" << file_str_close << "| CLOSE" << std::endl;
+                            // std::cout << "Opening at: |" << file_str << "| OPEN" << std::endl << "Closing at: |" << file_str_close << "| CLOSE" << std::endl;
 
                             if (SM.getSpellingLineNumber(StartElse) !=
-                                    SM.getSpellingLineNumber(ChildIf->getBeginLoc())) {
+                                SM.getSpellingLineNumber(ChildIf->getBeginLoc())) {
                                 diag(this->opens.back(), "Open brace must be located on same line as else.");
                             }
                             // std::cout << "ELSE BODY: |" << std::string(SM.getCharacterData(opens.back()),
@@ -195,8 +193,6 @@ namespace clang {
                         } else {
                             this->opens.push_back(Else->getBeginLoc());
                             this->closes.push_back(Else->getEndLoc().getLocWithOffset(-1));
-
-
                         }
                     }
                 } else if (auto MatchedDecl = Result.Nodes.getNodeAs<SwitchStmt>("switch")) {
@@ -208,10 +204,10 @@ namespace clang {
 
                     this->closes.push_back(MatchedDecl->getBody()->getEndLoc().getLocWithOffset(-1));
                     //std::string file_str_close(SM.getCharacterData(SM.getLocForStartOfFile(SM.getFileID(MatchedDecl->getBeginLoc()))), SM.getCharacterData(this->closes.back()));
-                        // std::cout << "Opening at: |" << file_str << "| OPEN" << std::endl << "Closing at: |" << file_str_close << "| CLOSE" << std::endl;
+                    // std::cout << "Opening at: |" << file_str << "| OPEN" << std::endl << "Closing at: |" << file_str_close << "| CLOSE" << std::endl;
 
                     if (SM.getSpellingLineNumber(this->opens.back()) !=
-                            SM.getSpellingLineNumber(MatchedDecl->getBeginLoc())) {
+                        SM.getSpellingLineNumber(MatchedDecl->getBeginLoc())) {
                         diag(this->opens.back(), "Open brace must be located on same line as switch.");
                     }
 
@@ -226,7 +222,7 @@ namespace clang {
 
                     this->closes.push_back(MatchedDecl->getEndLoc().getLocWithOffset(-1));
                     //std::string file_str_close(SM.getCharacterData(SM.getLocForStartOfFile(SM.getFileID(MatchedDecl->getBeginLoc()))), SM.getCharacterData(this->closes.back()));
-                        // std::cout << "Opening at: |" << file_str << "| OPEN" << std::endl << "Closing at: |" << file_str_close << "| CLOSE" << std::endl;
+                    // std::cout << "Opening at: |" << file_str << "| OPEN" << std::endl << "Closing at: |" << file_str_close << "| CLOSE" << std::endl;
 
                     // std::cout << "CASE BODY: |" << std::string(SM.getCharacterData(opens.back()),
                     //        SM.getCharacterData(closes.back())) << "|" << std::endl;
@@ -239,7 +235,7 @@ namespace clang {
 
                     this->closes.push_back(MatchedDecl->getEndLoc().getLocWithOffset(-1));
                     //std::string file_str_close(SM.getCharacterData(SM.getLocForStartOfFile(SM.getFileID(MatchedDecl->getBeginLoc()))), SM.getCharacterData(this->closes.back()));
-                        // std::cout << "Opening at: |" << file_str << "| OPEN" << std::endl << "Closing at: |" << file_str_close << "| CLOSE" << std::endl;
+                    // std::cout << "Opening at: |" << file_str << "| OPEN" << std::endl << "Closing at: |" << file_str_close << "| CLOSE" << std::endl;
                 } else if (auto MatchedDecl = Result.Nodes.getNodeAs<WhileStmt>("while")) {
                     if (not SM.isWrittenInMainFile(MatchedDecl->getBeginLoc()) or not MatchedDecl->getBeginLoc().isValid() or SM.isMacroArgExpansion(MatchedDecl->getBeginLoc()) or SM.isMacroBodyExpansion(MatchedDecl->getBeginLoc())) {
                         return;
@@ -249,13 +245,13 @@ namespace clang {
 
                     this->closes.push_back(MatchedDecl->getBody()->getEndLoc().getLocWithOffset(-1));
                     //std::string file_str_close(SM.getCharacterData(SM.getLocForStartOfFile(SM.getFileID(MatchedDecl->getBeginLoc()))), SM.getCharacterData(this->closes.back()));
-                        // std::cout << "Opening at: |" << file_str << "| OPEN" << std::endl << "Closing at: |" << file_str_close << "| CLOSE" << std::endl;
+                    // std::cout << "Opening at: |" << file_str << "| OPEN" << std::endl << "Closing at: |" << file_str_close << "| CLOSE" << std::endl;
 
                     // std::cout << "WHILE BODY: |" << std::string(SM.getCharacterData(opens.back()),
                     //        SM.getCharacterData(closes.back())) << "|" << std::endl;
 
                     if (SM.getSpellingLineNumber(this->opens.back()) !=
-                            SM.getSpellingLineNumber(MatchedDecl->getBeginLoc())) {
+                        SM.getSpellingLineNumber(MatchedDecl->getBeginLoc())) {
                         diag(this->opens.back(), "Open brace must be located on same line as while.");
                     }
                 }
@@ -282,7 +278,7 @@ namespace clang {
                 std::sort(closes.begin(), closes.end());
                 while (!this->lexer->LexFromRawLexer(tok)) {
                     if (not this->SMan->isWrittenInMainFile(tok.getLocation()) or
-                            not this->SMan->isWrittenInMainFile(tok.getEndLoc())) {
+                        not this->SMan->isWrittenInMainFile(tok.getEndLoc())) {
                         continue;
                     }
                     tokens.push_back(tok);
@@ -317,7 +313,7 @@ namespace clang {
                     }
                     if (tok.isAtStartOfLine() and tokens.size() > 1) {
                         std::string ws(this->SMan->getCharacterData(tokens.at(tokens.size() - 2).getLocation()),
-                                this->SMan->getCharacterData(tokens.at(tokens.size() - 2).getEndLoc()));
+                                       this->SMan->getCharacterData(tokens.at(tokens.size() - 2).getEndLoc()));
                         /*
                         std::cout << "WS: |";
                         for (auto c : ws) {
@@ -333,8 +329,7 @@ namespace clang {
                 }
                 // std::cout << "Opens to consume: " << opens.size() << std::endl;
                 // std::cout << "closes to consume: " << closes.size() << std::endl;
-                }
-                } // namespace eastwood
-            } // namespace tidy
-        } // namespace clang
-
+            }
+        } // namespace eastwood
+    }     // namespace tidy
+} // namespace clang

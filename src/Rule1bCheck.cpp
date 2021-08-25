@@ -16,8 +16,7 @@ namespace clang {
     namespace tidy {
         namespace eastwood {
 
-            Rule1bCheck::Rule1bCheck(StringRef Name, ClangTidyContext * Context) :
-                ClangTidyCheck(Name, Context), dump(Options.get("dump", "false")) {
+            Rule1bCheck::Rule1bCheck(StringRef Name, ClangTidyContext *Context) : ClangTidyCheck(Name, Context), dump(Options.get("dump", "false")) {
                 if (this->dump == "true") {
                     for (auto type : {"variable", "function", "enum", "union", "struct", "field", "typedef"}) {
                         std::vector<SourceLocation> sources{};
@@ -43,7 +42,7 @@ namespace clang {
             void Rule1bCheck::check(const MatchFinder::MatchResult &Result) {
                 SourceLocation loc;
                 std::string type = "";
-                
+
                 if (auto MatchedDecl = Result.Nodes.getNodeAs<VarDecl>("variable")) {
                     loc = MatchedDecl->getLocation();
                     type = "variable";
@@ -102,10 +101,10 @@ namespace clang {
                 }
             }
 
-            void Rule1bCheck::storeOptions(ClangTidyOptions::OptionMap & Opts) {
+            void Rule1bCheck::storeOptions(ClangTidyOptions::OptionMap &Opts) {
                 Options.store(Opts, "dump", this->dump);
-            } 
+            }
 
         } // namespace eastwood
-    } // namespace tidy
-} // namespace clang 
+    }     // namespace tidy
+} // namespace clang

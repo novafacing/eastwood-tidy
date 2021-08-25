@@ -15,12 +15,12 @@ using namespace clang::ast_matchers;
 namespace clang {
     namespace tidy {
         namespace eastwood {
-            void Rule3fCheck::registerMatchers(MatchFinder * Finder) {
+            void Rule3fCheck::registerMatchers(MatchFinder *Finder) {
                 Finder->addMatcher(functionDecl().bind("function_decl"), this);
             }
-            void Rule3fCheck::check(const MatchFinder::MatchResult & Result) {
-                const SourceManager & SM = *Result.SourceManager;
-                const ASTContext * Context = Result.Context;
+            void Rule3fCheck::check(const MatchFinder::MatchResult &Result) {
+                const SourceManager &SM = *Result.SourceManager;
+                const ASTContext *Context = Result.Context;
 
                 if (auto MatchedDecl = Result.Nodes.getNodeAs<FunctionDecl>("function_decl")) {
                     DeclarationNameInfo NameInfo = MatchedDecl->getNameInfo();
@@ -29,10 +29,10 @@ namespace clang {
                     std::pair<FileID, unsigned> LocInfo = SM.getDecomposedLoc(NameEnd);
                     SourceLocation StartOfFile = SM.getLocForStartOfFile(SM.getFileID(NameEnd));
                     StringRef File = SM.getBufferData(SM.getFileID(StartOfFile));
-                    const char * TokenBegin = File.data() + LocInfo.second;
+                    const char *TokenBegin = File.data() + LocInfo.second;
 
                     Lexer RawLexer(SM.getLocForStartOfFile(LocInfo.first),
-                            Context->getLangOpts(), File.begin(), TokenBegin, File.end());
+                                   Context->getLangOpts(), File.begin(), TokenBegin, File.end());
 
                     RawLexer.SetKeepWhitespaceMode(true);
 
@@ -43,15 +43,15 @@ namespace clang {
                                 return;
                             }
                             if (std::string(SM.getCharacterData(tok.getLocation()),
-                                        SM.getCharacterData(tok.getEndLoc())) != "(") {
+                                            SM.getCharacterData(tok.getEndLoc())) != "(") {
                                 std::string match(SM.getCharacterData(tok.getLocation()),
-                                    SM.getCharacterData(tok.getEndLoc()));
+                                                  SM.getCharacterData(tok.getEndLoc()));
                                 //std::cout << "Matched offender: |" << match << "|" << std::endl;
 
                                 diag(tok.getLocation(), "No space permitted between function name and parameter list.");
                             } else {
                                 std::string match(SM.getCharacterData(tok.getLocation()),
-                                    SM.getCharacterData(tok.getEndLoc()));
+                                                  SM.getCharacterData(tok.getEndLoc()));
                                 // std::cout << "Matched offender: |" << match << "|" << std::endl;
                             }
                             return;
@@ -60,5 +60,5 @@ namespace clang {
                 }
             }
         } // namespace eastwood
-    } // namespace tidy
+    }     // namespace tidy
 } // namespace clang

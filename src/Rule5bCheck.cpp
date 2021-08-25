@@ -14,7 +14,7 @@ using namespace clang::ast_matchers;
 namespace clang {
     namespace tidy {
         namespace eastwood {
-            void Rule5bCheck::registerMatchers(MatchFinder * Finder) {
+            void Rule5bCheck::registerMatchers(MatchFinder *Finder) {
                 Finder->addMatcher(functionDecl().bind("function_decl"), this);
             }
             size_t count_newlines(std::string s) {
@@ -26,16 +26,16 @@ namespace clang {
                 }
                 return ct;
             }
-            void Rule5bCheck::check(const MatchFinder::MatchResult & Result) {
-                const SourceManager & SM = *Result.SourceManager;
-                ASTContext * Context = Result.Context;
+            void Rule5bCheck::check(const MatchFinder::MatchResult &Result) {
+                const SourceManager &SM = *Result.SourceManager;
+                ASTContext *Context = Result.Context;
 
                 if (auto MatchedDecl = Result.Nodes.getNodeAs<FunctionDecl>("function_decl")) {
                     if (not this->checked) {
                         SourceLocation Location = MatchedDecl->getSourceRange().getBegin();
                         SourceLocation StartOfFile = SM.getLocForStartOfFile(SM.getFileID(Location));
                         StringRef File = SM.getBufferData(SM.getFileID(StartOfFile));
-                        const char * TokenBegin = File.data();
+                        const char *TokenBegin = File.data();
                         Lexer RawLexer(StartOfFile, Context->getLangOpts(), File.begin(), TokenBegin, File.end());
 
                         RawLexer.SetKeepWhitespaceMode(true);
@@ -56,13 +56,12 @@ namespace clang {
                                 // - Has blank line above and below
                                 if (tok.isAtStartOfLine()) {
                                     if (tokens.size() != 0) {
-                                        if (count_newlines(std::string(SM.getCharacterData(tokens.back().getLocation()), 
-                                                    SM.getCharacterData(tokens.back().getEndLoc()))) < 2) {
-                                            std::string contents(SM.getCharacterData(tokens.back().getLocation()), 
-                                                    SM.getCharacterData(tokens.back().getEndLoc()));
+                                        if (count_newlines(std::string(SM.getCharacterData(tokens.back().getLocation()),
+                                                                       SM.getCharacterData(tokens.back().getEndLoc()))) < 2) {
+                                            std::string contents(SM.getCharacterData(tokens.back().getLocation()),
+                                                                 SM.getCharacterData(tokens.back().getEndLoc()));
                                             //std::cout << "CONTENTS OF UNMATCHED \\n\\n STRING: |" << contents << "|" << std::endl;
-                                            if (tokens.at(tokens.size() - 2).getKind() != tok::l_brace
-                                                and tokens.at(tokens.size() - 2).getKind() != tok::comment) {
+                                            if (tokens.at(tokens.size() - 2).getKind() != tok::l_brace and tokens.at(tokens.size() - 2).getKind() != tok::comment) {
                                                 diag(tok.getLocation(), "Comment must be preceeded by a blank line, comment, or closing brace.");
                                             }
                                         }
@@ -76,11 +75,11 @@ namespace clang {
                                             continue;
                                         }
                                         add_next = true;
-                                        if (count_newlines(std::string(SM.getCharacterData(next.getLocation()), 
-                                                    SM.getCharacterData(next.getEndLoc()))) < 2
-                                                and nnext.getKind() != tok::comment) {
-                                            std::string contents(SM.getCharacterData(next.getLocation()), 
-                                                    SM.getCharacterData(next.getEndLoc()));
+                                        if (count_newlines(std::string(SM.getCharacterData(next.getLocation()),
+                                                                       SM.getCharacterData(next.getEndLoc()))) < 2 and
+                                            nnext.getKind() != tok::comment) {
+                                            std::string contents(SM.getCharacterData(next.getLocation()),
+                                                                 SM.getCharacterData(next.getEndLoc()));
                                             //std::cout << "CONTENTS OF UNMATCHED \\n\\n STRING: |" << contents << "|" << std::endl;
                                             diag(tok.getEndLoc(), "Comment must be followed by a blank line or comment.");
                                         }
@@ -88,10 +87,9 @@ namespace clang {
                                 } else {
                                     Token last_start = line_begin_tokens.back();
                                     if (last_start.isOneOf(tok::kw_if, tok::kw_else, tok::kw_case) or
-                                            (last_start.isAnyIdentifier() and (
-                                            last_start.getRawIdentifier().str() == "if" or
-                                            last_start.getRawIdentifier().str() == "else" or
-                                            last_start.getRawIdentifier().str() == "case"))) {
+                                        (last_start.isAnyIdentifier() and (last_start.getRawIdentifier().str() == "if" or
+                                                                           last_start.getRawIdentifier().str() == "else" or
+                                                                           last_start.getRawIdentifier().str() == "case"))) {
                                         // OK
                                         //std::cout << "Last start is OK" << std::endl;
                                     } else {
@@ -118,7 +116,7 @@ namespace clang {
                                 }
                             }
 
-end:
+                        end:
                             tokens.push_back(tok);
                             if (tok.isAtStartOfLine()) {
                                 line_begin_tokens.push_back(tok);
@@ -140,5 +138,5 @@ end:
                 }
             }
         } // namespace eastwood
-    } // namespace tidy
+    }     // namespace tidy
 } // namespace clang

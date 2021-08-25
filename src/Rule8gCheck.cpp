@@ -9,17 +9,17 @@
 
 #include "Rule8gCheck.h"
 #include <ftw.h>
-#include <unistd.h>
+#include <iostream>
 #include <sys/stat.h>
 #include <sys/types.h>
+#include <unistd.h>
 #include <vector>
-#include <iostream>
 
 using namespace clang::ast_matchers;
 
-std::vector<std::string> * files;
+std::vector<std::string> *files;
 
-static int AddFile(const char * fpath, const struct stat * sb, int typeFlag) {
+static int AddFile(const char *fpath, const struct stat *sb, int typeFlag) {
 
     if (typeFlag == FTW_F) {
         std::string s_fpath(fpath);
@@ -32,63 +32,63 @@ namespace clang {
     namespace tidy {
         namespace eastwood {
             class Rule8gPPCallBack : public PPCallbacks {
-                private:
-                    Rule8gCheck * Check;
-                    Preprocessor * PP;
-                    const SourceManager & SM;
-                    bool checked;
-                public:
+            private:
+                Rule8gCheck *Check;
+                Preprocessor *PP;
+                const SourceManager &SM;
+                bool checked;
 
-                    Rule8gPPCallBack(Rule8gCheck * Check, Preprocessor * PP, const SourceManager & SM) : Check(Check), 
-                        PP(PP), SM(SM), checked(false) {};
+            public:
+                Rule8gPPCallBack(Rule8gCheck *Check, Preprocessor *PP, const SourceManager &SM) : Check(Check),
+                                                                                                  PP(PP), SM(SM), checked(false){};
 
-                    void InclusionDirective(SourceLocation HashLoc, const Token & IncludeTok,
-                            StringRef FileName, bool isAngled, CharSourceRange FilenameRange, const FileEntry * File,
-                            StringRef SearchPath, StringRef RelativePath, const Module * Imported,
-                            SrcMgr::CharacteristicKind FileType) override {
+                void InclusionDirective(SourceLocation HashLoc, const Token &IncludeTok,
+                                        StringRef FileName, bool isAngled, CharSourceRange FilenameRange, const FileEntry *File,
+                                        StringRef SearchPath, StringRef RelativePath, const Module *Imported,
+                                        SrcMgr::CharacteristicKind FileType) override {
 
-                        if (not this->checked) {
-                            files = new std::vector<std::string>();
-                            std::string main_file_path(this->SM.getFileEntryForID(this->SM.getFileID(HashLoc))->tryGetRealPathName().str());
-                            std::string main_file_dir(main_file_path.substr(0, main_file_path.find_last_of("/")));
-                            ftw(main_file_dir.c_str(), AddFile, 0x10);
-                            this->checked = true;
-                        }
-                        if (not File or not File->isValid()) {
-                            return;
-                        }
-
-                        std::string header_file_path(File->tryGetRealPathName().str());
-                        std::string header_file_name(header_file_path.substr(header_file_path.find_last_of("/") + 1));
-                        for (auto fn : *files) {
-                            //std::cout << "Checking header file: " << fn << std::endl;
-                        }
-                        if (isAngled) {
-                            for (auto fn : *files) {
-                                if (fn == header_file_name) {
-                                    this->Check->diag(HashLoc, "Local includes must be included with \"...\", not angle braces.");
-                                }
-                            }
-                        } else {
-                            for (auto fn : *files) {
-                                if (fn == header_file_name) {
-                                    return;
-                                }
-                            }
-                            this->Check->diag(HashLoc, "Non-local include must be included with <...>, not double quotes.");
-                        }
+                    if (not this->checked) {
+                        files = new std::vector<std::string>();
+                        std::string main_file_path(this->SM.getFileEntryForID(this->SM.getFileID(HashLoc))->tryGetRealPathName().str());
+                        std::string main_file_dir(main_file_path.substr(0, main_file_path.find_last_of("/")));
+                        ftw(main_file_dir.c_str(), AddFile, 0x10);
+                        this->checked = true;
                     }
+                    if (not File or not File->isValid()) {
+                        return;
+                    }
+
+                    std::string header_file_path(File->tryGetRealPathName().str());
+                    std::string header_file_name(header_file_path.substr(header_file_path.find_last_of("/") + 1));
+                    for (auto fn : *files) {
+                        //std::cout << "Checking header file: " << fn << std::endl;
+                    }
+                    if (isAngled) {
+                        for (auto fn : *files) {
+                            if (fn == header_file_name) {
+                                this->Check->diag(HashLoc, "Local includes must be included with \"...\", not angle braces.");
+                            }
+                        }
+                    } else {
+                        for (auto fn : *files) {
+                            if (fn == header_file_name) {
+                                return;
+                            }
+                        }
+                        this->Check->diag(HashLoc, "Non-local include must be included with <...>, not double quotes.");
+                    }
+                }
             };
 
-            void Rule8gCheck::registerPPCallbacks(const SourceManager & SM, Preprocessor * PP,
-                    Preprocessor * ModuleExpanderPP) {
+            void Rule8gCheck::registerPPCallbacks(const SourceManager &SM, Preprocessor *PP,
+                                                  Preprocessor *ModuleExpanderPP) {
                 PP->addPPCallbacks(std::make_unique<Rule8gPPCallBack>(this, PP, SM));
             }
 
-            void Rule8gCheck::registerMatchers(MatchFinder * Finder) {
+            void Rule8gCheck::registerMatchers(MatchFinder *Finder) {
             }
-            void Rule8gCheck::check(const MatchFinder::MatchResult & Result) {
+            void Rule8gCheck::check(const MatchFinder::MatchResult &Result) {
             }
         } // namespace eastwood
-    } // namespace tidy
+    }     // namespace tidy
 } // namespace clang

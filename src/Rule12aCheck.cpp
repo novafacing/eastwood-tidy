@@ -14,18 +14,18 @@ using namespace clang::ast_matchers;
 namespace clang {
     namespace tidy {
         namespace eastwood {
-            void Rule12aCheck::registerMatchers(MatchFinder * Finder) {
+            void Rule12aCheck::registerMatchers(MatchFinder *Finder) {
                 Finder->addMatcher(varDecl().bind("var_decl"), this);
             }
 
-            void Rule12aCheck::check(const MatchFinder::MatchResult & Result) {
+            void Rule12aCheck::check(const MatchFinder::MatchResult &Result) {
                 if (auto MatchedDecl = Result.Nodes.getNodeAs<VarDecl>("var_decl")) {
                     if (MatchedDecl->isLocalVarDeclOrParm() and not MatchedDecl->isLocalVarDecl()) {
                         // This is a function parameter
                         return;
                     }
-                    const SourceManager & SM = *Result.SourceManager;
-                    const ASTContext * Context = Result.Context;
+                    const SourceManager &SM = *Result.SourceManager;
+                    const ASTContext *Context = Result.Context;
                     if (not MatchedDecl->hasExternalStorage()) {
                         unsigned line_num = SM.getSpellingLineNumber(MatchedDecl->getLocation());
                         if (this->first) {
@@ -42,5 +42,5 @@ namespace clang {
                 }
             }
         } // namespace eastwood
-    } // namespace tidy
+    }     // namespace tidy
 } // namespace clang

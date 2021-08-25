@@ -39,7 +39,7 @@ namespace clang {
                 } else {
                     // Error
                     diag(loc, "%0 %1 is not all lowercase"
-                            " and separated by underscores")
+                              " and separated by underscores")
                         << type << name;
                 }
             }
@@ -99,5 +99,5 @@ namespace clang {
             }
 
         } // namespace eastwood
-    } // namespace tidy
+    }     // namespace tidy
 } // namespace clang

@@ -8,38 +8,38 @@
 //===----------------------------------------------------------------------===//
 
 #include "Rule7aCheck.h"
-#include <vector>
-#include <regex>
 #include <iostream>
+#include <regex>
+#include <vector>
 
 using namespace clang::ast_matchers;
 
 namespace clang {
     namespace tidy {
         namespace eastwood {
-            void Rule7aCheck::registerMatchers(MatchFinder * Finder) {
+            void Rule7aCheck::registerMatchers(MatchFinder *Finder) {
                 Finder->addMatcher(functionDecl().bind("function_decl"), this);
             }
-            void Rule7aCheck::check(const MatchFinder::MatchResult & Result) {
+            void Rule7aCheck::check(const MatchFinder::MatchResult &Result) {
 
-                const SourceManager & SM = *Result.SourceManager;
-                const ASTContext * Context = Result.Context;
+                const SourceManager &SM = *Result.SourceManager;
+                const ASTContext *Context = Result.Context;
 
                 if (auto MatchedDecl = Result.Nodes.getNodeAs<FunctionDecl>("function_decl")) {
                     if (not MatchedDecl->isDefined()) {
                         return;
                     }
-                    const FunctionDecl * FunctionDefinition = MatchedDecl->getDefinition();
+                    const FunctionDecl *FunctionDefinition = MatchedDecl->getDefinition();
                     std::string fname = FunctionDefinition->getNameInfo().getName().getAsString();
                     if (FunctionDefinition) {
                         SourceRange FunctionDefinitionRange = FunctionDefinition->getSourceRange();
                         std::pair<FileID, unsigned> LocInfo = SM.getDecomposedLoc(FunctionDefinitionRange.getBegin());
                         SourceLocation StartOfFile = SM.getLocForStartOfFile(SM.getFileID(FunctionDefinitionRange.getBegin()));
                         StringRef File = SM.getBufferData(SM.getFileID(StartOfFile));
-                        const char * TokenBegin = File.data();
+                        const char *TokenBegin = File.data();
 
                         Lexer RawLexer(SM.getLocForStartOfFile(LocInfo.first),
-                                Context->getLangOpts(), File.begin(), TokenBegin, File.end());
+                                       Context->getLangOpts(), File.begin(), TokenBegin, File.end());
 
                         RawLexer.SetKeepWhitespaceMode(true);
 
@@ -69,14 +69,14 @@ namespace clang {
                                 return;
                             }
 
-                            if (not (std::string(SM.getCharacterData(tokens.back().getLocation()), 
-                                        SM.getCharacterData(tokens.back().getEndLoc())) == "\n\n")) {
+                            if (not(std::string(SM.getCharacterData(tokens.back().getLocation()),
+                                                SM.getCharacterData(tokens.back().getEndLoc())) == "\n\n")) {
                                 diag(tokens.back().getEndLoc(), "Empty line required.");
                                 return;
                             }
 
-                            if (not (std::string(SM.getCharacterData(tokens.at(tokens.size() - 3).getLocation()), 
-                                        SM.getCharacterData(tokens.at(tokens.size() - 3).getEndLoc())) == "\n\n")) {
+                            if (not(std::string(SM.getCharacterData(tokens.at(tokens.size() - 3).getLocation()),
+                                                SM.getCharacterData(tokens.at(tokens.size() - 3).getEndLoc())) == "\n\n")) {
                                 diag(tokens.at(tokens.size() - 2).getLocation(), "Empty line required.");
                                 return;
                             }
@@ -92,7 +92,7 @@ namespace clang {
                             }
                             if (tokens.at(tokens.size() - 2).getKind() == tok::comment) {
                                 std::string raw_header_comment(SM.getCharacterData(tokens.at(tokens.size() - 2).getLocation()),
-                                            SM.getCharacterData(tokens.at(tokens.size() - 2).getEndLoc()));
+                                                               SM.getCharacterData(tokens.at(tokens.size() - 2).getEndLoc()));
 
                                 std::regex pre_regex{R"([\/][*]([^\n]*[\n][ ][*])([ ]*[^ ][^\n]*[\n][ ][*]){1,}[\/])"};
                                 std::smatch result;
@@ -112,5 +112,5 @@ namespace clang {
                 }
             }
         } // namespace eastwood
-    } // namespace tidy
+    }     // namespace tidy
 } // namespace clang

@@ -9,8 +9,8 @@
 #include "Rule3bCheck.h"
 #include "clang/Lex/Lexer.h"
 #include "clang/Lex/Token.h"
-#include <vector>
 #include <iostream>
+#include <vector>
 
 using namespace clang::ast_matchers;
 
@@ -23,7 +23,7 @@ namespace clang {
             }
 
             void Rule3bCheck::check(const MatchFinder::MatchResult &Result) {
-                const SourceManager & SM = *Result.SourceManager;
+                const SourceManager &SM = *Result.SourceManager;
                 SourceLocation loc;
                 std::string name = "";
                 std::string type = "";
@@ -40,15 +40,15 @@ namespace clang {
                         // Nothing
                     } else {
                         // Set up the lexer
-                        CharSourceRange Range = CharSourceRange::getTokenRange(MatchedDecl->getBeginLoc(), 
-                                MatchedDecl->getEndLoc());
-                        const SourceManager & Sources = *Result.SourceManager;
+                        CharSourceRange Range = CharSourceRange::getTokenRange(MatchedDecl->getBeginLoc(),
+                                                                               MatchedDecl->getEndLoc());
+                        const SourceManager &Sources = *Result.SourceManager;
                         std::pair<FileID, unsigned> LocInfo = Sources.getDecomposedLoc(Range.getBegin());
                         StringRef File = Sources.getBufferData(LocInfo.first);
-                        const char * TokenBegin = File.data() + LocInfo.second;
+                        const char *TokenBegin = File.data() + LocInfo.second;
                         Lexer RawLexer(Sources.getLocForStartOfFile(LocInfo.first),
-                                Result.Context->getLangOpts(), File.begin(), TokenBegin,
-                                File.end());
+                                       Result.Context->getLangOpts(), File.begin(), TokenBegin,
+                                       File.end());
 
                         RawLexer.SetKeepWhitespaceMode(true);
 
@@ -62,7 +62,7 @@ namespace clang {
                             if (tok.getLocation() == MatchedDecl->getOperatorLoc()) {
                                 if (SM.isWrittenInMainFile(tok.getLocation())) {
                                     std::string match(SM.getCharacterData(tok.getLocation()),
-                                    SM.getCharacterData(tok.getEndLoc()));
+                                                      SM.getCharacterData(tok.getEndLoc()));
                                     //std::cout << "GOT MATCH: |" << match << "|" << std::endl;
                                 }
 
@@ -71,28 +71,25 @@ namespace clang {
                                 }
                                 donext = true;
 
-                                if (not (tokens.empty()) and SM.isWrittenInMainFile(tokens.back().getLocation())) {
+                                if (not(tokens.empty()) and SM.isWrittenInMainFile(tokens.back().getLocation())) {
                                     std::string match(SM.getCharacterData(tokens.back().getLocation()),
-                                        SM.getCharacterData(tokens.back().getEndLoc()));
+                                                      SM.getCharacterData(tokens.back().getEndLoc()));
                                     //std::cout << "PRECEEDING MATCH: |" << match << "|" << std::endl;
                                 }
 
-                                if (not (tokens.empty()) and SM.isWrittenInMainFile(tokens.back().getLocation()) 
-                                        and not MatchedDecl->isCommaOp() 
-                                        and std::string(SM.getCharacterData(tokens.back().getLocation()),
-                                        SM.getCharacterData(tokens.back().getEndLoc())) != " ") {
+                                if (not(tokens.empty()) and SM.isWrittenInMainFile(tokens.back().getLocation()) and not MatchedDecl->isCommaOp() and std::string(SM.getCharacterData(tokens.back().getLocation()), SM.getCharacterData(tokens.back().getEndLoc())) != " ") {
                                     diag(tok.getLocation(), "Leading space required.");
                                 }
 
                                 if (SM.isWrittenInMainFile(next.getLocation())) {
                                     std::string match(SM.getCharacterData(next.getLocation()),
-                                        SM.getCharacterData(next.getEndLoc()));
+                                                      SM.getCharacterData(next.getEndLoc()));
                                     //std::cout << "TRAILING MATCH: |" << match << "|" << std::endl;
                                 }
 
-                                if (SM.isWrittenInMainFile(next.getLocation()) and 
-                                        std::string(SM.getCharacterData(next.getLocation()),
-                                        SM.getCharacterData(next.getEndLoc())) != " ") {
+                                if (SM.isWrittenInMainFile(next.getLocation()) and
+                                    std::string(SM.getCharacterData(next.getLocation()),
+                                                SM.getCharacterData(next.getEndLoc())) != " ") {
                                     diag(tok.getEndLoc(), "Trailing space required.");
                                 }
                                 return;
@@ -109,5 +106,5 @@ namespace clang {
                 }
             }
         } // namespace eastwood
-    } // namespace tidy
+    }     // namespace tidy
 } // namespace clang

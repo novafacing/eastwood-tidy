@@ -14,10 +14,10 @@ using namespace clang::ast_matchers;
 namespace clang {
     namespace tidy {
         namespace eastwood {
-            void Rule10aCheck::registerMatchers(MatchFinder * Finder) {
+            void Rule10aCheck::registerMatchers(MatchFinder *Finder) {
             }
-            void Rule10aCheck::check(const MatchFinder::MatchResult & Result) {
+            void Rule10aCheck::check(const MatchFinder::MatchResult &Result) {
             }
         } // namespace eastwood
-    } // namespace tidy
+    }     // namespace tidy
 } // namespace clang

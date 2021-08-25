@@ -33,16 +33,15 @@ namespace clang {
                         unsigned end_ln = (Result.SourceManager)->getSpellingLineNumber(end, nullptr);
                         if (end_ln - beg_ln >= MAX_FN_SIZE) {
                             diag(loc, "%0 %1 is over the maximum function size"
-                                    " of %2 lines") << type << name << MAX_FN_SIZE;
+                                      " of %2 lines")
+                                << type << name << MAX_FN_SIZE;
                         }
-
                     }
                 } else {
                     return;
                 }
-
             }
 
         } // namespace eastwood
-    } // namespace tidy
+    }     // namespace tidy
 } // namespace clang

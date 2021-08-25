@@ -15,17 +15,17 @@ using namespace clang::ast_matchers;
 namespace clang {
     namespace tidy {
         namespace eastwood {
-            void Rule11cCheck::registerMatchers(MatchFinder * Finder) {
+            void Rule11cCheck::registerMatchers(MatchFinder *Finder) {
                 Finder->addMatcher(binaryOperator(isAssignmentOperator()).bind("binary_operator"), this);
             }
-            void Rule11cCheck::check(const MatchFinder::MatchResult & Result) {
-                ASTContext * Context = Result.Context;
-                SourceManager & SM = *Result.SourceManager;
+            void Rule11cCheck::check(const MatchFinder::MatchResult &Result) {
+                ASTContext *Context = Result.Context;
+                SourceManager &SM = *Result.SourceManager;
 
                 if (auto MatchedDecl = Result.Nodes.getNodeAs<BinaryOperator>("binary_operator")) {
-                    const Stmt & CurrentStmt = *MatchedDecl;
+                    const Stmt &CurrentStmt = *MatchedDecl;
                     // TODO: Get parent until parent is no longer an Expr. Add the assignment expression to the map indexed by expr. If we have 1 already, error.
-                    ParentMapContext & PMC = Context->getParentMapContext();
+                    ParentMapContext &PMC = Context->getParentMapContext();
                     DynTypedNodeList Parents = PMC.getParents(CurrentStmt);
                     DynTypedNodeList LParents = Parents;
                     ASTNodeKind ParenExprKind = ASTNodeKind::getFromNodeKind<ParenExpr>();
@@ -37,7 +37,6 @@ namespace clang {
                         // = is child of another =; this is forbidden
                         diag(MatchedDecl->getExprLoc(), "Multiple assignments are not permitted in a single expression");
                         return;
-
                     }
                     std::string paren_expr_str;
                     llvm::raw_string_ostream rso(paren_expr_str);
@@ -50,7 +49,7 @@ namespace clang {
                         //std::cout << rso.str() << std::endl;
                         LParents = Parents;
                         Parents = PMC.getParents(Parents[0]);
-                        if (not (Parents.size() == 1) or CaseStmtKind.isSame(Parents[0].getNodeKind())) {
+                        if (not(Parents.size() == 1) or CaseStmtKind.isSame(Parents[0].getNodeKind())) {
                             //std::cout << "Parents of size" << Parents.size() << std::endl;
                             break;
                         } else {
@@ -70,5 +69,5 @@ namespace clang {
                 }
             }
         } // namespace eastwood
-    } // namespace tidy
+    }     // namespace tidy
 } // namespace clang
