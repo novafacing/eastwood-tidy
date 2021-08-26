@@ -36,7 +36,7 @@ $ git clone https://github.com/novafacing/eastwood-tidy.git
 $ rm llvm-project/clang-tools-extra/clang-tidy/CMakeLists.txt llvm-project/clang-tools-extra/clang-tidy/ClangTidyForceLinker.h
 $ ln -s $(pwd)/eastwood-tidy/setup/CMakeLists.txt $(pwd)/llvm-project/clang-tools-extra/clang-tidy/CMakeLists.txt
 $ ln -s $(pwd)/eastwood-tidy/setup/ClangTidyForceLinker.h $(pwd)/llvm-project/clang-tools-extra/clang-tidy/ClangTidyForceLinker.h
-$ ln -s $(pwd)/eastwood-tidy/ $(pwd)/llvm-project/clang-tools-extra/clang-tidy/eastwood/
+$ ln -s $(pwd)/eastwood-tidy/ $(pwd)/llvm-project/clang-tools-extra/clang-tidy/
 ```
 4. Use CMake + Make to build the new clang-tidy
 
