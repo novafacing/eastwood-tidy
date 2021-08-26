@@ -13,15 +13,14 @@
 #include "llvm/Support/Compiler.h"
 
 namespace clang {
+    namespace tidy {
 #if CLANG_TIDY_ENABLE_STATIC_ANALYZER && \
     !defined(CLANG_TIDY_DISABLE_STATIC_ANALYZER_CHECKS)
-    // This anchor is used to force the linker to link the MPIModule.
-    extern volatile int MPIModuleAnchorSource;
-    static int LLVM_ATTRIBUTE_UNUSED MPIModuleAnchorDestination =
-        MPIModuleAnchorSource;
+        // This anchor is used to force the linker to link the MPIModule.
+        extern volatile int MPIModuleAnchorSource;
+        static int LLVM_ATTRIBUTE_UNUSED MPIModuleAnchorDestination =
+            MPIModuleAnchorSource;
 #endif
-
-    namespace tidy {
         // This anchor is used to force the linker to link the CERTModule.
         extern volatile int EastwoodModuleAnchorSource;
         static int LLVM_ATTRIBUTE_UNUSED EastwoodModuleAnchorDestination =
