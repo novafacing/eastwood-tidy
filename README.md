@@ -9,6 +9,7 @@
 5. [Testing](#testing)
 6. [Notes](#notes)
 7. [Wiki](https://github.com/novafacing/eastwood-tidy/wiki)
+8. [Code Standard](#code-standard)
 
 ## About <a name="about" />
 
@@ -162,3 +163,84 @@ You can just do `clang-tidy <args> -- $(nix eval nixpkgs.glibc.dev.outPath | tr 
 ### Note for include directories
 
 Note for include directories and files: using `clang-tidy <regular args> -- <clang args>` can be done to specify include directories. For example: `./clang-tidy -checks "-*,eastwood*" /home/novafacing/hub/llvm-project/clang-tools-extra/clang-tidy/eastwood/test/I/test_I_D_fail.c -- -I/nix/store/lqn6r231ifgs2z66vvaav5zmrywlllzf-glibc-2.31-dev/include/`
+
+## Code Standard <a name="code-standard" />
+
+Below is the list of supported checks for the Eastwood-Tidy Linter. Checkboxes are only checked for full implementations.
+
+### 1. Naming Convention
+
+- [x] A. Variable names should be all in lowercase, optionally separated by underscores.
+- [x] B. Variable names should be descriptive and meaningful.
+- [x] C. Constants must be uppercase, contain >= 2 characters, be declared using ###define, have () for numbers and "" for strings.
+- [x] D. Global variables must begin with the prefix "g_" and be located at the top of the file.
+
+### 2. Line and Function Length
+
+- [x] A. Lines must be under 80 columns. If it is too long, following lines must be indented at least 2 spaces.
+- [x] B. Functions should fit on 2 pages (240 lines).
+
+### 3. Spacing
+
+- [x] One space after all structure/flow keywords (if, else, while, do, switch). One space before all open braces.
+- [x] One space before and after all logical and arithmetic operators (+, -, *, /, ==, >, etc).
+- [x] One space after all internal commas and semicolons.
+- [ ] Define expressions should be grouped, and have a blank line above and below.
+
+### 4. Indentation
+
+- [x] Two space indentation must be applied to the entire program. Opening brace must be on the same line as keyword. Else must be on its own line.
+- [x] Parameters should be on one line unless 80 columns is exceeded, in which case they should be aligned.
+- [x] The while statement of a do-while loop must be on the same line as the closing brace.
+
+### 5. Comments
+
+- [ ] Comments should be meaningful and not repeat the obvious.
+- [x] Comments must be placed above code except to annotate an if, else, or case statement.
+- [x] Comments must be preceded by either a blank line or an open brace.
+- [x] Function names must be commented at the end of each function in the format /* foo() */.
+- [x] Function header comments should have a blank line preceding and following.
+
+### 6. Multiple Logical expressions
+
+- [x] If multiple logical expressions are used, sub-expressions must be parenthesized.
+
+### 7. Headers
+
+- [x] Header comments must be present for all functions, aligned to left edge.
+
+### 8. Header Files.
+
+- [x] Every .c file should have an associated .h file.
+- [x] Header files should end in .h.
+- [x] All header files should have define guards to prevent multiple inclusion.
+- [x] All local header files should be descendants of the project; no `.`/`..` permitted.
+- [x] Includes should be ordered by corresponding header, global includes, then local includes with each section in lexicographic order.
+- [ ] All relevant files should be explicitly included.
+- [x] Only non-local includes should used <...>, and local includes must use "...".
+
+### 9. Defensive Coding
+
+- [ ] Return values of library functions must be checked.
+- [ ] File pointers from `fopen` must be closed with `fclose`.
+- [ ] Pointers deallocated with `free` must be set to `NULL`.
+- [ ] Range checking should be performed on return values.
+- [ ] The appropriate zero should be used for `NULL` (0, 0.0, NULL, '\0').
+
+### 10. Output Handling
+
+- [ ] All errors should be directed to stderr.
+
+### 11. Forbidden Statements
+
+- [x] Never use tabs.
+- [x] DOS newlines are prohibited.
+- [x] Do not make multiple assignments in a single expression.
+- [x] Do not use embedded constants.
+- [x] Do not use goto.
+
+### 12. Variable declarations
+
+- [x] Do not define more than one variable on a single line.
+- [x] All variables must be initialized when they are defined.
+- [ ] Variables should be placed as locally as possible.
