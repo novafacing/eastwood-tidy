@@ -14,10 +14,8 @@ using namespace clang::ast_matchers;
 namespace clang {
     namespace tidy {
         namespace eastwood {
-            void Rule11eCheck::registerMatchers(MatchFinder *Finder) {
-            }
-            void Rule11eCheck::check(const MatchFinder::MatchResult &Result) {
-            }
+            void Rule11eCheck::registerMatchers(MatchFinder *Finder) {}
+            void Rule11eCheck::check(const MatchFinder::MatchResult &Result) {}
         } // namespace eastwood
     }     // namespace tidy
 } // namespace clang

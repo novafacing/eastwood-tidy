@@ -19,18 +19,26 @@ namespace clang {
             }
             void Rule4bCheck::check(const MatchFinder::MatchResult &Result) {
                 const SourceManager &SM = *Result.SourceManager;
-                if (auto MatchedDecl = Result.Nodes.getNodeAs<FunctionDecl>("function_decl")) {
+                if (auto MatchedDecl =
+                        Result.Nodes.getNodeAs<FunctionDecl>("function_decl")) {
                     if (MatchedDecl->param_size() < 2) {
                         return;
                     }
-                    unsigned FirstCol = SM.getSpellingColumnNumber(MatchedDecl->getParamDecl(0)->getBeginLoc());
-                    unsigned FirstLineNum = SM.getSpellingLineNumber(MatchedDecl->getParamDecl(0)->getBeginLoc());
+                    unsigned FirstCol = SM.getSpellingColumnNumber(
+                        MatchedDecl->getParamDecl(0)->getBeginLoc());
+                    unsigned FirstLineNum = SM.getSpellingLineNumber(
+                        MatchedDecl->getParamDecl(0)->getBeginLoc());
                     unsigned CurrentLine = FirstLineNum;
                     for (auto Param : MatchedDecl->parameters()) {
-                        if (SM.getSpellingLineNumber(Param->getBeginLoc()) > CurrentLine) {
-                            CurrentLine = SM.getSpellingLineNumber(Param->getBeginLoc());
-                            if (SM.getSpellingColumnNumber(Param->getBeginLoc()) != FirstCol) {
-                                diag(Param->getBeginLoc(), "Line-broken parameter is not aligned with first parameter.");
+                        if (SM.getSpellingLineNumber(Param->getBeginLoc()) >
+                            CurrentLine) {
+                            CurrentLine =
+                                SM.getSpellingLineNumber(Param->getBeginLoc());
+                            if (SM.getSpellingColumnNumber(Param->getBeginLoc()) !=
+                                FirstCol) {
+                                diag(Param->getBeginLoc(),
+                                     "Line-broken parameter is not aligned with first "
+                                     "parameter.");
                             }
                         }
                     }

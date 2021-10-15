@@ -45,7 +45,8 @@ namespace clang {
                         return Loc;
 
                     // Fast-forward current token.
-                    Loc = Lexer::getLocForEndOfToken(Loc, 0, SM, Context->getLangOpts());
+                    Loc =
+                        Lexer::getLocForEndOfToken(Loc, 0, SM, Context->getLangOpts());
                 }
             }
 
@@ -66,8 +67,8 @@ namespace clang {
                     return SourceLocation();
                 }
 
-                SourceLocation PastCondEndLoc =
-                    Lexer::getLocForEndOfToken(CondEndLoc, 0, SM, Context->getLangOpts());
+                SourceLocation PastCondEndLoc = Lexer::getLocForEndOfToken(
+                    CondEndLoc, 0, SM, Context->getLangOpts());
                 if (PastCondEndLoc.isInvalid()) {
                     return SourceLocation();
                 }
@@ -101,8 +102,8 @@ namespace clang {
             }
 
             void Rule3aCheck::checkStmt(const MatchFinder::MatchResult &Result,
-                                        const Stmt *S,
-                                        SourceLocation InitialLoc, SourceLocation EndLocHint) {
+                                        const Stmt *S, SourceLocation InitialLoc,
+                                        SourceLocation EndLocHint) {
 
                 if (!InitialLoc.isValid()) {
                     return;
@@ -119,9 +120,9 @@ namespace clang {
                     return;
                 }
 
-                InitialLoc = Lexer::makeFileCharRange(
-                                 CharSourceRange::getCharRange(InitialLoc, S->getBeginLoc()),
-                                 SM, Context->getLangOpts())
+                InitialLoc = Lexer::makeFileCharRange(CharSourceRange::getCharRange(
+                                                          InitialLoc, S->getBeginLoc()),
+                                                      SM, Context->getLangOpts())
                                  .getBegin();
 
                 if (InitialLoc.isInvalid()) {
@@ -141,28 +142,36 @@ namespace clang {
                         return;
                     }
                     // Set up the lexer
-                    CharSourceRange Range = CharSourceRange::getTokenRange(MatchedDecl->getBeginLoc(),
-                                                                           MatchedDecl->getRParenLoc().getLocWithOffset(1));
+                    CharSourceRange Range = CharSourceRange::getTokenRange(
+                        MatchedDecl->getBeginLoc(),
+                        MatchedDecl->getRParenLoc().getLocWithOffset(1));
                     const SourceManager &Sources = *Result.SourceManager;
-                    std::pair<FileID, unsigned> LocInfo = Sources.getDecomposedLoc(Range.getEnd());
+                    std::pair<FileID, unsigned> LocInfo =
+                        Sources.getDecomposedLoc(Range.getEnd());
                     StringRef File = Sources.getBufferData(LocInfo.first);
                     const char *TokenBegin = File.data() + LocInfo.second;
                     if (not Sources.getLocForStartOfFile(LocInfo.first).isValid() or
-                        not SM.isWrittenInMainFile(Sources.getLocForStartOfFile(LocInfo.first))) {
+                        not SM.isWrittenInMainFile(
+                            Sources.getLocForStartOfFile(LocInfo.first))) {
                         return;
                     }
                     Lexer RawLexer(Sources.getLocForStartOfFile(LocInfo.first),
-                                   Result.Context->getLangOpts(), File.begin(), TokenBegin,
-                                   File.end());
+                                   Result.Context->getLangOpts(), File.begin(),
+                                   TokenBegin, File.end());
 
                     RawLexer.SetKeepWhitespaceMode(true);
                     Token tok;
                     std::vector<Token> tokens;
                     while (!RawLexer.LexFromRawLexer(tok)) {
                         if (tok.getKind() == tok::l_brace) {
-                            if (tokens.size() != 1 or std::string(SM.getCharacterData(tokens.back().getLocation()),
-                                                                  SM.getCharacterData(tokens.back().getEndLoc())) != " ") {
-                                diag(tok.getLocation(), "Open brace after while must be preceeded by exactly one space.");
+                            if (tokens.size() != 1 or
+                                std::string(
+                                    SM.getCharacterData(tokens.back().getLocation()),
+                                    SM.getCharacterData(tokens.back().getEndLoc())) !=
+                                    " ") {
+                                diag(tok.getLocation(),
+                                     "Open brace after while must be preceeded by "
+                                     "exactly one space.");
                                 return;
                             }
                             return;
@@ -170,140 +179,176 @@ namespace clang {
                         tokens.push_back(tok);
                     }
 
-                } else if (auto MatchedDecl = Result.Nodes.getNodeAs<WhileStmt>("while_beg")) {
+                } else if (auto MatchedDecl =
+                               Result.Nodes.getNodeAs<WhileStmt>("while_beg")) {
                     if (SM.isWrittenInMainFile(MatchedDecl->getBeginLoc())) {
                         return;
                     }
                     // Set up the lexer
-                    CharSourceRange Range = CharSourceRange::getTokenRange(MatchedDecl->getBeginLoc().getLocWithOffset(1),
-                                                                           MatchedDecl->getLParenLoc());
+                    CharSourceRange Range = CharSourceRange::getTokenRange(
+                        MatchedDecl->getBeginLoc().getLocWithOffset(1),
+                        MatchedDecl->getLParenLoc());
 
                     const SourceManager &Sources = *Result.SourceManager;
-                    std::pair<FileID, unsigned> LocInfo = Sources.getDecomposedLoc(Range.getBegin());
+                    std::pair<FileID, unsigned> LocInfo =
+                        Sources.getDecomposedLoc(Range.getBegin());
                     StringRef File = Sources.getBufferData(LocInfo.first);
                     const char *TokenBegin = File.data() + LocInfo.second;
                     if (not Sources.getLocForStartOfFile(LocInfo.first).isValid() or
-                        not SM.isWrittenInMainFile(Sources.getLocForStartOfFile(LocInfo.first))) {
+                        not SM.isWrittenInMainFile(
+                            Sources.getLocForStartOfFile(LocInfo.first))) {
                         return;
                     }
                     Lexer RawLexer(Sources.getLocForStartOfFile(LocInfo.first),
-                                   Result.Context->getLangOpts(), File.begin(), TokenBegin,
-                                   File.end());
+                                   Result.Context->getLangOpts(), File.begin(),
+                                   TokenBegin, File.end());
 
                     RawLexer.SetKeepWhitespaceMode(true);
                     Token tok;
                     std::vector<Token> tokens;
                     while (!RawLexer.LexFromRawLexer(tok)) {
                         if (tok.getLocation() == Range.getEnd()) {
-                            if (tokens.empty() or std::string(SM.getCharacterData(tokens.back().getLocation()),
-                                                              SM.getCharacterData(tokens.back().getEndLoc())) != " ") {
-                                diag(tok.getLocation(), "While keyword must be followed by exactly one space.");
+                            if (tokens.empty() or
+                                std::string(
+                                    SM.getCharacterData(tokens.back().getLocation()),
+                                    SM.getCharacterData(tokens.back().getEndLoc())) !=
+                                    " ") {
+                                diag(tok.getLocation(),
+                                     "While keyword must be followed by exactly one "
+                                     "space.");
                                 return;
                             }
                             return;
                         }
                         tokens.push_back(tok);
                     }
-                } else if (auto MatchedDecl = Result.Nodes.getNodeAs<ForStmt>("for_end")) {
+                } else if (auto MatchedDecl =
+                               Result.Nodes.getNodeAs<ForStmt>("for_end")) {
                     if (SM.isWrittenInMainFile(MatchedDecl->getBeginLoc())) {
                         return;
                     }
-                    CharSourceRange Range = CharSourceRange::getTokenRange(MatchedDecl->getBeginLoc(),
-                                                                           MatchedDecl->getRParenLoc().getLocWithOffset(1));
+                    CharSourceRange Range = CharSourceRange::getTokenRange(
+                        MatchedDecl->getBeginLoc(),
+                        MatchedDecl->getRParenLoc().getLocWithOffset(1));
                     const SourceManager &Sources = *Result.SourceManager;
-                    std::pair<FileID, unsigned> LocInfo = Sources.getDecomposedLoc(Range.getEnd());
+                    std::pair<FileID, unsigned> LocInfo =
+                        Sources.getDecomposedLoc(Range.getEnd());
                     StringRef File = Sources.getBufferData(LocInfo.first);
                     const char *TokenBegin = File.data() + LocInfo.second;
                     if (not Sources.getLocForStartOfFile(LocInfo.first).isValid() or
-                        not SM.isWrittenInMainFile(Sources.getLocForStartOfFile(LocInfo.first))) {
+                        not SM.isWrittenInMainFile(
+                            Sources.getLocForStartOfFile(LocInfo.first))) {
                         return;
                     }
                     Lexer RawLexer(Sources.getLocForStartOfFile(LocInfo.first),
-                                   Result.Context->getLangOpts(), File.begin(), TokenBegin,
-                                   File.end());
+                                   Result.Context->getLangOpts(), File.begin(),
+                                   TokenBegin, File.end());
 
                     RawLexer.SetKeepWhitespaceMode(true);
                     Token tok;
                     std::vector<Token> tokens;
                     while (!RawLexer.LexFromRawLexer(tok)) {
                         if (tok.getKind() == tok::l_brace) {
-                            if (tokens.size() != 1 or std::string(SM.getCharacterData(tokens.back().getLocation()),
-                                                                  SM.getCharacterData(tokens.back().getEndLoc())) != " ") {
-                                diag(tok.getLocation(), "Open brace after for must be preceeded by exactly one space.");
+                            if (tokens.size() != 1 or
+                                std::string(
+                                    SM.getCharacterData(tokens.back().getLocation()),
+                                    SM.getCharacterData(tokens.back().getEndLoc())) !=
+                                    " ") {
+                                diag(tok.getLocation(),
+                                     "Open brace after for must be preceeded by "
+                                     "exactly one space.");
                                 return;
                             }
                             return;
                         }
                         tokens.push_back(tok);
                     }
-                } else if (auto MatchedDecl = Result.Nodes.getNodeAs<ForStmt>("for_beg")) {
+                } else if (auto MatchedDecl =
+                               Result.Nodes.getNodeAs<ForStmt>("for_beg")) {
                     if (SM.isWrittenInMainFile(MatchedDecl->getBeginLoc())) {
                         return;
                     }
-                    CharSourceRange Range = CharSourceRange::getTokenRange(MatchedDecl->getBeginLoc().getLocWithOffset(1),
-                                                                           MatchedDecl->getLParenLoc());
+                    CharSourceRange Range = CharSourceRange::getTokenRange(
+                        MatchedDecl->getBeginLoc().getLocWithOffset(1),
+                        MatchedDecl->getLParenLoc());
 
                     const SourceManager &Sources = *Result.SourceManager;
-                    std::pair<FileID, unsigned> LocInfo = Sources.getDecomposedLoc(Range.getBegin());
+                    std::pair<FileID, unsigned> LocInfo =
+                        Sources.getDecomposedLoc(Range.getBegin());
                     StringRef File = Sources.getBufferData(LocInfo.first);
                     const char *TokenBegin = File.data() + LocInfo.second;
                     if (not Sources.getLocForStartOfFile(LocInfo.first).isValid() or
-                        not SM.isWrittenInMainFile(Sources.getLocForStartOfFile(LocInfo.first))) {
+                        not SM.isWrittenInMainFile(
+                            Sources.getLocForStartOfFile(LocInfo.first))) {
                         return;
                     }
                     Lexer RawLexer(Sources.getLocForStartOfFile(LocInfo.first),
-                                   Result.Context->getLangOpts(), File.begin(), TokenBegin,
-                                   File.end());
+                                   Result.Context->getLangOpts(), File.begin(),
+                                   TokenBegin, File.end());
 
                     RawLexer.SetKeepWhitespaceMode(true);
                     Token tok;
                     std::vector<Token> tokens;
                     while (!RawLexer.LexFromRawLexer(tok)) {
                         if (tok.getLocation() == Range.getEnd()) {
-                            if (tokens.empty() or std::string(SM.getCharacterData(tokens.back().getLocation()),
-                                                              SM.getCharacterData(tokens.back().getEndLoc())) != " ") {
-                                diag(tok.getLocation(), "For keyword must be followed by exactly one space.");
+                            if (tokens.empty() or
+                                std::string(
+                                    SM.getCharacterData(tokens.back().getLocation()),
+                                    SM.getCharacterData(tokens.back().getEndLoc())) !=
+                                    " ") {
+                                diag(tok.getLocation(), "For keyword must be followed "
+                                                        "by exactly one space.");
                                 return;
                             }
                             return;
                         }
                         tokens.push_back(tok);
                     }
-                } else if (auto MatchedDecl = Result.Nodes.getNodeAs<IfStmt>("if_end")) {
+                } else if (auto MatchedDecl =
+                               Result.Nodes.getNodeAs<IfStmt>("if_end")) {
                     if (SM.isWrittenInMainFile(MatchedDecl->getBeginLoc())) {
                         return;
                     }
-                } else if (auto MatchedDecl = Result.Nodes.getNodeAs<IfStmt>("if_beg")) {
+                } else if (auto MatchedDecl =
+                               Result.Nodes.getNodeAs<IfStmt>("if_beg")) {
                     if (SM.isWrittenInMainFile(MatchedDecl->getBeginLoc())) {
                         return;
                     }
-                    CharSourceRange Range = CharSourceRange::getTokenRange(MatchedDecl->getBeginLoc().getLocWithOffset(1),
-                                                                           MatchedDecl->getLParenLoc());
+                    CharSourceRange Range = CharSourceRange::getTokenRange(
+                        MatchedDecl->getBeginLoc().getLocWithOffset(1),
+                        MatchedDecl->getLParenLoc());
 
                     const SourceManager &Sources = *Result.SourceManager;
-                    std::pair<FileID, unsigned> LocInfo = Sources.getDecomposedLoc(Range.getBegin());
+                    std::pair<FileID, unsigned> LocInfo =
+                        Sources.getDecomposedLoc(Range.getBegin());
                     StringRef File = Sources.getBufferData(LocInfo.first);
                     const char *TokenBegin = File.data() + LocInfo.second;
                     if (not Sources.getLocForStartOfFile(LocInfo.first).isValid() or
-                        not SM.isWrittenInMainFile(Sources.getLocForStartOfFile(LocInfo.first))) {
+                        not SM.isWrittenInMainFile(
+                            Sources.getLocForStartOfFile(LocInfo.first))) {
                         return;
                     }
                     if (not Sources.getLocForStartOfFile(LocInfo.first).isValid() or
-                        not SM.isWrittenInMainFile(Sources.getLocForStartOfFile(LocInfo.first))) {
+                        not SM.isWrittenInMainFile(
+                            Sources.getLocForStartOfFile(LocInfo.first))) {
                         return;
                     }
                     Lexer RawLexer(Sources.getLocForStartOfFile(LocInfo.first),
-                                   Result.Context->getLangOpts(), File.begin(), TokenBegin,
-                                   File.end());
+                                   Result.Context->getLangOpts(), File.begin(),
+                                   TokenBegin, File.end());
 
                     RawLexer.SetKeepWhitespaceMode(true);
                     Token tok;
                     std::vector<Token> tokens;
                     while (!RawLexer.LexFromRawLexer(tok)) {
                         if (tok.getLocation() == Range.getEnd()) {
-                            if (tokens.empty() or std::string(SM.getCharacterData(tokens.back().getLocation()),
-                                                              SM.getCharacterData(tokens.back().getEndLoc())) != " ") {
-                                diag(tok.getLocation(), "If keyword must be followed by exactly one space.");
+                            if (tokens.empty() or
+                                std::string(
+                                    SM.getCharacterData(tokens.back().getLocation()),
+                                    SM.getCharacterData(tokens.back().getEndLoc())) !=
+                                    " ") {
+                                diag(tok.getLocation(), "If keyword must be followed "
+                                                        "by exactly one space.");
                                 return;
                             }
                             return;
@@ -314,67 +359,86 @@ namespace clang {
                     if (SM.isWrittenInMainFile(MatchedDecl->getBeginLoc())) {
                         return;
                     }
-                } else if (auto MatchedDecl = Result.Nodes.getNodeAs<SwitchStmt>("switch_end")) {
+                } else if (auto MatchedDecl =
+                               Result.Nodes.getNodeAs<SwitchStmt>("switch_end")) {
                     if (SM.isWrittenInMainFile(MatchedDecl->getBeginLoc())) {
                         return;
                     }
-                    CharSourceRange Range = CharSourceRange::getTokenRange(MatchedDecl->getBeginLoc(),
-                                                                           MatchedDecl->getRParenLoc().getLocWithOffset(1));
+                    CharSourceRange Range = CharSourceRange::getTokenRange(
+                        MatchedDecl->getBeginLoc(),
+                        MatchedDecl->getRParenLoc().getLocWithOffset(1));
                     const SourceManager &Sources = *Result.SourceManager;
-                    //std::cout << "SWITCH MATCH: |" << std::string(SM.getCharacterData(Range.getBegin()),
+                    // std::cout << "SWITCH MATCH: |" <<
+                    // std::string(SM.getCharacterData(Range.getBegin()),
                     //        SM.getCharacterData(Range.getEnd())) << "|" << std::endl;
-                    std::pair<FileID, unsigned> LocInfo = Sources.getDecomposedLoc(Range.getEnd());
+                    std::pair<FileID, unsigned> LocInfo =
+                        Sources.getDecomposedLoc(Range.getEnd());
                     StringRef File = Sources.getBufferData(LocInfo.first);
                     const char *TokenBegin = File.data() + LocInfo.second;
                     if (not Sources.getLocForStartOfFile(LocInfo.first).isValid() or
-                        not SM.isWrittenInMainFile(Sources.getLocForStartOfFile(LocInfo.first))) {
+                        not SM.isWrittenInMainFile(
+                            Sources.getLocForStartOfFile(LocInfo.first))) {
                         return;
                     }
                     Lexer RawLexer(Sources.getLocForStartOfFile(LocInfo.first),
-                                   Result.Context->getLangOpts(), File.begin(), TokenBegin,
-                                   File.end());
+                                   Result.Context->getLangOpts(), File.begin(),
+                                   TokenBegin, File.end());
 
                     RawLexer.SetKeepWhitespaceMode(true);
                     Token tok;
                     std::vector<Token> tokens;
                     while (!RawLexer.LexFromRawLexer(tok)) {
                         if (tok.getKind() == tok::l_brace) {
-                            if (tokens.size() != 1 or std::string(SM.getCharacterData(tokens.back().getLocation()),
-                                                                  SM.getCharacterData(tokens.back().getEndLoc())) != " ") {
-                                diag(tok.getLocation(), "Open brace after switch must be preceeded by exactly one space.");
+                            if (tokens.size() != 1 or
+                                std::string(
+                                    SM.getCharacterData(tokens.back().getLocation()),
+                                    SM.getCharacterData(tokens.back().getEndLoc())) !=
+                                    " ") {
+                                diag(tok.getLocation(),
+                                     "Open brace after switch must be preceeded by "
+                                     "exactly one space.");
                                 return;
                             }
                             return;
                         }
                         tokens.push_back(tok);
                     }
-                } else if (auto MatchedDecl = Result.Nodes.getNodeAs<SwitchStmt>("switch_beg")) {
+                } else if (auto MatchedDecl =
+                               Result.Nodes.getNodeAs<SwitchStmt>("switch_beg")) {
                     if (SM.isWrittenInMainFile(MatchedDecl->getBeginLoc())) {
                         return;
                     }
-                    CharSourceRange Range = CharSourceRange::getTokenRange(MatchedDecl->getBeginLoc().getLocWithOffset(1),
-                                                                           MatchedDecl->getLParenLoc());
+                    CharSourceRange Range = CharSourceRange::getTokenRange(
+                        MatchedDecl->getBeginLoc().getLocWithOffset(1),
+                        MatchedDecl->getLParenLoc());
 
                     const SourceManager &Sources = *Result.SourceManager;
-                    std::pair<FileID, unsigned> LocInfo = Sources.getDecomposedLoc(Range.getBegin());
+                    std::pair<FileID, unsigned> LocInfo =
+                        Sources.getDecomposedLoc(Range.getBegin());
                     StringRef File = Sources.getBufferData(LocInfo.first);
                     const char *TokenBegin = File.data() + LocInfo.second;
                     if (not Sources.getLocForStartOfFile(LocInfo.first).isValid() or
-                        not SM.isWrittenInMainFile(Sources.getLocForStartOfFile(LocInfo.first))) {
+                        not SM.isWrittenInMainFile(
+                            Sources.getLocForStartOfFile(LocInfo.first))) {
                         return;
                     }
                     Lexer RawLexer(Sources.getLocForStartOfFile(LocInfo.first),
-                                   Result.Context->getLangOpts(), File.begin(), TokenBegin,
-                                   File.end());
+                                   Result.Context->getLangOpts(), File.begin(),
+                                   TokenBegin, File.end());
 
                     RawLexer.SetKeepWhitespaceMode(true);
                     Token tok;
                     std::vector<Token> tokens;
                     while (!RawLexer.LexFromRawLexer(tok)) {
                         if (tok.getLocation() == Range.getEnd()) {
-                            if (tokens.empty() or std::string(SM.getCharacterData(tokens.back().getLocation()),
-                                                              SM.getCharacterData(tokens.back().getEndLoc())) != " ") {
-                                diag(tok.getLocation(), "Switch keyword must be followed by exactly one space.");
+                            if (tokens.empty() or
+                                std::string(
+                                    SM.getCharacterData(tokens.back().getLocation()),
+                                    SM.getCharacterData(tokens.back().getEndLoc())) !=
+                                    " ") {
+                                diag(tok.getLocation(),
+                                     "Switch keyword must be followed by exactly one "
+                                     "space.");
                                 return;
                             }
                             return;

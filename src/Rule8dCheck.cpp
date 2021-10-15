@@ -22,35 +22,41 @@ namespace clang {
                 bool checked;
 
             public:
-                Rule8dPPCallBack(Rule8dCheck *Check, Preprocessor *PP, const SourceManager &SM) : Check(Check),
-                                                                                                  PP(PP), SM(SM), checked(false){};
+                Rule8dPPCallBack(Rule8dCheck *Check, Preprocessor *PP,
+                                 const SourceManager &SM)
+                    : Check(Check), PP(PP), SM(SM), checked(false){};
 
                 void InclusionDirective(SourceLocation HashLoc, const Token &IncludeTok,
-                                        StringRef FileName, bool isAngled, CharSourceRange FilenameRange, const FileEntry *File,
-                                        StringRef SearchPath, StringRef RelativePath, const Module *Imported,
+                                        StringRef FileName, bool isAngled,
+                                        CharSourceRange FilenameRange,
+                                        const FileEntry *File, StringRef SearchPath,
+                                        StringRef RelativePath, const Module *Imported,
                                         SrcMgr::CharacteristicKind FileType) override {
 
                     if (not isAngled) {
                         std::string header_file_path(FileName.str());
                         std::string ppath("../");
                         std::string cdirpath("./");
-                        auto pp_mm_res(std::mismatch(ppath.begin(), ppath.end(), header_file_path.begin()));
-                        auto cd_mm_res(std::mismatch(cdirpath.begin(), cdirpath.end(), header_file_path.begin()));
-                        if (pp_mm_res.first == ppath.end() or cd_mm_res.first == cdirpath.end()) {
-                            this->Check->diag(HashLoc, "Relative include paths are forbidden");
+                        auto pp_mm_res(std::mismatch(ppath.begin(), ppath.end(),
+                                                     header_file_path.begin()));
+                        auto cd_mm_res(std::mismatch(cdirpath.begin(), cdirpath.end(),
+                                                     header_file_path.begin()));
+                        if (pp_mm_res.first == ppath.end() or
+                            cd_mm_res.first == cdirpath.end()) {
+                            this->Check->diag(HashLoc,
+                                              "Relative include paths are forbidden");
                         }
                     }
                 }
             };
 
-            void Rule8dCheck::registerPPCallbacks(const SourceManager &SM, Preprocessor *PP,
+            void Rule8dCheck::registerPPCallbacks(const SourceManager &SM,
+                                                  Preprocessor *PP,
                                                   Preprocessor *ModuleExpanderPP) {
                 PP->addPPCallbacks(std::make_unique<Rule8dPPCallBack>(this, PP, SM));
             }
-            void Rule8dCheck::registerMatchers(MatchFinder *Finder) {
-            }
-            void Rule8dCheck::check(const MatchFinder::MatchResult &Result) {
-            }
+            void Rule8dCheck::registerMatchers(MatchFinder *Finder) {}
+            void Rule8dCheck::check(const MatchFinder::MatchResult &Result) {}
         } // namespace eastwood
     }     // namespace tidy
 } // namespace clang

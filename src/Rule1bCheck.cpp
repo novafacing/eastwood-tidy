@@ -6,7 +6,8 @@
 //
 //===----------------------------------------------------------------------===//
 //
-// Variable names should be descriptive and meaningful. Note: This only dumps variable names, it does not error
+// Variable names should be descriptive and meaningful. Note: This only dumps variable
+// names, it does not error
 
 #include "Rule1bCheck.h"
 
@@ -16,9 +17,11 @@ namespace clang {
     namespace tidy {
         namespace eastwood {
 
-            Rule1bCheck::Rule1bCheck(StringRef Name, ClangTidyContext *Context) : ClangTidyCheck(Name, Context), dump(Options.get("dump", "false")) {
+            Rule1bCheck::Rule1bCheck(StringRef Name, ClangTidyContext *Context)
+                : ClangTidyCheck(Name, Context), dump(Options.get("dump", "false")) {
                 if (this->dump == "true") {
-                    for (auto type : {"variable", "function", "enum", "union", "struct", "field", "typedef"}) {
+                    for (auto type : {"variable", "function", "enum", "union", "struct",
+                                      "field", "typedef"}) {
                         std::vector<SourceLocation> sources{};
                         this->declarations.insert(std::make_pair(type, sources));
                     }
@@ -46,34 +49,40 @@ namespace clang {
                 if (auto MatchedDecl = Result.Nodes.getNodeAs<VarDecl>("variable")) {
                     loc = MatchedDecl->getLocation();
                     type = "variable";
-                } else if (auto MatchedDecl = Result.Nodes.getNodeAs<FunctionDecl>("function")) {
+                } else if (auto MatchedDecl =
+                               Result.Nodes.getNodeAs<FunctionDecl>("function")) {
                     loc = MatchedDecl->getLocation();
                     type = "function";
-                } else if (auto MatchedDecl = Result.Nodes.getNodeAs<EnumDecl>("enum")) {
+                } else if (auto MatchedDecl =
+                               Result.Nodes.getNodeAs<EnumDecl>("enum")) {
                     loc = MatchedDecl->getLocation();
                     type = "enum";
-                } else if (auto MatchedDecl = Result.Nodes.getNodeAs<RecordDecl>("struct")) {
+                } else if (auto MatchedDecl =
+                               Result.Nodes.getNodeAs<RecordDecl>("struct")) {
                     if (MatchedDecl->isAnonymousStructOrUnion()) {
                         return;
                     }
 
                     loc = MatchedDecl->getLocation();
                     type = "struct";
-                } else if (auto MatchedDecl = Result.Nodes.getNodeAs<RecordDecl>("union")) {
+                } else if (auto MatchedDecl =
+                               Result.Nodes.getNodeAs<RecordDecl>("union")) {
                     if (MatchedDecl->isAnonymousStructOrUnion()) {
                         return;
                     }
 
                     loc = MatchedDecl->getLocation();
                     type = "union";
-                } else if (auto MatchedDecl = Result.Nodes.getNodeAs<FieldDecl>("field")) {
+                } else if (auto MatchedDecl =
+                               Result.Nodes.getNodeAs<FieldDecl>("field")) {
                     if (MatchedDecl->isAnonymousStructOrUnion()) {
                         return;
                     }
 
                     loc = MatchedDecl->getLocation();
                     type = "field";
-                } else if (auto MatchedDecl = Result.Nodes.getNodeAs<TypedefDecl>("typedef")) {
+                } else if (auto MatchedDecl =
+                               Result.Nodes.getNodeAs<TypedefDecl>("typedef")) {
                     loc = MatchedDecl->getLocation();
                     type = "enum";
                 } else {
@@ -90,10 +99,13 @@ namespace clang {
                 if (this->dump == "true") {
                     std::ios init(NULL);
                     init.copyfmt(std::cout);
-                    for (auto type : {"variable", "function", "enum", "union", "struct", "field", "typedef"}) {
+                    for (auto type : {"variable", "function", "enum", "union", "struct",
+                                      "field", "typedef"}) {
                         for (auto declaration : this->declarations.at(type)) {
                             if (declaration.isValid()) {
-                                diag(declaration, "'%0' declaration.", DiagnosticIDs::Note) << type;
+                                diag(declaration, "'%0' declaration.",
+                                     DiagnosticIDs::Note)
+                                    << type;
                             }
                         }
                     }

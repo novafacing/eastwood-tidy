@@ -20,18 +20,24 @@ namespace clang {
 
             void Rule12bCheck::check(const MatchFinder::MatchResult &Result) {
                 if (auto MatchedDecl = Result.Nodes.getNodeAs<VarDecl>("var_decl")) {
-                    if (MatchedDecl->isLocalVarDeclOrParm() and not MatchedDecl->isLocalVarDecl()) {
+                    if (MatchedDecl->isLocalVarDeclOrParm() and
+                        not MatchedDecl->isLocalVarDecl()) {
                         // This is a function parameter
                         return;
                     }
                     if (not MatchedDecl->hasExternalStorage()) {
                         if (not MatchedDecl->hasInit()) {
-                            if ((Result.SourceManager)->isWrittenInMainFile(MatchedDecl->getLocation())) {
-                                diag(MatchedDecl->getLocation(), "Variable declaration without definition is forbidden.");
+                            if ((Result.SourceManager)
+                                    ->isWrittenInMainFile(MatchedDecl->getLocation())) {
+                                diag(MatchedDecl->getLocation(),
+                                     "Variable declaration without definition is "
+                                     "forbidden.");
                             }
                         }
                         if (MatchedDecl->getInitializingDeclaration() != MatchedDecl) {
-                            diag(MatchedDecl->getLocation(), "Variable declaration without definition is forbidden.");
+                            diag(MatchedDecl->getLocation(),
+                                 "Variable declaration without definition is "
+                                 "forbidden.");
                         }
                     }
                 }

@@ -39,18 +39,25 @@ namespace clang {
                 bool checked;
 
             public:
-                Rule8gPPCallBack(Rule8gCheck *Check, Preprocessor *PP, const SourceManager &SM) : Check(Check),
-                                                                                                  PP(PP), SM(SM), checked(false){};
+                Rule8gPPCallBack(Rule8gCheck *Check, Preprocessor *PP,
+                                 const SourceManager &SM)
+                    : Check(Check), PP(PP), SM(SM), checked(false){};
 
                 void InclusionDirective(SourceLocation HashLoc, const Token &IncludeTok,
-                                        StringRef FileName, bool isAngled, CharSourceRange FilenameRange, const FileEntry *File,
-                                        StringRef SearchPath, StringRef RelativePath, const Module *Imported,
+                                        StringRef FileName, bool isAngled,
+                                        CharSourceRange FilenameRange,
+                                        const FileEntry *File, StringRef SearchPath,
+                                        StringRef RelativePath, const Module *Imported,
                                         SrcMgr::CharacteristicKind FileType) override {
 
                     if (not this->checked) {
                         files = new std::vector<std::string>();
-                        std::string main_file_path(this->SM.getFileEntryForID(this->SM.getFileID(HashLoc))->tryGetRealPathName().str());
-                        std::string main_file_dir(main_file_path.substr(0, main_file_path.find_last_of("/")));
+                        std::string main_file_path(
+                            this->SM.getFileEntryForID(this->SM.getFileID(HashLoc))
+                                ->tryGetRealPathName()
+                                .str());
+                        std::string main_file_dir(
+                            main_file_path.substr(0, main_file_path.find_last_of("/")));
                         ftw(main_file_dir.c_str(), AddFile, 0x10);
                         this->checked = true;
                     }
@@ -59,14 +66,17 @@ namespace clang {
                     }
 
                     std::string header_file_path(File->tryGetRealPathName().str());
-                    std::string header_file_name(header_file_path.substr(header_file_path.find_last_of("/") + 1));
+                    std::string header_file_name(header_file_path.substr(
+                        header_file_path.find_last_of("/") + 1));
                     for (auto fn : *files) {
-                        //std::cout << "Checking header file: " << fn << std::endl;
+                        // std::cout << "Checking header file: " << fn << std::endl;
                     }
                     if (isAngled) {
                         for (auto fn : *files) {
                             if (fn == header_file_name) {
-                                this->Check->diag(HashLoc, "Local includes must be included with \"...\", not angle braces.");
+                                this->Check->diag(HashLoc,
+                                                  "Local includes must be included "
+                                                  "with \"...\", not angle braces.");
                             }
                         }
                     } else {
@@ -75,20 +85,20 @@ namespace clang {
                                 return;
                             }
                         }
-                        this->Check->diag(HashLoc, "Non-local include must be included with <...>, not double quotes.");
+                        this->Check->diag(HashLoc, "Non-local include must be included "
+                                                   "with <...>, not double quotes.");
                     }
                 }
             };
 
-            void Rule8gCheck::registerPPCallbacks(const SourceManager &SM, Preprocessor *PP,
+            void Rule8gCheck::registerPPCallbacks(const SourceManager &SM,
+                                                  Preprocessor *PP,
                                                   Preprocessor *ModuleExpanderPP) {
                 PP->addPPCallbacks(std::make_unique<Rule8gPPCallBack>(this, PP, SM));
             }
 
-            void Rule8gCheck::registerMatchers(MatchFinder *Finder) {
-            }
-            void Rule8gCheck::check(const MatchFinder::MatchResult &Result) {
-            }
+            void Rule8gCheck::registerMatchers(MatchFinder *Finder) {}
+            void Rule8gCheck::check(const MatchFinder::MatchResult &Result) {}
         } // namespace eastwood
     }     // namespace tidy
 } // namespace clang

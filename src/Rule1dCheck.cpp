@@ -25,14 +25,16 @@ namespace clang {
 
             void Rule1dCheck::check(const MatchFinder::MatchResult &Result) {
                 const auto *MatchedDecl = Result.Nodes.getNodeAs<VarDecl>("variable");
-                if (!(Result.SourceManager)->isWrittenInMainFile(MatchedDecl->getLocation())) {
+                if (!(Result.SourceManager)
+                         ->isWrittenInMainFile(MatchedDecl->getLocation())) {
                     return;
                 }
 
                 if (MatchedDecl->getName().startswith("g_")) {
                     return;
                 } else {
-                    diag(MatchedDecl->getLocation(), "Global variable %0 doesn't conform to global naming scheme.")
+                    diag(MatchedDecl->getLocation(),
+                         "Global variable %0 doesn't conform to global naming scheme.")
                         << MatchedDecl
                         << FixItHint::CreateInsertion(MatchedDecl->getLocation(), "g_");
                 }

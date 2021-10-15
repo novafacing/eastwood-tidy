@@ -13,12 +13,14 @@ using namespace clang::ast_matchers;
 
 /* This may be overly permissive */
 static bool isSurroundedLeft(const clang::Token &T) {
-    return T.isOneOf(clang::tok::l_paren, clang::tok::l_brace, clang::tok::l_square, clang::tok::comma, clang::tok::semi);
+    return T.isOneOf(clang::tok::l_paren, clang::tok::l_brace, clang::tok::l_square,
+                     clang::tok::comma, clang::tok::semi);
 }
 
 /* This may be overly permissive */
 static bool isSurroundedRight(const clang::Token &T) {
-    return T.isOneOf(clang::tok::r_paren, clang::tok::r_brace, clang::tok::r_square, clang::tok::comma, clang::tok::semi);
+    return T.isOneOf(clang::tok::r_paren, clang::tok::r_brace, clang::tok::r_square,
+                     clang::tok::comma, clang::tok::semi);
 }
 
 namespace clang {
@@ -32,19 +34,21 @@ namespace clang {
 
             public:
                 Rule11dPPCallBack(Rule11dCheck *Check, Preprocessor *PP)
-                    : Check(Check), PP(PP) {
-                }
+                    : Check(Check), PP(PP) {}
 
                 /* Can also implement:
-                     *  - MacroExpands (whenever macro is expanded)
-                     *  - MacroUndefined (whenever #undef <x>
-                     *  - Defined (whenever `defined` token
-                     *  - Ifdef
-                     *  - Ifndef
-                     */
-                void MacroDefined(const Token &MacroNameTok, const MacroDirective *MD) override {
-                    if (this->PP->getSourceManager().isWrittenInBuiltinFile(MD->getLocation()) ||
-                        !this->PP->getSourceManager().isWrittenInMainFile(MD->getLocation()) ||
+                 *  - MacroExpands (whenever macro is expanded)
+                 *  - MacroUndefined (whenever #undef <x>
+                 *  - Defined (whenever `defined` token
+                 *  - Ifdef
+                 *  - Ifndef
+                 */
+                void MacroDefined(const Token &MacroNameTok,
+                                  const MacroDirective *MD) override {
+                    if (this->PP->getSourceManager().isWrittenInBuiltinFile(
+                            MD->getLocation()) ||
+                        !this->PP->getSourceManager().isWrittenInMainFile(
+                            MD->getLocation()) ||
                         MD->getMacroInfo()->isUsedForHeaderGuard() ||
                         MD->getMacroInfo()->getNumTokens() == 0) {
                         return;
@@ -54,51 +58,65 @@ namespace clang {
                     std::string name = this->PP->getSpelling(MacroNameTok);
                     if (!std::regex_match(name, results, defineNameRegex)) {
                         /*
-                            DiagnosticBuilder Diag = this->Check->diag(MD->getLocation(), 
-                                    "'%0' is not all uppercase, separated by underscores, and >= 2 characters in length.");
-                            Diag << name;
+                            DiagnosticBuilder Diag =
+                           this->Check->diag(MD->getLocation(),
+                                    "'%0' is not all uppercase, separated by
+                           underscores, and >= 2 characters in length."); Diag << name;
                             */
                     }
 
-                    /* A constant declaration with #define will either be "string" or (val) (1 / 3 toks) */
+                    /* A constant declaration with #define will either be "string" or
+                     * (val) (1 / 3 toks) */
                     // TODO: Still failing the correct case....not sure why. TODO!!!!
-                    if (MD->getMacroInfo()->getNumTokens() == 1 || MD->getMacroInfo()->getNumTokens() == 3) {
+                    if (MD->getMacroInfo()->getNumTokens() == 1 ||
+                        MD->getMacroInfo()->getNumTokens() == 3) {
                         const Token &start = *(MD->getMacroInfo()->tokens_begin());
-                        const Token &primary = *(MD->getMacroInfo()->tokens_begin() + 1);
+                        const Token &primary =
+                            *(MD->getMacroInfo()->tokens_begin() + 1);
                         const Token &end = *(MD->getMacroInfo()->tokens_begin() + 2);
-                        if (tok::isLiteral(primary.getKind()) && !tok::isStringLiteral(primary.getKind())) {
+                        if (tok::isLiteral(primary.getKind()) &&
+                            !tok::isStringLiteral(primary.getKind())) {
                             if (isSurroundedLeft(start) && isSurroundedRight(end)) {
                                 return;
                             } else {
                                 /*
-                                    DiagnosticBuilder Diag = this->Check->diag(MD->getLocation(),
-                                            "'%0' initializer is non-string constant and not surrounded by parentheses.");
-                                    Diag << name << primary.getLiteralData();
+                                    DiagnosticBuilder Diag =
+                                   this->Check->diag(MD->getLocation(),
+                                            "'%0' initializer is non-string constant and
+                                   not surrounded by parentheses."); Diag << name <<
+                                   primary.getLiteralData();
                                     */
                             }
-                        } else if (tok::isLiteral(start.getKind()) && !tok::isStringLiteral(start.getKind()) && MD->getMacroInfo()->getNumTokens() == 1) {
+                        } else if (tok::isLiteral(start.getKind()) &&
+                                   !tok::isStringLiteral(start.getKind()) &&
+                                   MD->getMacroInfo()->getNumTokens() == 1) {
                             /*
-                                DiagnosticBuilder Diag = this->Check->diag(MD->getLocation(),
-                                        "'%0' initializer is non-string constant and not surrounded by parentheses.");
-                                Diag << name;
+                                DiagnosticBuilder Diag =
+                               this->Check->diag(MD->getLocation(),
+                                        "'%0' initializer is non-string constant and not
+                               surrounded by parentheses."); Diag << name;
                                 */
                         }
                     }
                 }
             };
 
-            Rule11dCheck::Rule11dCheck(StringRef Name, ClangTidyContext *Context) : ClangTidyCheck(Name, Context), dump(Options.get("dump", "false")) {
+            Rule11dCheck::Rule11dCheck(StringRef Name, ClangTidyContext *Context)
+                : ClangTidyCheck(Name, Context), dump(Options.get("dump", "false")) {
 
                 if (this->dump == "true") {
-                    for (auto ty : {"characterLiteral", "floatLiteral", "imaginaryLiteral",
-                                    "integerLiteral", "userDefinedLiteral", "fixedPointLiteral", "compoundLiteral"}) {
+                    for (auto ty :
+                         {"characterLiteral", "floatLiteral", "imaginaryLiteral",
+                          "integerLiteral", "userDefinedLiteral", "fixedPointLiteral",
+                          "compoundLiteral"}) {
                         std::vector<SourceLocation> v{};
                         this->embeddedConstants.insert(std::make_pair(ty, v));
                     }
                 }
             }
 
-            void Rule11dCheck::registerPPCallbacks(const SourceManager &SM, Preprocessor *PP,
+            void Rule11dCheck::registerPPCallbacks(const SourceManager &SM,
+                                                   Preprocessor *PP,
                                                    Preprocessor *ModuleExpanderPP) {
                 PP->addPPCallbacks(std::make_unique<Rule11dPPCallBack>(this, PP));
             }
@@ -111,13 +129,16 @@ namespace clang {
                 Finder->addMatcher(floatLiteral().bind("floatLiteral"), this);
                 Finder->addMatcher(imaginaryLiteral().bind("imaginaryLiteral"), this);
                 Finder->addMatcher(integerLiteral().bind("integerLiteral"), this);
-                Finder->addMatcher(userDefinedLiteral().bind("userDefinedLiteral"), this);
+                Finder->addMatcher(userDefinedLiteral().bind("userDefinedLiteral"),
+                                   this);
                 Finder->addMatcher(fixedPointLiteral().bind("fixedPointLiteral"), this);
-                Finder->addMatcher(compoundLiteralExpr().bind("compoundLiteralExpr"), this);
+                Finder->addMatcher(compoundLiteralExpr().bind("compoundLiteralExpr"),
+                                   this);
                 /* If checking CXX, add cxxNullPtrLiteralExpr and cxxBoolLiteral */
             }
 
-            void Rule11dCheck::saveEmbeddedConstant(SourceLocation loc, std::string type) {
+            void Rule11dCheck::saveEmbeddedConstant(SourceLocation loc,
+                                                    std::string type) {
                 this->embeddedConstants[type].push_back(loc);
             }
 
@@ -128,7 +149,8 @@ namespace clang {
 
                 if (auto Match = Result.Nodes.getNodeAs<VarDecl>("variable")) {
                     if (Match->hasDefinition(*Result.Context)) {
-                        /* If we aren't defining, we definitely don't need to check that the literal is in it */
+                        /* If we aren't defining, we definitely don't need to check that
+                         * the literal is in it */
                         this->declarationRanges.push_back(Match->getSourceRange());
                     }
                 }
@@ -139,19 +161,24 @@ namespace clang {
                 } else if (auto Match = Result.Nodes.getNodeAs<Stmt>("floatLiteral")) {
                     type = "floatLiteral";
                     loc = Match->getBeginLoc();
-                } else if (auto Match = Result.Nodes.getNodeAs<Stmt>("imaginaryLiteral")) {
+                } else if (auto Match =
+                               Result.Nodes.getNodeAs<Stmt>("imaginaryLiteral")) {
                     type = "imaginaryLiteral";
                     loc = Match->getBeginLoc();
-                } else if (auto Match = Result.Nodes.getNodeAs<Stmt>("integerLiteral")) {
+                } else if (auto Match =
+                               Result.Nodes.getNodeAs<Stmt>("integerLiteral")) {
                     type = "integerLiteral";
                     loc = Match->getBeginLoc();
-                } else if (auto Match = Result.Nodes.getNodeAs<Stmt>("userDefinedLiteral")) {
+                } else if (auto Match =
+                               Result.Nodes.getNodeAs<Stmt>("userDefinedLiteral")) {
                     type = "userDefinedLiteral";
                     loc = Match->getBeginLoc();
-                } else if (auto Match = Result.Nodes.getNodeAs<Stmt>("fixedPointLiteral")) {
+                } else if (auto Match =
+                               Result.Nodes.getNodeAs<Stmt>("fixedPointLiteral")) {
                     type = "fixedPointLiteral";
                     loc = Match->getBeginLoc();
-                } else if (auto Match = Result.Nodes.getNodeAs<Stmt>("compoundLiteralExpr")) {
+                } else if (auto Match =
+                               Result.Nodes.getNodeAs<Stmt>("compoundLiteralExpr")) {
                     type = "compoundLiteralExpr";
                     loc = Match->getBeginLoc();
                 } else {
@@ -169,21 +196,29 @@ namespace clang {
                 if (this->dump == "true") {
                     std::ios init(NULL);
                     init.copyfmt(std::cout);
-                    for (auto ty : {"characterLiteral", "floatLiteral", "imaginaryLiteral", "integerLiteral",
-                                    "userDefinedLiteral", "fixedPointLiteral", "compoundLiteral"}) {
+                    for (auto ty :
+                         {"characterLiteral", "floatLiteral", "imaginaryLiteral",
+                          "integerLiteral", "userDefinedLiteral", "fixedPointLiteral",
+                          "compoundLiteral"}) {
                         for (auto constant : this->embeddedConstants.at(ty)) {
                             if (constant.isValid()) {
                                 if (this->declarationRanges.empty()) {
-                                    diag(constant, "embedded constant of type '%0'.", DiagnosticIDs::Note) << ty;
+                                    diag(constant, "embedded constant of type '%0'.",
+                                         DiagnosticIDs::Note)
+                                        << ty;
                                 } else {
                                     bool toPrint = true;
                                     for (auto range : this->declarationRanges) {
-                                        if (range.fullyContains(SourceRange(constant))) {
+                                        if (range.fullyContains(
+                                                SourceRange(constant))) {
                                             toPrint = false;
                                         }
                                     }
                                     if (toPrint) {
-                                        diag(constant, "embedded constant of type '%0'.", DiagnosticIDs::Note) << ty;
+                                        diag(constant,
+                                             "embedded constant of type '%0'.",
+                                             DiagnosticIDs::Note)
+                                            << ty;
                                     }
                                 }
                             }

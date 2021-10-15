@@ -26,7 +26,8 @@ namespace clang {
                 Finder->addMatcher(typedefDecl().bind("typedef"), this);
             }
 
-            void Rule1aCheck::checkName(SourceLocation loc, std::string name, std::string type) {
+            void Rule1aCheck::checkName(SourceLocation loc, std::string name,
+                                        std::string type) {
                 if (!loc.isValid()) {
                     return;
                 }
@@ -36,7 +37,7 @@ namespace clang {
 
                 if (std::regex_match(name, results, localRegex)) {
                     return;
-                } else {
+                } else if (name != "") {
                     // Error
                     diag(loc, "%0 %1 is not all lowercase"
                               " and separated by underscores")
@@ -53,15 +54,18 @@ namespace clang {
                     loc = MatchedDecl->getLocation();
                     name = MatchedDecl->getName().str();
                     type = "Variable";
-                } else if (auto MatchedDecl = Result.Nodes.getNodeAs<FunctionDecl>("function")) {
+                } else if (auto MatchedDecl =
+                               Result.Nodes.getNodeAs<FunctionDecl>("function")) {
                     loc = MatchedDecl->getLocation();
                     name = MatchedDecl->getName().str();
                     type = "Function";
-                } else if (auto MatchedDecl = Result.Nodes.getNodeAs<EnumDecl>("enum")) {
+                } else if (auto MatchedDecl =
+                               Result.Nodes.getNodeAs<EnumDecl>("enum")) {
                     loc = MatchedDecl->getLocation();
                     name = MatchedDecl->getName().str();
                     type = "Enum";
-                } else if (auto MatchedDecl = Result.Nodes.getNodeAs<RecordDecl>("struct")) {
+                } else if (auto MatchedDecl =
+                               Result.Nodes.getNodeAs<RecordDecl>("struct")) {
                     if (MatchedDecl->isAnonymousStructOrUnion()) {
                         return;
                     }
@@ -69,7 +73,8 @@ namespace clang {
                     loc = MatchedDecl->getLocation();
                     name = MatchedDecl->getName().str();
                     type = "Struct";
-                } else if (auto MatchedDecl = Result.Nodes.getNodeAs<RecordDecl>("union")) {
+                } else if (auto MatchedDecl =
+                               Result.Nodes.getNodeAs<RecordDecl>("union")) {
                     if (MatchedDecl->isAnonymousStructOrUnion()) {
                         return;
                     }
@@ -77,7 +82,8 @@ namespace clang {
                     loc = MatchedDecl->getLocation();
                     name = MatchedDecl->getName().str();
                     type = "Union";
-                } else if (auto MatchedDecl = Result.Nodes.getNodeAs<FieldDecl>("field")) {
+                } else if (auto MatchedDecl =
+                               Result.Nodes.getNodeAs<FieldDecl>("field")) {
                     if (MatchedDecl->isAnonymousStructOrUnion()) {
                         return;
                     }
@@ -85,7 +91,8 @@ namespace clang {
                     loc = MatchedDecl->getLocation();
                     name = MatchedDecl->getName().str();
                     type = "Field";
-                } else if (auto MatchedDecl = Result.Nodes.getNodeAs<TypedefDecl>("typedef")) {
+                } else if (auto MatchedDecl =
+                               Result.Nodes.getNodeAs<TypedefDecl>("typedef")) {
                     loc = MatchedDecl->getLocation();
                     name = MatchedDecl->getName().str();
                     type = "Enum";

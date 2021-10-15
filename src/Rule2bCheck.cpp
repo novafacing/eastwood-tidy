@@ -21,7 +21,8 @@ namespace clang {
             }
 
             void Rule2bCheck::check(const MatchFinder::MatchResult &Result) {
-                if (auto MatchedDecl = Result.Nodes.getNodeAs<FunctionDecl>("function")) {
+                if (auto MatchedDecl =
+                        Result.Nodes.getNodeAs<FunctionDecl>("function")) {
                     SourceLocation loc = MatchedDecl->getLocation();
                     std::string name = MatchedDecl->getName().str();
                     std::string type = "Function";
@@ -29,8 +30,10 @@ namespace clang {
                         SourceRange range = MatchedDecl->getSourceRange();
                         SourceLocation beg = range.getBegin();
                         SourceLocation end = range.getEnd();
-                        unsigned beg_ln = (Result.SourceManager)->getSpellingLineNumber(beg, nullptr);
-                        unsigned end_ln = (Result.SourceManager)->getSpellingLineNumber(end, nullptr);
+                        unsigned beg_ln =
+                            (Result.SourceManager)->getSpellingLineNumber(beg, nullptr);
+                        unsigned end_ln =
+                            (Result.SourceManager)->getSpellingLineNumber(end, nullptr);
                         if (end_ln - beg_ln >= MAX_FN_SIZE) {
                             diag(loc, "%0 %1 is over the maximum function size"
                                       " of %2 lines")

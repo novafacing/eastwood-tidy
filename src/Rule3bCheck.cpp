@@ -28,7 +28,8 @@ namespace clang {
                 std::string name = "";
                 std::string type = "";
 
-                if (auto MatchedDecl = Result.Nodes.getNodeAs<BinaryOperator>("binary_operator")) {
+                if (auto MatchedDecl =
+                        Result.Nodes.getNodeAs<BinaryOperator>("binary_operator")) {
                     if (not SM.isWrittenInMainFile(MatchedDecl->getOperatorLoc())) {
                         return;
                     }
@@ -36,19 +37,21 @@ namespace clang {
                     name = MatchedDecl->getOpcodeStr().str();
                     type = "Binary Operator";
 
-                    if (MatchedDecl->isPtrMemOp()) { // Only want to check this if it isn't a -> op
+                    if (MatchedDecl->isPtrMemOp()) { // Only want to check this if it
+                                                     // isn't a -> op
                         // Nothing
                     } else {
                         // Set up the lexer
-                        CharSourceRange Range = CharSourceRange::getTokenRange(MatchedDecl->getBeginLoc(),
-                                                                               MatchedDecl->getEndLoc());
+                        CharSourceRange Range = CharSourceRange::getTokenRange(
+                            MatchedDecl->getBeginLoc(), MatchedDecl->getEndLoc());
                         const SourceManager &Sources = *Result.SourceManager;
-                        std::pair<FileID, unsigned> LocInfo = Sources.getDecomposedLoc(Range.getBegin());
+                        std::pair<FileID, unsigned> LocInfo =
+                            Sources.getDecomposedLoc(Range.getBegin());
                         StringRef File = Sources.getBufferData(LocInfo.first);
                         const char *TokenBegin = File.data() + LocInfo.second;
                         Lexer RawLexer(Sources.getLocForStartOfFile(LocInfo.first),
-                                       Result.Context->getLangOpts(), File.begin(), TokenBegin,
-                                       File.end());
+                                       Result.Context->getLangOpts(), File.begin(),
+                                       TokenBegin, File.end());
 
                         RawLexer.SetKeepWhitespaceMode(true);
 
@@ -61,9 +64,11 @@ namespace clang {
                         while (!RawLexer.LexFromRawLexer(tok)) {
                             if (tok.getLocation() == MatchedDecl->getOperatorLoc()) {
                                 if (SM.isWrittenInMainFile(tok.getLocation())) {
-                                    std::string match(SM.getCharacterData(tok.getLocation()),
-                                                      SM.getCharacterData(tok.getEndLoc()));
-                                    //std::cout << "GOT MATCH: |" << match << "|" << std::endl;
+                                    std::string match(
+                                        SM.getCharacterData(tok.getLocation()),
+                                        SM.getCharacterData(tok.getEndLoc()));
+                                    // std::cout << "GOT MATCH: |" << match << "|" <<
+                                    // std::endl;
                                 }
 
                                 if (RawLexer.LexFromRawLexer(next)) {
@@ -71,32 +76,49 @@ namespace clang {
                                 }
                                 donext = true;
 
-                                if (not(tokens.empty()) and SM.isWrittenInMainFile(tokens.back().getLocation())) {
-                                    std::string match(SM.getCharacterData(tokens.back().getLocation()),
-                                                      SM.getCharacterData(tokens.back().getEndLoc()));
-                                    //std::cout << "PRECEEDING MATCH: |" << match << "|" << std::endl;
+                                if (not(tokens.empty()) and
+                                    SM.isWrittenInMainFile(
+                                        tokens.back().getLocation())) {
+                                    std::string match(
+                                        SM.getCharacterData(
+                                            tokens.back().getLocation()),
+                                        SM.getCharacterData(tokens.back().getEndLoc()));
+                                    // std::cout << "PRECEEDING MATCH: |" << match <<
+                                    // "|" << std::endl;
                                 }
 
-                                if (not(tokens.empty()) and SM.isWrittenInMainFile(tokens.back().getLocation()) and not MatchedDecl->isCommaOp() and std::string(SM.getCharacterData(tokens.back().getLocation()), SM.getCharacterData(tokens.back().getEndLoc())) != " ") {
+                                if (not(tokens.empty()) and
+                                    SM.isWrittenInMainFile(
+                                        tokens.back().getLocation()) and
+                                    not MatchedDecl->isCommaOp() and
+                                    std::string(SM.getCharacterData(
+                                                    tokens.back().getLocation()),
+                                                SM.getCharacterData(
+                                                    tokens.back().getEndLoc())) !=
+                                        " ") {
                                     diag(tok.getLocation(), "Leading space required.");
                                 }
 
                                 if (SM.isWrittenInMainFile(next.getLocation())) {
-                                    std::string match(SM.getCharacterData(next.getLocation()),
-                                                      SM.getCharacterData(next.getEndLoc()));
-                                    //std::cout << "TRAILING MATCH: |" << match << "|" << std::endl;
+                                    std::string match(
+                                        SM.getCharacterData(next.getLocation()),
+                                        SM.getCharacterData(next.getEndLoc()));
+                                    // std::cout << "TRAILING MATCH: |" << match << "|"
+                                    // << std::endl;
                                 }
 
                                 if (SM.isWrittenInMainFile(next.getLocation()) and
-                                    std::string(SM.getCharacterData(next.getLocation()),
-                                                SM.getCharacterData(next.getEndLoc())) != " ") {
+                                    std::string(
+                                        SM.getCharacterData(next.getLocation()),
+                                        SM.getCharacterData(next.getEndLoc())) != " ") {
                                     diag(tok.getEndLoc(), "Trailing space required.");
                                 }
                                 return;
                             }
                             if (SM.isWrittenInMainFile(tok.getLocation())) {
                                 tokens.push_back(tok);
-                                if (donext and SM.isWrittenInMainFile(next.getLocation())) {
+                                if (donext and
+                                    SM.isWrittenInMainFile(next.getLocation())) {
                                     donext = false;
                                     tokens.push_back(next);
                                 }

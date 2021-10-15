@@ -35,32 +35,47 @@ namespace clang {
                 bool checked;
 
             public:
-                Rule8aPPCallBack(Rule8aCheck *Check, Preprocessor *PP, const SourceManager &SM) : Check(Check),
-                                                                                                  PP(PP), SM(SM), checked(false){};
+                Rule8aPPCallBack(Rule8aCheck *Check, Preprocessor *PP,
+                                 const SourceManager &SM)
+                    : Check(Check), PP(PP), SM(SM), checked(false){};
                 void InclusionDirective(SourceLocation HashLoc, const Token &IncludeTok,
-                                        StringRef FileName, bool isAngled, CharSourceRange FilenameRange, const FileEntry *File,
-                                        StringRef SearchPath, StringRef RelativePath, const Module *Imported,
+                                        StringRef FileName, bool isAngled,
+                                        CharSourceRange FilenameRange,
+                                        const FileEntry *File, StringRef SearchPath,
+                                        StringRef RelativePath, const Module *Imported,
                                         SrcMgr::CharacteristicKind FileType) override {
 
                     if (!this->checked) {
-                        std::string main_file_path(this->SM.getFileEntryForID(this->SM.getFileID(HashLoc))->tryGetRealPathName().str());
+                        std::string main_file_path(
+                            this->SM.getFileEntryForID(this->SM.getFileID(HashLoc))
+                                ->tryGetRealPathName()
+                                .str());
                         if (File and File->isValid()) {
                             std::string file_path(File->tryGetRealPathName().str());
                             /* std::filesystem won't link for SOME reason */
                             std::string header_file_name(getFileName(file_path));
-                            header_file_name = header_file_name.substr(0, header_file_name.find_last_of("."));
+                            header_file_name = header_file_name.substr(
+                                0, header_file_name.find_last_of("."));
                             std::string main_file_name(getFileName(main_file_path));
-                            main_file_name = main_file_name.substr(0, main_file_name.find_last_of("."));
+                            main_file_name = main_file_name.substr(
+                                0, main_file_name.find_last_of("."));
 
                             if (main_file_name != header_file_name) {
-                                this->Check->diag(HashLoc, "Corresponding header file include must be first and have same basename as source file.");
+                                this->Check->diag(
+                                    HashLoc,
+                                    "Corresponding header file include must be first "
+                                    "and have same basename as source file.");
                             }
                             std::string ppath("../");
                             std::string cdirpath("./");
-                            auto pp_mm_res(std::mismatch(ppath.begin(), ppath.end(), file_path.begin()));
-                            auto cd_mm_res(std::mismatch(cdirpath.begin(), cdirpath.end(), file_path.begin()));
-                            if (pp_mm_res.first == ppath.end() or cd_mm_res.first == cdirpath.end()) {
-                                // diag(HashLoc, "Relative include paths are forbidden");
+                            auto pp_mm_res(std::mismatch(ppath.begin(), ppath.end(),
+                                                         file_path.begin()));
+                            auto cd_mm_res(std::mismatch(
+                                cdirpath.begin(), cdirpath.end(), file_path.begin()));
+                            if (pp_mm_res.first == ppath.end() or
+                                cd_mm_res.first == cdirpath.end()) {
+                                // diag(HashLoc, "Relative include paths are
+                                // forbidden");
                             }
                         }
                         this->checked = true;
@@ -68,7 +83,8 @@ namespace clang {
                 }
             };
 
-            void Rule8aCheck::registerPPCallbacks(const SourceManager &SM, Preprocessor *PP,
+            void Rule8aCheck::registerPPCallbacks(const SourceManager &SM,
+                                                  Preprocessor *PP,
                                                   Preprocessor *ModuleExpanderPP) {
                 PP->addPPCallbacks(std::make_unique<Rule8aPPCallBack>(this, PP, SM));
             }
@@ -77,10 +93,12 @@ namespace clang {
                 Finder->addMatcher(functionDecl().bind("function_decl"), this);
             }
             void Rule8aCheck::check(const MatchFinder::MatchResult &Result) {
-                if (auto MatchedDecl = Result.Nodes.getNodeAs<FunctionDecl>("function_decl")) {
+                if (auto MatchedDecl =
+                        Result.Nodes.getNodeAs<FunctionDecl>("function_decl")) {
                     const SourceManager &SM = *Result.SourceManager;
                     if (SM.isInMainFile(MatchedDecl->getLocation())) {
-                        const FileEntry *MainFile = SM.getFileEntryForID(SM.getFileID(MatchedDecl->getLocation()));
+                        const FileEntry *MainFile = SM.getFileEntryForID(
+                            SM.getFileID(MatchedDecl->getLocation()));
                         if (MainFile and MainFile->isValid()) {
                             std::string file_path(MainFile->tryGetRealPathName().str());
                         }
