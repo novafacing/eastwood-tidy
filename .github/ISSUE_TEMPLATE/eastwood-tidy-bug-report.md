@@ -21,4 +21,4 @@ What was expected in this case, and how is the result different?
 
 **Other Notes**
 
-Any other helpful information for reproduction. Environment, platform, etc.
+Any other helpful information for reproduction. Environment, platform, etc. If the linter *crashed* please attach the FULL stack dump printed out when it crashes!
