@@ -45,8 +45,8 @@ $ ln -s $(pwd)/eastwood-tidy/ $(pwd)/llvm-project/clang-tools-extra/clang-tidy/
 cd llvm-project/llvm
 mkdir build
 cd build
-cmake -DLLVM_ENABLE_PROJECTS='clang;clang-tools-extra' -DCMAKE_BUILD_TYPE=Release ..
-make -j NN clang-tidy # Where NN is the number of cores in your machine + 1
+cmake -GNinja -DLLVM_TARGETS_TO_BUILD=X86 -DLLVM_ENABLE_PROJECTS="clang;clang-tools-extra" -DCMAKE_CXX_COMPILER="clang++" -DCMAKE_C_COMPILER="clang" -DLLVM_USE_LINKER="lld" -DLLVM_BUILD_TESTS="OFF" -DCMAKE_BUILD_TYPE="Debug" -DBUILD_SHARED_LIBS="OFF" ..
+cmake --build . -j NN # where NN is the number of cores in your machine + 1
 ```
 
 5. Binary will be located at `llvm-project/llvm/build/bin/clang-tidy`
