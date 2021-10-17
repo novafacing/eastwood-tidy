@@ -72,6 +72,11 @@ namespace clang {
                                         const FileEntry *File, StringRef SearchPath,
                                         StringRef RelativePath, const Module *Imported,
                                         SrcMgr::CharacteristicKind FileType) override {
+                    if (!File || !File->isValid()) {
+                        this->Check->diag(HashLoc, "Header file does not exist.");
+                        return;
+                    }
+
                     if (this->SM.isWrittenInMainFile(HashLoc)) {
                         if (not isAngled) {
                             std::string basename(FileName.str());
@@ -84,12 +89,8 @@ namespace clang {
                             std::replace(basename.begin(), basename.end(), '.', '_');
                             std::replace(basename.begin(), basename.end(), '-', '_');
                             // basename += "_H";
-                            // std::cout << "Found include. Guard is: " << basename <<
-                            // std::endl;
-                            // this->Check->required_guards.push_back(std::make_pair(basename,
-                            // HashLoc)); std::cout << "Opening file " <<
-                            // File->tryGetRealPathName().str();
-                            std::ifstream headerfs(File->tryGetRealPathName().str());
+                            auto filename = File->tryGetRealPathName().str();
+                            std::ifstream headerfs(filename);
                             std::vector<std::string> lines;
                             std::string line;
                             while (std::getline(headerfs, line)) {
