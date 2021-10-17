@@ -1,0 +1,29 @@
+--- CompilationDatabase.cpp	2021-10-17 10:33:15.388977768 -0900
++++ CompilationDatabase.cpp.new	2021-10-17 10:42:51.450882916 -0900
+@@ -89,8 +89,6 @@
+       return DB;
+ 
+     if (!HasErrorMessage) {
+-      ErrorStream << "No compilation database found in " << Directory.str()
+-                  << " or any parent directory\n" << LoadErrorMessage;
+       HasErrorMessage = true;
+     }
+ 
+@@ -109,9 +107,6 @@
+   std::unique_ptr<CompilationDatabase> DB =
+       findCompilationDatabaseFromDirectory(Directory, ErrorMessage);
+ 
+-  if (!DB)
+-    ErrorMessage = ("Could not auto-detect compilation database for file \"" +
+-                   SourceFile + "\"\n" + ErrorMessage).str();
+   return DB;
+ }
+ 
+@@ -345,7 +340,6 @@
+   llvm::ErrorOr<std::unique_ptr<llvm::MemoryBuffer>> File =
+       llvm::MemoryBuffer::getFile(Path);
+   if (std::error_code Result = File.getError()) {
+-    ErrorMsg = "Error while opening fixed database: " + Result.message();
+     return nullptr;
+   }
+   return loadFromBuffer(llvm::sys::path::parent_path(Path),

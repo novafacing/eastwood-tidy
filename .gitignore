@@ -1,2 +1,3 @@
 tags
 include/*.h
+.gdb_history

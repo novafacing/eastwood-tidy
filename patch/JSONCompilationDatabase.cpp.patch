@@ -1,0 +1,10 @@
+--- JSONCompilationDatabase.cpp	2021-10-17 10:44:23.090588074 -0900
++++ JSONCompilationDatabase.cpp.new	2021-10-17 10:46:03.642271613 -0900
+@@ -202,7 +202,6 @@
+                                   /*RequiresNullTerminator=*/true,
+                                   /*IsVolatile=*/true);
+   if (std::error_code Result = DatabaseBuffer.getError()) {
+-    ErrorMessage = "Error while opening JSON database: " + Result.message();
+     return nullptr;
+   }
+   std::unique_ptr<JSONCompilationDatabase> Database(

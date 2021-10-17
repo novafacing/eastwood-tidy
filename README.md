@@ -39,7 +39,14 @@ $ ln -s $(pwd)/eastwood-tidy/setup/CMakeLists.txt $(pwd)/llvm-project/clang-tool
 $ ln -s $(pwd)/eastwood-tidy/setup/ClangTidyForceLinker.h $(pwd)/llvm-project/clang-tools-extra/clang-tidy/ClangTidyForceLinker.h
 $ ln -s $(pwd)/eastwood-tidy/ $(pwd)/llvm-project/clang-tools-extra/clang-tidy/
 ```
-4. Use CMake + Make to build the new clang-tidy
+
+4. Run patches to remove extraneous un-toggleable error reports from clang-tidy about missing compilation databases.
+
+```bash
+$ ./patch/patch.sh /path/to/llvm-project
+```
+
+5. Use CMake + Make to build the new clang-tidy
 
 ```
 cd llvm-project/llvm
@@ -49,7 +56,7 @@ cmake -GNinja -DLLVM_TARGETS_TO_BUILD=X86 -DLLVM_ENABLE_PROJECTS="clang;clang-to
 cmake --build . -j NN # where NN is the number of cores in your machine + 1
 ```
 
-5. Binary will be located at `llvm-project/llvm/build/bin/clang-tidy`
+6. Binary will be located at `llvm-project/llvm/build/bin/clang-tidy`
 
 ## Installation <a name="installation" />
 

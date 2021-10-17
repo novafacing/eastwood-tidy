@@ -1,0 +1,11 @@
+--- CommonOptionsParser.cpp	2021-10-17 10:38:42.111726847 -0900
++++ CommonOptionsParser.cpp.new	2021-10-17 10:34:44.104616161 -0900
+@@ -134,8 +134,6 @@
+                                                                ErrorMessage);
+     }
+     if (!Compilations) {
+-      llvm::errs() << "Error while trying to load a compilation database:\n"
+-                   << ErrorMessage << "Running without flags.\n";
+       Compilations.reset(
+           new FixedCompilationDatabase(".", std::vector<std::string>()));
+     }
