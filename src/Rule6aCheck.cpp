@@ -23,6 +23,13 @@ namespace clang {
                 if (const BinaryOperator *BO = dyn_cast<BinaryOperator>(E)) {
                     SourceLocation beg = BO->getBeginLoc();
                     SourceLocation end = BO->getEndLoc();
+
+                    if (!SM.getCharacterData(beg) || !SM.getCharacterData(end) ||
+                        !beg.isValid() || !end.isValid() ||
+                        !(SM.getFileID(beg) == SM.getFileID(end))) {
+                        return;
+                    }
+
                     std::string FullOperation(SM.getCharacterData(beg),
                                               SM.getCharacterData(end));
                     if (FullOperation.size() >= 2) {
@@ -41,14 +48,17 @@ namespace clang {
             }
 
             void Rule6aCheck::check(const MatchFinder::MatchResult &Result) {
-                ASTContext *Context = Result.Context;
                 SourceManager &SM = *Result.SourceManager;
 
                 if (auto MatchedDecl = Result.Nodes.getNodeAs<BinaryOperator>("op")) {
                     Expr *LHS = MatchedDecl->getLHS();
                     Expr *RHS = MatchedDecl->getRHS();
-                    this->checkBinaryParens(LHS, SM);
-                    this->checkBinaryParens(RHS, SM);
+                    if (LHS) {
+                        this->checkBinaryParens(LHS, SM);
+                    }
+                    if (RHS) {
+                        this->checkBinaryParens(RHS, SM);
+                    }
                 }
             }
         } // namespace eastwood
