@@ -47,6 +47,15 @@ namespace clang {
                 std::string type = "";
 
                 if (auto MatchedDecl = Result.Nodes.getNodeAs<VarDecl>("variable")) {
+                    if (!MatchedDecl->isLocalVarDecl()) {
+                        // This is a parameter, we need to check if we actually have a
+                        // name
+                        if (!MatchedDecl->getIdentifier()) {
+                            // There is no identifier for this variable, don't report
+                            // it.
+                            return;
+                        }
+                    }
                     loc = MatchedDecl->getLocation();
                     type = "variable";
                 } else if (auto MatchedDecl =
