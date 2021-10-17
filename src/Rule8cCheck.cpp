@@ -12,8 +12,6 @@
 #include <fstream>
 #include <iostream>
 #include <regex>
-#include <sys/stat.h>
-#include <unistd.h>
 
 using namespace clang::ast_matchers;
 
@@ -31,11 +29,6 @@ namespace clang {
                 Rule8cPPCallBack(Rule8cCheck *Check, Preprocessor *PP,
                                  const SourceManager &SM)
                     : Check(Check), PP(PP), SM(SM), checked(false){};
-
-                bool file_exists(const std::string &filename) {
-                    struct stat buffer;
-                    return (stat(filename.c_str(), &buffer) == 0);
-                }
 
                 void Ifndef(SourceLocation Loc, const Token &MacroNameTok,
                             const MacroDefinition &MD) override {
