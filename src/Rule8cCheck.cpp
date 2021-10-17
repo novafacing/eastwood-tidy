@@ -12,6 +12,8 @@
 #include <fstream>
 #include <iostream>
 #include <regex>
+#include <sys/stat.h>
+#include <unistd.h>
 
 using namespace clang::ast_matchers;
 
@@ -29,6 +31,11 @@ namespace clang {
                 Rule8cPPCallBack(Rule8cCheck *Check, Preprocessor *PP,
                                  const SourceManager &SM)
                     : Check(Check), PP(PP), SM(SM), checked(false){};
+
+                bool file_exists(const std::string &filename) {
+                    struct stat buffer;
+                    return (stat(filename.c_str(), &buffer) == 0);
+                }
 
                 void Ifndef(SourceLocation Loc, const Token &MacroNameTok,
                             const MacroDefinition &MD) override {
@@ -72,6 +79,11 @@ namespace clang {
                                         const FileEntry *File, StringRef SearchPath,
                                         StringRef RelativePath, const Module *Imported,
                                         SrcMgr::CharacteristicKind FileType) override {
+                    if (!File || !File->isValid()) {
+                        this->Check->diag(HashLoc, "Header file does not exist.");
+                        return;
+                    }
+
                     if (this->SM.isWrittenInMainFile(HashLoc)) {
                         if (not isAngled) {
                             std::string basename(FileName.str());
@@ -84,12 +96,8 @@ namespace clang {
                             std::replace(basename.begin(), basename.end(), '.', '_');
                             std::replace(basename.begin(), basename.end(), '-', '_');
                             // basename += "_H";
-                            // std::cout << "Found include. Guard is: " << basename <<
-                            // std::endl;
-                            // this->Check->required_guards.push_back(std::make_pair(basename,
-                            // HashLoc)); std::cout << "Opening file " <<
-                            // File->tryGetRealPathName().str();
-                            std::ifstream headerfs(File->tryGetRealPathName().str());
+                            auto filename = File->tryGetRealPathName().str();
+                            std::ifstream headerfs(filename);
                             std::vector<std::string> lines;
                             std::string line;
                             while (std::getline(headerfs, line)) {
