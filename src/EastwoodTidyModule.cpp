@@ -52,6 +52,7 @@
 #include "Rule9cCheck.h"
 #include "Rule9dCheck.h"
 #include "Rule9eCheck.h"
+#include <llvm/Support/PrettyStackTrace.h>
 namespace clang {
     namespace tidy {
         namespace eastwood {
@@ -60,15 +61,7 @@ namespace clang {
             public:
                 void
                 addCheckFactories(ClangTidyCheckFactories &CheckFactories) override {
-                    CheckFactories.registerCheck<Rule10aCheck>("eastwood-Rule10aCheck");
-                    CheckFactories.registerCheck<Rule11aCheck>("eastwood-Rule11aCheck");
-                    CheckFactories.registerCheck<Rule11bCheck>("eastwood-Rule11bCheck");
-                    CheckFactories.registerCheck<Rule11cCheck>("eastwood-Rule11cCheck");
-                    CheckFactories.registerCheck<Rule11dCheck>("eastwood-Rule11dCheck");
-                    CheckFactories.registerCheck<Rule11eCheck>("eastwood-Rule11eCheck");
-                    CheckFactories.registerCheck<Rule12aCheck>("eastwood-Rule12aCheck");
-                    CheckFactories.registerCheck<Rule12bCheck>("eastwood-Rule12bCheck");
-                    CheckFactories.registerCheck<Rule12cCheck>("eastwood-Rule12cCheck");
+                    this->setup();
                     CheckFactories.registerCheck<Rule1aCheck>("eastwood-Rule1aCheck");
                     CheckFactories.registerCheck<Rule1bCheck>("eastwood-Rule1bCheck");
                     CheckFactories.registerCheck<Rule1cCheck>("eastwood-Rule1cCheck");
@@ -103,6 +96,29 @@ namespace clang {
                     CheckFactories.registerCheck<Rule9cCheck>("eastwood-Rule9cCheck");
                     CheckFactories.registerCheck<Rule9dCheck>("eastwood-Rule9dCheck");
                     CheckFactories.registerCheck<Rule9eCheck>("eastwood-Rule9eCheck");
+                    CheckFactories.registerCheck<Rule10aCheck>("eastwood-Rule10aCheck");
+                    CheckFactories.registerCheck<Rule11aCheck>("eastwood-Rule11aCheck");
+                    CheckFactories.registerCheck<Rule11bCheck>("eastwood-Rule11bCheck");
+                    CheckFactories.registerCheck<Rule11cCheck>("eastwood-Rule11cCheck");
+                    CheckFactories.registerCheck<Rule11dCheck>("eastwood-Rule11dCheck");
+                    CheckFactories.registerCheck<Rule11eCheck>("eastwood-Rule11eCheck");
+                    CheckFactories.registerCheck<Rule12aCheck>("eastwood-Rule12aCheck");
+                    CheckFactories.registerCheck<Rule12bCheck>("eastwood-Rule12bCheck");
+                    CheckFactories.registerCheck<Rule12cCheck>("eastwood-Rule12cCheck");
+                }
+
+            private:
+                void setup(void) {
+                    llvm::setBugReportMsg(
+                        "=============================================================="
+                        "==================\nPLEASE submit a bug report to:\nRowan "
+                        "Hart "
+                        "on Campuswire OR send an email to hart111@purdue.edu\nIn your "
+                        "email, "
+                        "please include:\n  - The entire stack trace printed below.\n  "
+                        "- Your code that is causing the "
+                        "crash.\n======================================================"
+                        "==========================\n");
                 }
             };
         } // namespace eastwood
