@@ -101,20 +101,6 @@ namespace clang {
                 }
             };
 
-            Rule11dCheck::Rule11dCheck(StringRef Name, ClangTidyContext *Context)
-                : ClangTidyCheck(Name, Context), dump(Options.get("dump", "false")) {
-
-                if (this->dump == "true") {
-                    for (auto ty :
-                         {"characterLiteral", "floatLiteral", "imaginaryLiteral",
-                          "integerLiteral", "userDefinedLiteral", "fixedPointLiteral",
-                          "compoundLiteral"}) {
-                        std::vector<SourceLocation> v{};
-                        this->embeddedConstants.insert(std::make_pair(ty, v));
-                    }
-                }
-            }
-
             void Rule11dCheck::registerPPCallbacks(const SourceManager &SM,
                                                    Preprocessor *PP,
                                                    Preprocessor *ModuleExpanderPP) {
@@ -135,11 +121,6 @@ namespace clang {
                 Finder->addMatcher(compoundLiteralExpr().bind("compoundLiteralExpr"),
                                    this);
                 /* If checking CXX, add cxxNullPtrLiteralExpr and cxxBoolLiteral */
-            }
-
-            void Rule11dCheck::saveEmbeddedConstant(SourceLocation loc,
-                                                    std::string type) {
-                this->embeddedConstants[type].push_back(loc);
             }
 
             void Rule11dCheck::check(const MatchFinder::MatchResult &Result) {
@@ -187,49 +168,23 @@ namespace clang {
 
                 if ((Result.SourceManager)->isWrittenInMainFile(loc)) {
                     if (loc.isValid()) {
-                        this->saveEmbeddedConstant(loc, type);
-                    }
-                }
-            }
-
-            void Rule11dCheck::onEndOfTranslationUnit() {
-                if (this->dump == "true") {
-                    std::ios init(NULL);
-                    init.copyfmt(std::cout);
-                    for (auto ty :
-                         {"characterLiteral", "floatLiteral", "imaginaryLiteral",
-                          "integerLiteral", "userDefinedLiteral", "fixedPointLiteral",
-                          "compoundLiteral"}) {
-                        for (auto constant : this->embeddedConstants.at(ty)) {
-                            if (constant.isValid()) {
-                                if (this->declarationRanges.empty()) {
-                                    diag(constant, "embedded constant of type '%0'.",
-                                         DiagnosticIDs::Note)
-                                        << ty;
-                                } else {
-                                    bool toPrint = true;
-                                    for (auto range : this->declarationRanges) {
-                                        if (range.fullyContains(
-                                                SourceRange(constant))) {
-                                            toPrint = false;
-                                        }
-                                    }
-                                    if (toPrint) {
-                                        diag(constant,
-                                             "embedded constant of type '%0'.",
-                                             DiagnosticIDs::Note)
-                                            << ty;
-                                    }
+                        if (this->declarationRanges.empty()) {
+                            diag(loc, "embedded constant of type '%0'.") << type;
+                        } else {
+                            bool toPrint = true;
+                            for (auto range : this->declarationRanges) {
+                                if (range.fullyContains(SourceRange(loc))) {
+                                    toPrint = false;
                                 }
+                            }
+                            if (toPrint) {
+                                this->Check->diag(loc,
+                                                  "embedded constant of type '%0'.")
+                                    << type;
                             }
                         }
                     }
-                    std::cout.copyfmt(init);
                 }
-            }
-
-            void Rule11dCheck::storeOptions(ClangTidyOptions::OptionMap &Opts) {
-                Options.store(Opts, "dump", this->dump);
             }
         } // namespace eastwood
     }     // namespace tidy

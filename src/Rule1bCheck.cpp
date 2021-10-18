@@ -105,6 +105,7 @@ namespace clang {
             }
 
             void Rule1bCheck::onEndOfTranslationUnit() {
+                const size_t typefield_len = 10;
                 if (this->dump == "true") {
                     std::ios init(NULL);
                     init.copyfmt(std::cout);
@@ -112,9 +113,14 @@ namespace clang {
                                       "field", "typedef"}) {
                         for (auto declaration : this->declarations.at(type)) {
                             if (declaration.isValid()) {
+                                /*
                                 diag(declaration, "'%0' declaration.",
                                      DiagnosticIDs::Note)
                                     << type;
+                                */
+                                ios << type << " | "
+                                    << declaration.printToString(*Result.SourceManager)
+                                    << "\n";
                             }
                         }
                     }
