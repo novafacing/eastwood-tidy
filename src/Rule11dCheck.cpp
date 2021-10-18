@@ -179,7 +179,7 @@ namespace clang {
                             }
                             if (toPrint) {
                                 diag(loc, "embedded constant of type '%0'.",
-                                     DiagnosticID::Warning)
+                                     DiagnosticIDs::Warning)
                                     << type;
                             }
                         }
