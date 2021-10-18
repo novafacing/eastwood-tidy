@@ -99,7 +99,11 @@ namespace clang {
                 }
 
                 if ((Result.SourceManager)->isWrittenInMainFile(loc)) {
-                    this->saveVar(MatchedDecl->getIdentifier(), type);
+                    if (auto NamedDecl = Result.Nodes.getNodeAs<NamedDecl>("name")) {
+                        if (NamedDecl->getIdentifier()) {
+                            this->saveVar(NamedDecl->getIdentifier(), type);
+                        }
+                    }
                 } else {
                 }
             }
