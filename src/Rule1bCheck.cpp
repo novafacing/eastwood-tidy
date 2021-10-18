@@ -45,6 +45,7 @@ namespace clang {
             void Rule1bCheck::check(const MatchFinder::MatchResult &Result) {
                 SourceLocation loc;
                 std::string type = "";
+                std::string name = "";
 
                 if (auto MatchedDecl = Result.Nodes.getNodeAs<VarDecl>("variable")) {
                     if (!MatchedDecl->isLocalVarDecl()) {
@@ -58,14 +59,26 @@ namespace clang {
                     }
                     loc = MatchedDecl->getLocation();
                     type = "variable";
+                    if (!MatchedDecl->getIdentifier()) {
+                        return;
+                    }
+                    name = MatchedDecl->getIdentifier()->getName().str();
                 } else if (auto MatchedDecl =
                                Result.Nodes.getNodeAs<FunctionDecl>("function")) {
                     loc = MatchedDecl->getLocation();
                     type = "function";
+                    if (!MatchedDecl->getIdentifier()) {
+                        return;
+                    }
+                    name = MatchedDecl->getIdentifier()->getName().str();
                 } else if (auto MatchedDecl =
                                Result.Nodes.getNodeAs<EnumDecl>("enum")) {
                     loc = MatchedDecl->getLocation();
                     type = "enum";
+                    if (!MatchedDecl->getIdentifier()) {
+                        return;
+                    }
+                    name = MatchedDecl->getIdentifier()->getName().str();
                 } else if (auto MatchedDecl =
                                Result.Nodes.getNodeAs<RecordDecl>("struct")) {
                     if (MatchedDecl->isAnonymousStructOrUnion()) {
@@ -74,6 +87,10 @@ namespace clang {
 
                     loc = MatchedDecl->getLocation();
                     type = "struct";
+                    if (!MatchedDecl->getIdentifier()) {
+                        return;
+                    }
+                    name = MatchedDecl->getIdentifier()->getName().str();
                 } else if (auto MatchedDecl =
                                Result.Nodes.getNodeAs<RecordDecl>("union")) {
                     if (MatchedDecl->isAnonymousStructOrUnion()) {
@@ -82,6 +99,10 @@ namespace clang {
 
                     loc = MatchedDecl->getLocation();
                     type = "union";
+                    if (!MatchedDecl->getIdentifier()) {
+                        return;
+                    }
+                    name = MatchedDecl->getIdentifier()->getName().str();
                 } else if (auto MatchedDecl =
                                Result.Nodes.getNodeAs<FieldDecl>("field")) {
                     if (MatchedDecl->isAnonymousStructOrUnion()) {
@@ -90,29 +111,47 @@ namespace clang {
 
                     loc = MatchedDecl->getLocation();
                     type = "field";
+                    if (!MatchedDecl->getIdentifier()) {
+                        return;
+                    }
+                    name = MatchedDecl->getIdentifier()->getName().str();
                 } else if (auto MatchedDecl =
                                Result.Nodes.getNodeAs<TypedefDecl>("typedef")) {
                     loc = MatchedDecl->getLocation();
                     type = "enum";
+                    if (!MatchedDecl->getIdentifier()) {
+                        return;
+                    }
+                    name = MatchedDecl->getIdentifier()->getName().str();
                 } else {
                     return;
                 }
 
                 if ((Result.SourceManager)->isWrittenInMainFile(loc)) {
-                    if (auto Name = Result.Nodes.getNodeAs<NamedDecl>("name")) {
-                        if (Name->getIdentifier()) {
-                            this->saveVar(Name->getIdentifier()->getName().str(), type);
-                        }
+                    if (name != "") {
+                        this->saveVar(name, type);
                     }
                 } else {
                 }
             }
 
             void Rule1bCheck::onEndOfTranslationUnit() {
-                const size_t typefield_len = 10;
                 if (this->dump == "true") {
                     std::ios init(NULL);
                     init.copyfmt(std::cout);
+                    size_t max_decl_len = 0;
+                    for (auto type : {"variable", "function", "enum", "union", "struct",
+                                      "field", "typedef"}) {
+                        for (auto declaration : this->declarations.at(type)) {
+                            if (declaration.length() > max_decl_len) {
+                                max_decl_len = declaration.length();
+                            }
+                        }
+                    }
+                    std::string header(" TYPE    | VARIABLE NAME    ");
+                    std::cout << std::string(std::max(max_decl_len + 10, header.length()), '=') << std::endl;
+                    std::cout << "  TYPE   |   VARIABLE NAME" << std::endl;
+                    std::cout << std::string(std::max(max_decl_len + 10, header.length()), '=') << std::endl;
                     for (auto type : {"variable", "function", "enum", "union", "struct",
                                       "field", "typedef"}) {
                         for (auto declaration : this->declarations.at(type)) {
