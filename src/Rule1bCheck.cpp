@@ -152,7 +152,7 @@ namespace clang {
                     std::cout << std::string(
                                      std::max(max_decl_len + 10, header.length()), '=')
                               << std::endl;
-                    std::cout << "  TYPE   |   VARIABLE NAME" << std::endl;
+                    std::cout << "  TYPE   | NAME    " << std::endl;
                     std::cout << std::string(
                                      std::max(max_decl_len + 10, header.length()), '=')
                               << std::endl;
