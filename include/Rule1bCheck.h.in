@@ -43,7 +43,7 @@ namespace clang {
                 void storeOptions(ClangTidyOptions::OptionMap &Opts) override;
                 void onEndOfTranslationUnit() override;
 
-                void saveVar(SourceLocation lineNum, std::string type);
+                void saveVar(std::string name, std::string type);
 
             }; // Rule1bCheck
 
