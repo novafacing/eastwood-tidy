@@ -68,6 +68,10 @@ namespace clang {
                                 Lexer::getSpelling(tok, SM, Context->getLangOpts());
                             if (raw_tok_data == "\n") {
                                 // std::cout << "Got newline token" << std::endl;
+                                if (SM.getSpellingColumnNumber(tok.getLocation() > 80) {
+                                    diag(tok.getLocation(),
+                                         "Line exceeds 80 characters.");
+                                }
                             }
                             if (tok.isAtStartOfLine()) {
                                 lines++;
