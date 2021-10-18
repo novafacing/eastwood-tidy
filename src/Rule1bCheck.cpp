@@ -118,9 +118,10 @@ namespace clang {
                                      DiagnosticIDs::Note)
                                     << type;
                                 */
-                                ios << type << " | "
+                                std::cout
+                                    << type << " | "
                                     << declaration.printToString(*Result.SourceManager)
-                                    << "\n";
+                                    << std::endl;
                             }
                         }
                     }

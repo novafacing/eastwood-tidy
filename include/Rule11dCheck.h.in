@@ -36,6 +36,10 @@ namespace clang {
                 std::vector<SourceRange> declarationRanges;
 
             public:
+                /* Constructors */
+                Rule11dCheck(StringRef Name, ClangTidyContext *Context)
+                    : ClangTidyCheck(Name, Context) {}
+
                 /* Overrides */
                 void registerMatchers(ast_matchers::MatchFinder *Finder) override;
                 void registerPPCallbacks(const SourceManager &SM, Preprocessor *PP,

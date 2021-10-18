@@ -34,11 +34,13 @@ namespace clang {
 
             public:
                 /* Constructors */
-                Rule1bCheck(StringRef Name, ClangTidyContext *Context);
+                Rule1bCheck(StringRef Name, ClangTidyContext *Context)
+                    : ClangTidyCheck(Name, Context) {}
 
                 /* Overrides */
                 void registerMatchers(ast_matchers::MatchFinder *Finder) override;
-                void check(const ast_matchers::MatchFinder::MatchResult &Result) override;
+                void
+                check(const ast_matchers::MatchFinder::MatchResult &Result) override;
                 void storeOptions(ClangTidyOptions::OptionMap &Opts) override;
                 void onEndOfTranslationUnit() override;
 
