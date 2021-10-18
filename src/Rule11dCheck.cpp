@@ -178,8 +178,8 @@ namespace clang {
                                 }
                             }
                             if (toPrint) {
-                                this->Check->diag(loc,
-                                                  "embedded constant of type '%0'.")
+                                diag(loc, "embedded constant of type '%0'.",
+                                     DiagnosticID::Warning)
                                     << type;
                             }
                         }
