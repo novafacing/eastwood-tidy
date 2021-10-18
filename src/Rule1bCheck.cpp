@@ -22,7 +22,7 @@ namespace clang {
                 if (this->dump == "true") {
                     for (auto type : {"variable", "function", "enum", "union", "struct",
                                       "field", "typedef"}) {
-                        std::vector<SourceLocation> sources{};
+                        std::vector<std::string> sources{};
                         this->declarations.insert(std::make_pair(type, sources));
                     }
                 }
@@ -38,8 +38,8 @@ namespace clang {
                 Finder->addMatcher(typedefDecl().bind("typedef"), this);
             }
 
-            void Rule1bCheck::saveVar(SourceLocation loc, std::string type) {
-                this->declarations[type].push_back(loc);
+            void Rule1bCheck::saveVar(std::string name, std::string type) {
+                this->declarations[type].push_back(name);
             }
 
             void Rule1bCheck::check(const MatchFinder::MatchResult &Result) {
@@ -99,7 +99,7 @@ namespace clang {
                 }
 
                 if ((Result.SourceManager)->isWrittenInMainFile(loc)) {
-                    this->saveVar(loc, type);
+                    this->saveVar(loc.printToString(Result.SourceManager), type);
                 } else {
                 }
             }
@@ -112,17 +112,7 @@ namespace clang {
                     for (auto type : {"variable", "function", "enum", "union", "struct",
                                       "field", "typedef"}) {
                         for (auto declaration : this->declarations.at(type)) {
-                            if (declaration.isValid()) {
-                                /*
-                                diag(declaration, "'%0' declaration.",
-                                     DiagnosticIDs::Note)
-                                    << type;
-                                */
-                                std::cout
-                                    << type << " | "
-                                    << declaration.printToString(*Result.SourceManager)
-                                    << std::endl;
-                            }
+                            std::cout << type << " | " << declaration << std::endl;
                         }
                     }
                     std::cout.copyfmt(init);

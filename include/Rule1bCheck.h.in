@@ -30,12 +30,11 @@ namespace clang {
 
             private:
                 std::string dump;
-                std::map<std::string, std::vector<SourceLocation>> declarations;
+                std::map<std::string, std::vector<std::string>> declarations;
 
             public:
                 /* Constructors */
-                Rule1bCheck(StringRef Name, ClangTidyContext *Context)
-                    : ClangTidyCheck(Name, Context) {}
+                Rule1bCheck(StringRef Name, ClangTidyContext *Context);
 
                 /* Overrides */
                 void registerMatchers(ast_matchers::MatchFinder *Finder) override;
