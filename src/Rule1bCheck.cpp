@@ -99,9 +99,9 @@ namespace clang {
                 }
 
                 if ((Result.SourceManager)->isWrittenInMainFile(loc)) {
-                    if (auto NamedDecl = Result.Nodes.getNodeAs<NamedDecl>("name")) {
-                        if (NamedDecl->getIdentifier()) {
-                            this->saveVar(NamedDecl->getIdentifier(), type);
+                    if (auto Name = Result.Nodes.getNodeAs<NamedDecl>("name")) {
+                        if (Name->getIdentifier()) {
+                            this->saveVar(Name->getIdentifier(), type);
                         }
                     }
                 } else {
