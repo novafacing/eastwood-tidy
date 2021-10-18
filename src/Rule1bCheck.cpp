@@ -148,16 +148,24 @@ namespace clang {
                             }
                         }
                     }
-                    std::string header(" TYPE    | VARIABLE NAME    ");
-                    std::cout << std::string(std::max(max_decl_len + 10, header.length()), '=') << std::endl;
+                    std::string header(" TYPE    | NAME    ");
+                    std::cout << std::string(
+                                     std::max(max_decl_len + 10, header.length()), '=')
+                              << std::endl;
                     std::cout << "  TYPE   |   VARIABLE NAME" << std::endl;
-                    std::cout << std::string(std::max(max_decl_len + 10, header.length()), '=') << std::endl;
+                    std::cout << std::string(
+                                     std::max(max_decl_len + 10, header.length()), '=')
+                              << std::endl;
                     for (auto type : {"variable", "function", "enum", "union", "struct",
                                       "field", "typedef"}) {
                         for (auto declaration : this->declarations.at(type)) {
                             std::cout << type << " | " << declaration << std::endl;
                         }
                     }
+                    std::cout << std::string(
+                                     std::max(max_decl_len + 10, header.length()), '=')
+                              << std::endl;
+                    std::cout << std::endl;
                     std::cout.copyfmt(init);
                 }
             }
