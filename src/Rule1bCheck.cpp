@@ -99,7 +99,7 @@ namespace clang {
                 }
 
                 if ((Result.SourceManager)->isWrittenInMainFile(loc)) {
-                    this->saveVar(loc.printToString(Result.SourceManager), type);
+                    this->saveVar(MatchedDecl->getIdentifier(), type);
                 } else {
                 }
             }
