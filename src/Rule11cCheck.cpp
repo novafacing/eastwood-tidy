@@ -12,9 +12,52 @@
 
 using namespace clang::ast_matchers;
 
+
 namespace clang {
     namespace tidy {
         namespace eastwood {
+            class DeclAssignCountVisitor : public RecursiveASTVisitor<DeclAssignCountVisitor> {
+                friend class RecursiveASTVisitor<DeclAssignCountVisitor>;
+                public:
+                    explicit DeclAssignCountVisitor(ASTContext *Context, Decl * d) : root(d), count(0), Context(Context)  {
+                        if (dyn_cast<VarDecl>(d)) {
+                            this->count++;
+                        }
+                    }
+                    size_t getAssignOpCount(void) {
+                        return this->count;
+                    }
+                    bool VisitBinaryOperator(const BinaryOperator * binop) {
+                        if (binop->isAssignmentOp()) {
+                            this->count++;
+                        }
+                        return true;
+                    }
+                private:
+                    Decl * root;
+                    size_t count;
+                    ASTContext * Context;
+            };
+            class StmtAssignCountVisitor : public RecursiveASTVisitor<StmtAssignCountVisitor> {
+                friend class RecursiveASTVisitor<DeclAssignCountVisitor>;
+                public:
+                explicit StmtAssignCountVisitor(ASTContext *Context, Stmt * s) : root(s), count(0), Context(Context) {}
+                    size_t getAssignOpCount(void) {
+                        return this->count;
+                    }
+
+                    bool VisitBinaryOperator(const BinaryOperator * binop) {
+                        if (binop->isAssignmentOp()) {
+                            this->count++;
+                        }
+                        return true;
+                    }
+                private:
+                    Stmt * root;
+                    size_t count;
+                    ASTContext * Context;
+            };
+
             void Rule11cCheck::registerMatchers(MatchFinder *Finder) {
                 Finder->addMatcher(
                     binaryOperator(isAssignmentOperator()).bind("binary_operator"),
@@ -23,68 +66,72 @@ namespace clang {
             void Rule11cCheck::check(const MatchFinder::MatchResult &Result) {
                 ASTContext *Context = Result.Context;
                 SourceManager &SM = *Result.SourceManager;
+                ASTNodeKind stop_kinds[] = {
+                    ASTNodeKind::getFromNodeKind<CompoundStmt>(),
+                    ASTNodeKind::getFromNodeKind<DeclStmt>(),
+                    ASTNodeKind::getFromNodeKind<DoStmt>(),
+                    ASTNodeKind::getFromNodeKind<IfStmt>(),
+                    ASTNodeKind::getFromNodeKind<ReturnStmt>(),
+                    ASTNodeKind::getFromNodeKind<SwitchCase>(),
+                    ASTNodeKind::getFromNodeKind<SwitchStmt>(),
+                    ASTNodeKind::getFromNodeKind<WhileStmt>(),
+                };
+                std::deque<DynTypedNode> ascend_q;
+                std::string init;
+                llvm::raw_string_ostream rso(init);
 
                 if (auto MatchedDecl =
                         Result.Nodes.getNodeAs<BinaryOperator>("binary_operator")) {
-                    const Stmt &CurrentStmt = *MatchedDecl;
-                    // TODO: Get parent until parent is no longer an Expr. Add the
-                    // assignment expression to the map indexed by expr. If we have 1
-                    // already, error.
+
                     ParentMapContext &PMC = Context->getParentMapContext();
-                    DynTypedNodeList Parents = PMC.getParents(CurrentStmt);
-                    DynTypedNodeList LParents = Parents;
-                    ASTNodeKind ParenExprKind =
-                        ASTNodeKind::getFromNodeKind<ParenExpr>();
-                    ASTNodeKind WhileStmtKind =
-                        ASTNodeKind::getFromNodeKind<WhileStmt>();
-                    ASTNodeKind IfStmtKind = ASTNodeKind::getFromNodeKind<IfStmt>();
-                    ASTNodeKind BinaryOperatorKind =
-                        ASTNodeKind::getFromNodeKind<BinaryOperator>();
-                    ASTNodeKind CaseStmtKind = ASTNodeKind::getFromNodeKind<CaseStmt>();
-                    if (not Parents.empty() and
-                        BinaryOperatorKind.isSame(Parents[0].getNodeKind()) and
-                        Parents[0].get<BinaryOperator>()->isAssignmentOp()) {
-                        // = is child of another =; this is forbidden
-                        diag(MatchedDecl->getExprLoc(),
-                             "Multiple assignments are not permitted in a single "
-                             "expression");
-                        return;
-                    }
-                    std::string paren_expr_str;
-                    llvm::raw_string_ostream rso(paren_expr_str);
-                    rso << ASTNodeKind::getFromNode(CurrentStmt);
-                    // std::cout << "Initial node type: " << rso.str() << std::endl;
-                    while (not Parents.empty()) {
-                        std::string paren_expr_str;
-                        llvm::raw_string_ostream rso(paren_expr_str);
-                        rso << ParenExprKind << " VS " << Parents[0].getNodeKind();
-                        // std::cout << rso.str() << std::endl;
-                        LParents = Parents;
-                        Parents = PMC.getParents(Parents[0]);
-                        if (not(Parents.size() == 1) or
-                            CaseStmtKind.isSame(Parents[0].getNodeKind())) {
-                            // std::cout << "Parents of size" << Parents.size() <<
-                            // std::endl;
-                            break;
-                        } else {
-                            // std::cout << "Parents of size 1; ascending" << std::endl;
-                            // std::cout << ParenExprKind << " VS " <<
-                            // Parents[0].getNodeKind() << std::endl;
-                            if (IfStmtKind.isSame(Parents[0].getNodeKind()) or
-                                WhileStmtKind.isSame(Parents[0].getNodeKind())) {
-                                for (auto n : this->paren_nodes) {
-                                    if (Parents[0] == n) {
-                                        diag(MatchedDecl->getExprLoc(),
-                                             "Multiple assignments are not permitted "
-                                             "in a single expression");
-                                        return;
-                                    }
+                    ascend_q.push_back(DynTypedNode::create<BinaryOperator>(*MatchedDecl));
+                    
+                    while (not ascend_q.empty()) {
+                        DynTypedNode node = ascend_q.front();
+                        node.dump(rso, *Context);
+                        rso << "\n";
+                        ascend_q.pop_front();
+                        DynTypedNodeList Parents = PMC.getParents(node);
+                        for (auto it = Parents.begin(); it != Parents.end(); it++) {
+                            // Check if this is a stop parent
+                            bool is_stop = false;
+                            for (auto &ank : stop_kinds) {
+                                if (it->getNodeKind().isSame(ank)) {
+                                    is_stop = true;
                                 }
-                                this->paren_nodes.push_back(Parents[0]);
+                            }
+                            if (is_stop) {
+                                // Explore children exhaustively and count number of assigns
+                                Stmt * s_parent = const_cast<Stmt *>(node.get<Stmt>());
+                                // std::cout << "Number of assignments under this parent: " << assignCount(parent) << std::endl;
+                                if (s_parent) {
+                                    StmtAssignCountVisitor s_visitor(Context, s_parent);
+                                    s_visitor.TraverseStmt(s_parent);
+                                    if (s_visitor.getAssignOpCount() > 1) {
+                                        diag(s_parent->getBeginLoc(), "Expression contains more than one assignment.");
+                                    }
+
+                                } else {
+                                    Decl * d_parent = const_cast<Decl *>(node.get<Decl>());
+                                    DeclAssignCountVisitor d_visitor(Context, d_parent);
+                                    d_visitor.TraverseDecl(d_parent);
+                                    if (d_visitor.getAssignOpCount() > 1) {
+                                        diag(d_parent->getLocation(), "Expression contains more than one assignment.");
+
+                                    }
+
+                                }
+
+
+
+                            } else {
+                                ascend_q.push_back(*it);
+
                             }
                         }
                     }
                 }
+                // std::cout << rso.str() << std::endl; // Use this for debugging
             }
         } // namespace eastwood
     }     // namespace tidy
