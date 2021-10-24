@@ -13,6 +13,7 @@
 #include "@CLANG_TIDY_TOPLEVEL@/ClangTidyCheck.h"
 
 #include "clang/AST/ASTContext.h"
+#include "clang/AST/RecursiveASTVisitor.h"
 #include "clang/AST/ASTTypeTraits.h"
 #include "clang/AST/Expr.h"
 #include "clang/AST/ParentMap.h"
