@@ -19,6 +19,7 @@ fi
 scp "${BASEDIR}/linter" "${USER}@${REMOTE}:${REMOTE_BINDIR}/linter"
 scp "${TIDY_BIN}" "${USER}@${REMOTE}:${REMOTE_BINDIR}/"
 scp -r "${TIDY_INC}" "${USER}@${REMOTE}:${REMOTE_INCLUDEDIR}"
+ssh "${USER}@${REMOTE}" "chmod -R 755 ${REMOTE_INCLUDEDIR}"
 
 echo "Done."
 
