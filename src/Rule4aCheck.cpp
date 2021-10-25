@@ -287,7 +287,7 @@ namespace clang {
                     //        SM.getCharacterData(closes.back())) << "|" << std::endl;
                     if (Else) {
                         if (SM.getSpellingLineNumber(If->getThen()->getEndLoc()) !=
-                            SM.getSpellingLineNumber(If->getBeginLoc()) - 1) {
+                            SM.getSpellingLineNumber(Else->getBeginLoc()) - 1) {
                             diag(Else->getBeginLoc().getLocWithOffset(-1),
                                  "Else must be on the line after the associated 'if' "
                                  "statement's closing brace.");
