@@ -127,6 +127,7 @@ namespace clang {
                     }
                     if (MatchedDecl->isThisDeclarationADefinition() and
                         MatchedDecl->doesThisDeclarationHaveABody()) {
+                        size_t start, end;
                         SourceLocation StartBrace =
                             MatchedDecl->getBody()->getBeginLoc();
                         SourceLocation EndBrace = MatchedDecl->getBodyRBrace();
@@ -141,18 +142,37 @@ namespace clang {
                         // std::cout << "Opening at: |" << file_str << "| OPEN" <<
                         // std::endl << "Closing at: |" << file_str_close << "| CLOSE"
                         // << std::endl;
-                        if (SM.getSpellingLineNumber(this->opens.back()) !=
-                                SM.getSpellingLineNumber(MatchedDecl->getLocation()) and
-                            (MatchedDecl->param_empty() or
-                             SM.getSpellingLineNumber(MatchedDecl->parameters()
-                                                          .back()
-                                                          ->getSourceRange()
-                                                          .getEnd()) !=
+                        if (MatchedDecl->getNumParams() > 1 &&
+                            ((start = SM.getSpellingLineNumber(
+                                  MatchedDecl->getLocation()))) !=
+                                (end = SM.getSpellingLineNumber(
+                                     MatchedDecl
+                                         ->getParamDecl(MatchedDecl->getNumParams() - 1)
+                                         ->getEndLoc()))) {
+                            for (size_t i = start + 1; i <= end; i++) {
+                                this->broken_lines.push_back(i);
+                            }
+                        }
+
+                        if ((MatchedDecl->getNumParams() == 0 and
+                             SM.getSpellingLineNumber(this->opens.back()) !=
+                                 SM.getSpellingLineNumber(
+                                     MatchedDecl->getLocation())) or
+                            (MatchedDecl->getNumParams() > 0 &&
+                             SM.getSpellingLineNumber(
+                                 MatchedDecl
+                                     ->getParamDecl(MatchedDecl->getNumParams() - 1)
+                                     ->getEndLoc()) !=
                                  SM.getSpellingLineNumber(this->opens.back()))) {
 
                             diag(this->opens.back(),
-                                 "Open brace must be located on same line as function "
-                                 "declaration or after parameters.");
+                                 "Open brace on line %0 must be located on same line "
+                                 "as function "
+                                 "declaration or after parameters on line %1.")
+                                << SM.getSpellingLineNumber(this->opens.back())
+                                << SM.getSpellingLineNumber(
+                                       MatchedDecl->getParametersSourceRange()
+                                           .getEnd());
                         }
                         // std::cout << "FUNCTION BODY: |" <<
                         // std::string(SM.getCharacterData(opens.back()),
@@ -193,6 +213,7 @@ namespace clang {
                         SM.isMacroBodyExpansion(MatchedDecl->getBeginLoc())) {
                         return;
                     }
+                    size_t start, end;
                     this->opens.push_back(MatchedDecl->getBody()->getBeginLoc());
                     // std::string
                     // file_str(SM.getCharacterData(SM.getLocForStartOfFile(SM.getFileID(MatchedDecl->getBeginLoc()))),
@@ -205,10 +226,15 @@ namespace clang {
                     // std::cout << "Opening at: |" << file_str << "| OPEN" << std::endl
                     // << "Closing at: |" << file_str_close << "| CLOSE" << std::endl;
 
-                    if (SM.getSpellingLineNumber(this->opens.back()) !=
-                            SM.getSpellingLineNumber(MatchedDecl->getBeginLoc()) and
-                        SM.getSpellingLineNumber(MatchedDecl->getRParenLoc()) !=
-                            SM.getSpellingLineNumber(this->opens.back())) {
+                    if ((start =
+                             SM.getSpellingLineNumber(MatchedDecl->getLParenLoc())) !=
+                        (end = SM.getSpellingLineNumber(MatchedDecl->getRParenLoc()))) {
+                        for (size_t i = start + 1; i <= end; i++) {
+                            this->broken_lines.push_back(i);
+                        }
+                    }
+                    if (SM.getSpellingLineNumber(MatchedDecl->getRParenLoc()) !=
+                        SM.getSpellingLineNumber(this->opens.back())) {
                         diag(this->opens.back(),
                              "Open brace must be located on same line as for or after "
                              "split contents.");
@@ -223,6 +249,7 @@ namespace clang {
                         SM.isMacroBodyExpansion(MatchedDecl->getBeginLoc())) {
                         return;
                     }
+                    size_t start, end;
                     const IfStmt *If = MatchedDecl;
                     const Stmt *Else = MatchedDecl->getElse();
 
@@ -242,9 +269,17 @@ namespace clang {
                     // << "Closing at: |" << file_str_close << "| CLOSE" << std::endl;
 
                     if (SM.getSpellingLineNumber(this->opens.back()) !=
-                        SM.getSpellingLineNumber(MatchedDecl->getBeginLoc())) {
+                        SM.getSpellingLineNumber(MatchedDecl->getRParenLoc())) {
                         diag(this->opens.back(),
                              "Open brace must be located on same line as if.");
+                    }
+
+                    if ((start =
+                             SM.getSpellingLineNumber(MatchedDecl->getLParenLoc())) !=
+                        (end = SM.getSpellingLineNumber(MatchedDecl->getRParenLoc()))) {
+                        for (size_t i = start + 1; i <= end; i++) {
+                            this->broken_lines.push_back(i);
+                        }
                     }
 
                     // std::cout << "IF BODY: |" <<
@@ -254,7 +289,8 @@ namespace clang {
                         if (SM.getSpellingLineNumber(If->getThen()->getEndLoc()) !=
                             SM.getSpellingLineNumber(Else->getBeginLoc()) - 1) {
                             diag(Else->getBeginLoc().getLocWithOffset(-1),
-                                 "Else must be on a new line.");
+                                 "Else must be on the line after the associated 'if' "
+                                 "statement's closing brace.");
                         }
                         if (const auto *ChildIf = dyn_cast<IfStmt>(Else)) {
                             SourceLocation StartElse =
@@ -372,6 +408,7 @@ namespace clang {
                         SM.isMacroBodyExpansion(MatchedDecl->getBeginLoc())) {
                         return;
                     }
+                    size_t start, end;
                     this->opens.push_back(MatchedDecl->getBody()->getBeginLoc());
                     // std::string
                     // file_str(SM.getCharacterData(SM.getLocForStartOfFile(SM.getFileID(MatchedDecl->getBeginLoc()))),
@@ -389,10 +426,17 @@ namespace clang {
                     // std::string(SM.getCharacterData(opens.back()),
                     //        SM.getCharacterData(closes.back())) << "|" << std::endl;
 
-                    if (SM.getSpellingLineNumber(this->opens.back()) !=
-                        SM.getSpellingLineNumber(MatchedDecl->getBeginLoc())) {
+                    if (SM.getSpellingLineNumber(MatchedDecl->getRParenLoc()) !=
+                        SM.getSpellingLineNumber(this->opens.back())) {
                         diag(this->opens.back(),
                              "Open brace must be located on same line as while.");
+                    }
+                    if ((start =
+                             SM.getSpellingLineNumber(MatchedDecl->getLParenLoc())) !=
+                        (end = SM.getSpellingLineNumber(MatchedDecl->getRParenLoc()))) {
+                        for (size_t i = start + 1; i <= end; i++) {
+                            this->broken_lines.push_back(i);
+                        }
                     }
                 }
             }
@@ -473,10 +517,24 @@ namespace clang {
                         std::cout << "|" << std::endl;
                         */
                         if (spc_ct(ws) != indent_amount) {
-                            diag(tok.getLocation(),
-                                 "Incorrect indentation level. Expected %0, got %1")
-                                << std::to_string(indent_amount)
-                                << std::to_string(spc_ct(ws));
+                            if (std::find(this->broken_lines.begin(),
+                                          this->broken_lines.end(),
+                                          this->SMan->getSpellingLineNumber(
+                                              tok.getLocation())) !=
+                                this->broken_lines.end()) {
+                                if (spc_ct(ws) < indent_amount + 2) {
+                                    diag(tok.getLocation(),
+                                         "Incorrect indentation level. Expected at "
+                                         "least %0, got %1")
+                                        << std::to_string(indent_amount + 2)
+                                        << std::to_string(spc_ct(ws));
+                                }
+                            } else {
+                                diag(tok.getLocation(),
+                                     "Incorrect indentation level. Expected %0, got %1")
+                                    << std::to_string(indent_amount)
+                                    << std::to_string(spc_ct(ws));
+                            }
                             // std::cout << "reporting incorrect indentation level.
                             // Expected " << indent_amount << " got " << spc_ct(ws) <<
                             // std::endl;

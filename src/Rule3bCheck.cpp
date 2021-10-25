@@ -95,7 +95,8 @@ namespace clang {
                                                     tokens.back().getLocation()),
                                                 SM.getCharacterData(
                                                     tokens.back().getEndLoc())) !=
-                                        " ") {
+                                        " " and
+                                    not tok.isAtStartOfLine()) {
                                     diag(tok.getLocation(), "Leading space required.");
                                 }
 
@@ -103,16 +104,14 @@ namespace clang {
                                     std::string match(
                                         SM.getCharacterData(next.getLocation()),
                                         SM.getCharacterData(next.getEndLoc()));
-                                    // std::cout << "TRAILING MATCH: |" << match << "|"
-                                    // << std::endl;
+
+                                    if (match != " " and
+                                        match.find('\n') == std::string::npos) {
+                                        diag(tok.getEndLoc(),
+                                             "Trailing space required.");
+                                    }
                                 }
 
-                                if (SM.isWrittenInMainFile(next.getLocation()) and
-                                    std::string(
-                                        SM.getCharacterData(next.getLocation()),
-                                        SM.getCharacterData(next.getEndLoc())) != " ") {
-                                    diag(tok.getEndLoc(), "Trailing space required.");
-                                }
                                 return;
                             }
                             if (SM.isWrittenInMainFile(tok.getLocation())) {
