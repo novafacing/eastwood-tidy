@@ -36,6 +36,7 @@ namespace clang {
                 const SourceManager &SM = *Result.SourceManager;
                 this->SMan = Result.SourceManager;
                 ASTContext *Context = Result.Context;
+                this->ctx = Context;
                 if (auto MatchedDecl = Result.Nodes.getNodeAs<RecordDecl>("record")) {
                     if (not SM.isWrittenInMainFile(MatchedDecl->getBeginLoc()) or
                         not MatchedDecl->getBeginLoc().isValid() or
@@ -458,12 +459,22 @@ namespace clang {
                 size_t indent_amount = 0;
                 Token tok;
                 std::vector<Token> tokens;
+                std::vector<Token> eol_tokens;
                 std::sort(opens.begin(), opens.end());
                 std::sort(closes.begin(), closes.end());
                 while (!this->lexer->LexFromRawLexer(tok)) {
                     if (not this->SMan->isWrittenInMainFile(tok.getLocation()) or
                         not this->SMan->isWrittenInMainFile(tok.getEndLoc())) {
                         continue;
+                    }
+
+                    std::string raw_tok_data =
+                        Lexer::getSpelling(tok, *this->SMan, this->ctx->getLangOpts());
+
+                    // This is a line break, so we push the last token into the vector
+                    // of EOL tokens
+                    if (raw_tok_data.find('\n') != std::string::npos) {
+                        eol_tokens.push_back(tokens.back());
                     }
                     tokens.push_back(tok);
                     SourceRange TokenSourceRange(tok.getLocation(), tok.getEndLoc());
@@ -516,7 +527,25 @@ namespace clang {
                         }
                         std::cout << "|" << std::endl;
                         */
+
+                        bool breakable = false;
+                        for (auto t : eol_tokens) {
+                            // This EOL token is the one for the line before the current
+                            // line
+                            if (this->SMan->getSpellingLineNumber(t.getLocation()) ==
+                                this->SMan->getSpellingLineNumber(tok.getLocation()) -
+                                    1) {
+                                if (t.getKind() != tok::l_brace and
+                                    t.getKind() != tok::semi and
+                                    t.getKind() != tok::comment) {
+                                    breakable = true;
+                                }
+
+                                break;
+                            }
+                        }
                         if (spc_ct(ws) != indent_amount) {
+                            // Is this a known broken line?
                             if (std::find(this->broken_lines.begin(),
                                           this->broken_lines.end(),
                                           this->SMan->getSpellingLineNumber(
@@ -529,6 +558,20 @@ namespace clang {
                                         << std::to_string(indent_amount + 2)
                                         << std::to_string(spc_ct(ws));
                                 }
+                                // Is the end of the previous line something other than:
+                                // - ';'
+                                // - '{'
+                                // - A comment
+                                // - A macro define, ifndef, endif, include
+                            } else if (breakable) {
+                                if (spc_ct(ws) < indent_amount + 2) {
+                                    diag(tok.getLocation(),
+                                         "Incorrect indentation level. Expected at "
+                                         "least %0, got %1")
+                                        << std::to_string(indent_amount + 2)
+                                        << std::to_string(spc_ct(ws));
+                                }
+
                             } else {
                                 diag(tok.getLocation(),
                                      "Incorrect indentation level. Expected %0, got %1")
