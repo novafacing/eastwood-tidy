@@ -474,7 +474,9 @@ namespace clang {
                     // This is a line break, so we push the last token into the vector
                     // of EOL tokens
                     if (raw_tok_data.find('\n') != std::string::npos) {
-                        eol_tokens.push_back(tokens.back());
+                        if (tokens.size() > 0) {
+                            eol_tokens.push_back(tokens.back());
+                        }
                     }
                     tokens.push_back(tok);
                     SourceRange TokenSourceRange(tok.getLocation(), tok.getEndLoc());
