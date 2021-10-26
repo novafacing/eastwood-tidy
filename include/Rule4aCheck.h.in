@@ -41,6 +41,7 @@ namespace clang {
                 Lexer *lexer;
                 const SourceManager *SMan;
                 bool lexer_initialized;
+                ASTContext *ctx;
             }; // Rule4bCheck
         }      // namespace eastwood
     }          // namespace tidy
