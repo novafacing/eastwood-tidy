@@ -474,7 +474,11 @@ namespace clang {
                     // This is a line break, so we push the last token into the vector
                     // of EOL tokens
                     if (raw_tok_data.find('\n') != std::string::npos) {
+<<<<<<< Updated upstream
                         if (tokens.size() > 0) {
+=======
+                        if (tokens.size() != 0) {
+>>>>>>> Stashed changes
                             eol_tokens.push_back(tokens.back());
                         }
                     }
