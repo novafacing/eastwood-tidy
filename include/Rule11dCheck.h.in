@@ -33,12 +33,13 @@ namespace clang {
 
             class Rule11dCheck : public ClangTidyCheck {
             private:
+                std::map<std::string, std::vector<SourceLocation>> embeddedConstants;
                 std::vector<SourceRange> declarationRanges;
+                std::string dump;
 
             public:
                 /* Constructors */
-                Rule11dCheck(StringRef Name, ClangTidyContext *Context)
-                    : ClangTidyCheck(Name, Context) {}
+                Rule11dCheck(StringRef Name, ClangTidyContext *Context);
 
                 /* Overrides */
                 void registerMatchers(ast_matchers::MatchFinder *Finder) override;
@@ -46,6 +47,9 @@ namespace clang {
                                          Preprocessor *ModuleExpanderPP) override;
                 void
                 check(const ast_matchers::MatchFinder::MatchResult &Result) override;
+                void onEndOfTranslationUnit(void) override;
+                void storeOptions(ClangTidyOptions::OptionMap &Opts) override;
+                void saveEmbeddedConstant(SourceLocation loc, std::string type);
             }; // Rule11dCheck
         }      // namespace eastwood
     }          // namespace tidy
