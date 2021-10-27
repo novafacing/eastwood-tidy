@@ -312,7 +312,7 @@ namespace clang {
                             // CLOSE" << std::endl;
 
                             if (SM.getSpellingLineNumber(StartElse) !=
-                                SM.getSpellingLineNumber(ChildIf->getBeginLoc())) {
+                                SM.getSpellingLineNumber(ChildIf->getRParenLoc())) {
                                 diag(
                                     this->opens.back(),
                                     "Open brace must be located on same line as else.");
@@ -568,12 +568,22 @@ namespace clang {
                             } else if (breakable) {
                                 if (spc_ct(ws) < indent_amount + 2) {
                                     diag(tok.getLocation(),
-                                         "Incorrect indentation level. Expected at "
+                                         "Incorrect indentation level for broken line. "
+                                         "Expected at "
                                          "least %0, got %1")
                                         << std::to_string(indent_amount + 2)
                                         << std::to_string(spc_ct(ws));
                                 }
 
+                            } else if (tok.getKind() == tok::comment) {
+                                if (spc_ct(ws) < indent_amount) {
+                                    diag(tok.getLocation(),
+                                         "Incorrect indentation level for comment. "
+                                         "Expected at "
+                                         "least %0, got %1")
+                                        << std::to_string(indent_amount + 2)
+                                        << std::to_string(spc_ct(ws));
+                                }
                             } else {
                                 diag(tok.getLocation(),
                                      "Incorrect indentation level. Expected %0, got %1")
