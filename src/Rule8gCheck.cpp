@@ -85,8 +85,10 @@ namespace clang {
                                 return;
                             }
                         }
-                        this->Check->diag(HashLoc, "Non-local include must be included "
-                                                   "with <...>, not double quotes.");
+                        if (SM.isWrittenInMainFile(HashLoc)) {
+                            this->Check->diag(HashLoc, "Non-local include must be included "
+                                                       "with <...>, not double quotes.");
+                        }
                     }
                 }
             };

@@ -35,7 +35,7 @@ namespace clang {
                             CurrentLine =
                                 SM.getSpellingLineNumber(Param->getBeginLoc());
                             if (SM.getSpellingColumnNumber(Param->getBeginLoc()) !=
-                                FirstCol) {
+                                FirstCol && SM.isWrittenInMainFile(Param->getBeginLoc())) {
                                 diag(Param->getBeginLoc(),
                                      "Line-broken parameter is not aligned with first "
                                      "parameter.");

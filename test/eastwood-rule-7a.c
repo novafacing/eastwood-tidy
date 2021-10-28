@@ -9,7 +9,7 @@
 
 
 int foo(void) {
-    // Bad: no function header comment
+  // Bad: no function header comment
 } /* foo() */
 
 /*
@@ -17,7 +17,7 @@ int foo(void) {
  * Yes this function is great. This is a dummy comment for bar
  */
 int bar(void) {
-    // Bad: function header comment does not have a post-space.
+  // Bad: function header comment does not have a post-space.
 } /* bar() */
 /*
  * The function does a thing. It is very good
@@ -25,7 +25,7 @@ int bar(void) {
  */
 
 int baz(void) {
-    // Bad: function header comment does not have a pre-space
+  // Bad: function header comment does not have a pre-space
 } /* baz() */
 
 /* This is a badly formatted header regex
@@ -43,7 +43,7 @@ int xyzzy(void) {
  */
 
 int zzyzzy(void) {
-    // OK: Space above and below, properly formatted.
+  // OK: Space above and below, properly formatted.
 } /* zzyzzy() */
 
 // OK: Reason

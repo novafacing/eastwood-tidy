@@ -75,6 +75,7 @@ namespace clang {
                     ASTNodeKind::getFromNodeKind<SwitchCase>(),
                     ASTNodeKind::getFromNodeKind<SwitchStmt>(),
                     ASTNodeKind::getFromNodeKind<WhileStmt>(),
+                    ASTNodeKind::getFromNodeKind<ForStmt>(),
                 };
                 std::deque<DynTypedNode> ascend_q;
                 std::string init;

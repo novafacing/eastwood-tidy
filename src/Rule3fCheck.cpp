@@ -53,10 +53,12 @@ namespace clang {
                                     SM.getCharacterData(tok.getEndLoc()));
                                 // std::cout << "Matched offender: |" << match << "|" <<
                                 // std::endl;
+                                if (SM.isWrittenInMainFile(tok.getLocation())) {
+                                    diag(tok.getLocation(),
+                                         "No space permitted between function name and "
+                                         "parameter list.");
+                                }
 
-                                diag(tok.getLocation(),
-                                     "No space permitted between function name and "
-                                     "parameter list.");
                             } else {
                                 std::string match(
                                     SM.getCharacterData(tok.getLocation()),

@@ -111,14 +111,15 @@ namespace clang {
                                     }
                                 } else {
                                     Token last_start = line_begin_tokens.back();
+                                    // std::cout << "LAST START" << std::string(SM.getCharacterData(last_start.getLocation()), SM.getCharacterData(last_start.getEndLoc())) << ":" << last_start.getName() << std::endl;
                                     if (last_start.isOneOf(tok::kw_if, tok::kw_else,
-                                                           tok::kw_case) or
+                                                           tok::kw_case, tok::hash) or
                                         (last_start.isAnyIdentifier() and
                                          (last_start.getRawIdentifier().str() == "if" or
                                           last_start.getRawIdentifier().str() ==
                                               "else" or
                                           last_start.getRawIdentifier().str() ==
-                                              "case"))) {
+                                              "case" or last_start.getRawIdentifier().str() == "#endif"))) {
                                         // OK
                                         // std::cout << "Last start is OK" << std::endl;
                                     } else {
