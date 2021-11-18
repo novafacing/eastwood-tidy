@@ -365,22 +365,33 @@ namespace clang {
                         SM.isMacroBodyExpansion(MatchedDecl->getBeginLoc())) {
                         return;
                     }
-                    this->opens.push_back(MatchedDecl->getBeginLoc());
-                    // std::string
-                    // file_str(SM.getCharacterData(SM.getLocForStartOfFile(SM.getFileID(MatchedDecl->getBeginLoc()))),
-                    // SM.getCharacterData(this->opens.back()));
 
-                    this->closes.push_back(
-                        MatchedDecl->getEndLoc().getLocWithOffset(-1));
-                    // std::string
-                    // file_str_close(SM.getCharacterData(SM.getLocForStartOfFile(SM.getFileID(MatchedDecl->getBeginLoc()))),
-                    // SM.getCharacterData(this->closes.back()));
-                    // std::cout << "Opening at: |" << file_str << "| OPEN" << std::endl
-                    // << "Closing at: |" << file_str_close << "| CLOSE" << std::endl;
+                    bool doit = true;
 
-                    // std::cout << "CASE BODY: |" <<
-                    // std::string(SM.getCharacterData(opens.back()),
-                    //        SM.getCharacterData(closes.back())) << "|" << std::endl;
+                    for (auto it = MatchedDecl->child_begin();
+                         it != MatchedDecl->child_end(); it++) {
+                        if (dyn_cast<CaseStmt>(*it)) {
+                            // Don't add a close on this case if it is not the last
+                            doit = false;
+                        }
+                    }
+
+                    if (doit) {
+                        MatchedDecl->dump();
+                        MatchedDecl->getLHS()->dump();
+                        MatchedDecl->getSubStmt()->dump();
+                        this->opens.push_back(MatchedDecl->getBeginLoc());
+                        if (auto CS =
+                                dyn_cast<CompoundStmt>(MatchedDecl->getSubStmt())) {
+                            this->closes.push_back(
+                                CS->getEndLoc().getLocWithOffset(-1));
+                        } else {
+                            this->closes.push_back(
+                                MatchedDecl->getSubStmt()->getEndLoc().getLocWithOffset(
+                                    1));
+                        }
+                    }
+
                 } else if (auto MatchedDecl =
                                Result.Nodes.getNodeAs<DefaultStmt>("default")) {
                     if (not SM.isWrittenInMainFile(MatchedDecl->getBeginLoc()) or
@@ -539,7 +550,8 @@ namespace clang {
                                     1) {
                                 if (t.getKind() != tok::l_brace and
                                     t.getKind() != tok::semi and
-                                    t.getKind() != tok::comment) {
+                                    t.getKind() != tok::comment and
+                                    t.getKind() != tok::colon) {
                                     breakable = true;
                                 }
 

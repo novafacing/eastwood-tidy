@@ -40,6 +40,20 @@ int foo(void)
     {
         int a = 10;
     }
+    int a = 5;
+    switch (a) {
+      case 1:
+        case 2:
+          break;
+      case 3:
+      case 4:
+      case 5:
+      break;
+      case 6:
+      case 7: {
+        break;
+      }
+    }
 } /* foo() */
 
 // Put Something That Fails Here
@@ -65,6 +79,16 @@ int bar(void) {
         a = 5;
         break;
       }
+      case 9: break;
+      case 8:
+        break;
+      case 7:
+      case 6:
+      case 5:
+        break;
+      case 4:
+      case 3:
+      case 2: break;
       default: {
         a = 2;
         break;
