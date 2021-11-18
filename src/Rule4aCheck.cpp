@@ -377,9 +377,6 @@ namespace clang {
                     }
 
                     if (doit) {
-                        MatchedDecl->dump();
-                        MatchedDecl->getLHS()->dump();
-                        MatchedDecl->getSubStmt()->dump();
                         this->opens.push_back(MatchedDecl->getBeginLoc());
                         if (auto CS =
                                 dyn_cast<CompoundStmt>(MatchedDecl->getSubStmt())) {
