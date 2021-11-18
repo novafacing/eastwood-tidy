@@ -8,6 +8,7 @@
 //===----------------------------------------------------------------------===//
 
 #include "Rule6aCheck.h"
+#include <iostream>
 
 using namespace clang::ast_matchers;
 
@@ -19,31 +20,41 @@ namespace clang {
                     binaryOperator(hasAnyOperatorName("&&", "||")).bind("op"), this);
             }
 
-            void Rule6aCheck::checkBinaryParens(Expr *E, SourceManager &SM) {
-                if (const BinaryOperator *BO = dyn_cast<BinaryOperator>(E)) {
-                    SourceLocation beg = BO->getBeginLoc();
-                    SourceLocation end = BO->getEndLoc();
+            void Rule6aCheck::checkBinaryParens(BinaryOperator *BO, SourceManager &SM,
+                                                size_t depth) {
 
-                    if (!SM.getCharacterData(beg) || !SM.getCharacterData(end) ||
-                        !beg.isValid() || !end.isValid() ||
-                        !(SM.getFileID(beg) == SM.getFileID(end))) {
-                        return;
-                    }
+                Expr *LHS = BO->getLHS();
+                Expr *RHS = BO->getRHS();
+                BinaryOperator *LHS_BO = nullptr;
+                BinaryOperator *RHS_BO = nullptr;
 
-                    std::string FullOperation(SM.getCharacterData(beg),
-                                              SM.getCharacterData(end));
-                    if (FullOperation.size() >= 2) {
-                        if (FullOperation[0] != '(' or
-                            FullOperation[FullOperation.size() - 1] != ')') {
-                            diag(BO->getOperatorLoc(), "This sub-expression must be "
-                                                       "surrounded by parentheses.");
+                // Sanity checks that will cause segv
+                if ((LHS_BO = dyn_cast<BinaryOperator>(LHS->IgnoreParenCasts())) &&
+                    LHS_BO->isLogicalOp()) {
+                    this->checkBinaryParens(LHS_BO, SM, depth + 1);
+
+                } else {
+                    if (!dyn_cast<ParenExpr>(LHS)) {
+                        if (auto NL_OP =
+                                dyn_cast<BinaryOperator>(LHS->IgnoreParenCasts())) {
+                            diag(NL_OP->getOperatorLoc(), "This sub-expression must be "
+                                                          "surrounded by parentheses");
                         }
-                    } else {
-                        diag(BO->getOperatorLoc(),
-                             "This sub-expression must be surrounded by parentheses.");
                     }
-                    this->checkBinaryParens(BO->getLHS(), SM);
-                    this->checkBinaryParens(BO->getRHS(), SM);
+                }
+
+                if ((RHS_BO = dyn_cast<BinaryOperator>(RHS->IgnoreParenCasts())) &&
+                    RHS_BO->isLogicalOp()) {
+                    this->checkBinaryParens(RHS_BO, SM, depth + 1);
+
+                } else {
+                    if (!dyn_cast<ParenExpr>(RHS)) {
+                        if (auto NL_OP =
+                                dyn_cast<BinaryOperator>(RHS->IgnoreParenCasts())) {
+                            diag(NL_OP->getOperatorLoc(), "This sub-expression must be "
+                                                          "surrounded by parentheses");
+                        }
+                    }
                 }
             }
 
@@ -53,11 +64,9 @@ namespace clang {
                 if (auto MatchedDecl = Result.Nodes.getNodeAs<BinaryOperator>("op")) {
                     Expr *LHS = MatchedDecl->getLHS();
                     Expr *RHS = MatchedDecl->getRHS();
-                    if (LHS) {
-                        this->checkBinaryParens(LHS, SM);
-                    }
-                    if (RHS) {
-                        this->checkBinaryParens(RHS, SM);
+                    if (LHS && RHS) {
+                        this->checkBinaryParens(
+                            const_cast<BinaryOperator *>(MatchedDecl), SM);
                     }
                 }
             }
