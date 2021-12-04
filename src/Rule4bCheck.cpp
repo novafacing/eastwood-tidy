@@ -14,6 +14,14 @@ using namespace clang::ast_matchers;
 namespace clang {
     namespace tidy {
         namespace eastwood {
+            Rule4bCheck(StringRef Name, ClangTidyContext *Context)
+                : ClangTidyCheck(Name, Context),
+                  debug_enabled(Options.get("debug", "false")) {
+                if (this->debug_enabled == "true") {
+                    this->debug = true;
+                }
+            }
+
             void Rule4bCheck::registerMatchers(MatchFinder *Finder) {
                 Finder->addMatcher(functionDecl().bind("function_decl"), this);
             }
@@ -35,7 +43,8 @@ namespace clang {
                             CurrentLine =
                                 SM.getSpellingLineNumber(Param->getBeginLoc());
                             if (SM.getSpellingColumnNumber(Param->getBeginLoc()) !=
-                                FirstCol && SM.isWrittenInMainFile(Param->getBeginLoc())) {
+                                    FirstCol &&
+                                SM.isWrittenInMainFile(Param->getBeginLoc())) {
                                 diag(Param->getBeginLoc(),
                                      "Line-broken parameter is not aligned with first "
                                      "parameter.");

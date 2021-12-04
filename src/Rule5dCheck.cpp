@@ -16,6 +16,13 @@ using namespace clang::ast_matchers;
 namespace clang {
     namespace tidy {
         namespace eastwood {
+            Rule5dCheck(StringRef Name, ClangTidyContext *Context)
+                : ClangTidyCheck(Name, Context),
+                  debug_enabled(Options.get("debug", "false")) {
+                if (this->debug_enabled == "true") {
+                    this->debug = true;
+                }
+            }
             void Rule5dCheck::registerMatchers(MatchFinder *Finder) {
                 Finder->addMatcher(functionDecl().bind("function_decl"), this);
             }

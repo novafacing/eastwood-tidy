@@ -23,11 +23,13 @@ namespace clang {
         namespace eastwood {
 
             class Rule4aCheck : public ClangTidyCheck {
+            private:
+                std::string debug_enabled;
+                bool debug;
+
             public:
                 /* Constructors */
-                Rule4aCheck(StringRef Name, ClangTidyContext *Context)
-                    : ClangTidyCheck(Name, Context), indent_level(0),
-                      lexer_initialized(false) {}
+                Rule4aCheck(StringRef Name, ClangTidyContext *Context);
 
                 /* Overrides */
                 void registerMatchers(ast_matchers::MatchFinder *Finder) override;

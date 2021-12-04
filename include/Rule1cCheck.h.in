@@ -36,16 +36,19 @@ namespace clang {
                 std::map<std::string, std::vector<SourceLocation>> embeddedConstants;
                 std::vector<SourceRange> declarationRanges;
                 std::string dump;
+                std::string debug_enabled;
+                bool debug;
 
             public:
                 /* Constructors */
-                Rule1cCheck(StringRef Name, ClangTidyContext *Context) : ClangTidyCheck(Name, Context) {}
+                Rule1cCheck(StringRef Name, ClangTidyContext *Context);
 
                 /* Overrides */
                 void registerPPCallbacks(const SourceManager &SM, Preprocessor *PP,
                                          Preprocessor *ModuleExpanderPP) override;
                 void registerMatchers(ast_matchers::MatchFinder *Finder) override;
-                void check(const ast_matchers::MatchFinder::MatchResult &Result) override;
+                void
+                check(const ast_matchers::MatchFinder::MatchResult &Result) override;
             }; // Rule1cCheck
 
         } // namespace eastwood

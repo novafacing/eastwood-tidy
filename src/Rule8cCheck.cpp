@@ -157,6 +157,14 @@ namespace clang {
                 }
             };
 
+            Rule8cCheck(StringRef Name, ClangTidyContext *Context)
+                : ClangTidyCheck(Name, Context),
+                  debug_enabled(Options.get("debug", "false")) {
+                if (this->debug_enabled == "true") {
+                    this->debug = true;
+                }
+            }
+
             void Rule8cCheck::registerPPCallbacks(const SourceManager &SM,
                                                   Preprocessor *PP,
                                                   Preprocessor *ModuleExpanderPP) {

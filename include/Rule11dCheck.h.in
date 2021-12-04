@@ -36,6 +36,8 @@ namespace clang {
                 std::map<std::string, std::vector<SourceLocation>> embeddedConstants;
                 std::vector<SourceRange> declarationRanges;
                 std::string dump;
+                std::string debug_enabled;
+                bool debug;
 
             public:
                 /* Constructors */

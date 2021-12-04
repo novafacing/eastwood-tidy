@@ -38,15 +38,17 @@ namespace clang {
                 std::vector<SourceRange> declarationRanges;
                 std::string dump;
                 bool checked;
+                std::string debug_enabled;
+                bool debug;
 
             public:
                 /* Constructors */
-                Rule11bCheck(StringRef Name, ClangTidyContext *Context)
-                    : ClangTidyCheck(Name, Context), checked(false) {}
+                Rule11bCheck(StringRef Name, ClangTidyContext *Context);
 
                 /* Overrides */
                 void registerMatchers(ast_matchers::MatchFinder *Finder) override;
-                void check(const ast_matchers::MatchFinder::MatchResult &Result) override;
+                void
+                check(const ast_matchers::MatchFinder::MatchResult &Result) override;
             }; // Rule11bCheck
         }      // namespace eastwood
     }          // namespace tidy

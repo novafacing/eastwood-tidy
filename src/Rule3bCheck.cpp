@@ -18,6 +18,14 @@ namespace clang {
     namespace tidy {
         namespace eastwood {
 
+            Rule3bCheck(StringRef Name, ClangTidyContext *Context)
+                : ClangTidyCheck(Name, Context),
+                  debug_enabled(Options.get("debug", "false")) {
+                if (this->debug_enabled == "true") {
+                    this->debug = true;
+                }
+            }
+
             void Rule3bCheck::registerMatchers(MatchFinder *Finder) {
                 Finder->addMatcher(binaryOperator().bind("binary_operator"), this);
             }

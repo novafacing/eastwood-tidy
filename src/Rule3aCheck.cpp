@@ -16,6 +16,13 @@ using namespace clang::ast_matchers;
 namespace clang {
     namespace tidy {
         namespace eastwood {
+            Rule3aCheck(StringRef Name, ClangTidyContext *Context)
+                : ClangTidyCheck(Name, Context),
+                  debug_enabled(Options.get("debug", "false")) {
+                if (this->debug_enabled == "true") {
+                    this->debug = true;
+                }
+            }
 
             tok::TokenKind getTokenKind(SourceLocation Loc, const SourceManager &SM,
                                         const ASTContext *Context) {

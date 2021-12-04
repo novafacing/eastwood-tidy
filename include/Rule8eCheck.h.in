@@ -24,16 +24,20 @@ namespace clang {
         namespace eastwood {
 
             class Rule8eCheck : public ClangTidyCheck {
+            private:
+                std::string debug_enabled;
+                bool debug;
+
             public:
                 /* Constructors */
-                Rule8eCheck(StringRef Name, ClangTidyContext *Context)
-                    : ClangTidyCheck(Name, Context) {}
+                Rule8eCheck(StringRef Name, ClangTidyContext *Context);
 
                 /* Overrides */
-                void registerPPCallbacks(const SourceManager &SM,
-                                         Preprocessor *PP, Preprocessor *ModuleExpanderPP) override;
+                void registerPPCallbacks(const SourceManager &SM, Preprocessor *PP,
+                                         Preprocessor *ModuleExpanderPP) override;
                 void registerMatchers(ast_matchers::MatchFinder *Finder) override;
-                void check(const ast_matchers::MatchFinder::MatchResult &Result) override;
+                void
+                check(const ast_matchers::MatchFinder::MatchResult &Result) override;
                 std::vector<std::pair<bool, std::string>> incls;
             }; // Rule8eCheck
         }      // namespace eastwood

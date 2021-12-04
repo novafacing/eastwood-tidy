@@ -22,14 +22,18 @@ namespace clang {
         namespace eastwood {
 
             class Rule3cCheck : public ClangTidyCheck {
+            private:
+                std::string debug_enabled;
+                bool debug;
+
             public:
                 /* Constructors */
-                Rule3cCheck(StringRef Name, ClangTidyContext *Context)
-                    : ClangTidyCheck(Name, Context), checked(false) {}
+                Rule3cCheck(StringRef Name, ClangTidyContext *Context);
 
                 /* Overrides */
                 void registerMatchers(ast_matchers::MatchFinder *Finder) override;
-                void check(const ast_matchers::MatchFinder::MatchResult &Result) override;
+                void
+                check(const ast_matchers::MatchFinder::MatchResult &Result) override;
                 bool checked;
             }; // Rule3cCheck
         }      // namespace eastwood

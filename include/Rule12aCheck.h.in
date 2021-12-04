@@ -20,14 +20,18 @@ namespace clang {
         namespace eastwood {
 
             class Rule12aCheck : public ClangTidyCheck {
+            private:
+                std::string debug_enabled;
+                bool debug;
+
             public:
                 /* Constructors */
-                Rule12aCheck(StringRef Name, ClangTidyContext *Context)
-                    : ClangTidyCheck(Name, Context), last_line(0) {}
+                Rule12aCheck(StringRef Name, ClangTidyContext *Context);
 
                 /* Overrides */
                 void registerMatchers(ast_matchers::MatchFinder *Finder) override;
-                void check(const ast_matchers::MatchFinder::MatchResult &Result) override;
+                void
+                check(const ast_matchers::MatchFinder::MatchResult &Result) override;
                 unsigned last_line;
                 bool first;
             }; // Rule12aCheck

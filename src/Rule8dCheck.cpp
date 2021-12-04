@@ -50,6 +50,14 @@ namespace clang {
                 }
             };
 
+            Rule8dCheck(StringRef Name, ClangTidyContext *Context)
+                : ClangTidyCheck(Name, Context),
+                  debug_enabled(Options.get("debug", "false")) {
+                if (this->debug_enabled == "true") {
+                    this->debug = true;
+                }
+            }
+
             void Rule8dCheck::registerPPCallbacks(const SourceManager &SM,
                                                   Preprocessor *PP,
                                                   Preprocessor *ModuleExpanderPP) {

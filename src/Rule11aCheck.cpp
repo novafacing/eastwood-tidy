@@ -26,6 +26,14 @@ using namespace clang::ast_matchers;
 namespace clang {
     namespace tidy {
         namespace eastwood {
+            Rule11aCheck(StringRef Name, ClangTidyContext *Context)
+                : ClangTidyCheck(Name, Context), checked(false),
+                  debug_enabled(Options.get("debug", "false")) {
+                if (this->debug_enabled == "true") {
+                    this->debug = true;
+                }
+            }
+
             void Rule11aCheck::registerMatchers(MatchFinder *Finder) {
                 Finder->addMatcher(functionDecl().bind("function"), this);
             }

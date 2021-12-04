@@ -14,6 +14,14 @@ using namespace clang::ast_matchers;
 namespace clang {
     namespace tidy {
         namespace eastwood {
+            Rule12bCheck(StringRef Name, ClangTidyContext *Context)
+                : ClangTidyCheck(Name, Context),
+                  debug_enabled(Options.get("debug", "false")), last_line(0) {
+                if (this->debug_enabled == "true") {
+                    this->debug = true;
+                }
+            }
+
             void Rule12bCheck::registerMatchers(MatchFinder *Finder) {
                 Finder->addMatcher(varDecl().bind("var_decl"), this);
             }

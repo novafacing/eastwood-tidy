@@ -99,6 +99,14 @@ namespace clang {
                 }
             };
 
+            Rule1cCheck(StringRef Name, ClangTidyContext *Context)
+                : ClangTidyCheck(Name, Context),
+                  debug_enabled(Options.get("debug", "false")) {
+                if (this->debug_enabled == "true") {
+                    this->debug = true;
+                }
+            }
+
             void Rule1cCheck::registerPPCallbacks(const SourceManager &SM,
                                                   Preprocessor *PP,
                                                   Preprocessor *ModuleExpanderPP) {

@@ -8,12 +8,20 @@
 //===----------------------------------------------------------------------===//
 
 #include "Rule3cCheck.h"
+#include <regex>
 
 using namespace clang::ast_matchers;
 
 namespace clang {
     namespace tidy {
         namespace eastwood {
+            Rule1aCheck(StringRef Name, ClangTidyContext *Context)
+                : ClangTidyCheck(Name, Context), checked(false),
+                  debug_enabled(Options.get("debug", "false")) {
+                if (this->debug_enabled == "true") {
+                    this->debug = true;
+                }
+            }
             void Rule3cCheck::registerMatchers(MatchFinder *Finder) {
                 Finder->addMatcher(functionDecl().bind("function_decl"), this);
             }
@@ -52,9 +60,15 @@ namespace clang {
                                 if (tok.isOneOf(tok::semi, tok::comma)) {
                                     Token report = tok;
                                     if (!RawLexer.LexFromRawLexer(tok)) {
+                                        std::regex trailing_ws{R"([ \t\f\p\v]+\n)"};
+                                        std::smatch results;
                                         std::string next_content(
                                             SM.getCharacterData(tok.getLocation()),
                                             SM.getCharacterData(tok.getEndLoc()));
+                                        if (std::regex_search(next_content, results,
+                                                              trailing_ws)) {
+                                            continue;
+                                        }
                                         if (next_content == " " or
                                             (next_content != "" and
                                              next_content[0] == '\n')) {

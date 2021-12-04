@@ -113,7 +113,8 @@ namespace clang {
             }
 
             Rule11dCheck::Rule11dCheck(StringRef Name, ClangTidyContext *Context)
-                : ClangTidyCheck(Name, Context), dump(Options.get("dump", "false")) {
+                : ClangTidyCheck(Name, Context), dump(Options.get("dump", "false")),
+                  debug_enabled(Options.get("debug", "false")) {
 
                 if (this->dump == "true") {
                     for (auto ty :
@@ -123,6 +124,9 @@ namespace clang {
                         std::vector<SourceLocation> v{};
                         this->embeddedConstants.insert(std::make_pair(ty, v));
                     }
+                }
+                if (this->debug_enabled == "true") {
+                    this->debug = true;
                 }
             }
 

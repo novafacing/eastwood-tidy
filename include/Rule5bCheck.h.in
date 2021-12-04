@@ -32,8 +32,10 @@ namespace clang {
                         FunctionDecl *FD = d->getAsFunction();
                         if (FD->isDefined()) {
                             FunctionDecl *FDef = FD->getDefinition();
-                            SourceRange FunctionDefinitionRange = FDef->getBody()->getSourceRange();
-                            this->function_decl_ends.push_back(FunctionDefinitionRange.getEnd());
+                            SourceRange FunctionDefinitionRange =
+                                FDef->getBody()->getSourceRange();
+                            this->function_decl_ends.push_back(
+                                FunctionDefinitionRange.getEnd());
                         }
                     }
                     return true;
@@ -44,14 +46,18 @@ namespace clang {
             };
 
             class Rule5bCheck : public ClangTidyCheck {
+            private:
+                std::string debug_enabled;
+                bool debug;
+
             public:
                 /* Constructors */
-                Rule5bCheck(StringRef Name, ClangTidyContext *Context)
-                    : ClangTidyCheck(Name, Context), visited(false), checked(false) {}
+                Rule5bCheck(StringRef Name, ClangTidyContext *Context);
 
                 /* Overrides */
                 void registerMatchers(ast_matchers::MatchFinder *Finder) override;
-                void check(const ast_matchers::MatchFinder::MatchResult &Result) override;
+                void
+                check(const ast_matchers::MatchFinder::MatchResult &Result) override;
                 bool visited;
                 bool checked;
                 std::vector<SourceLocation> function_decl_ends;

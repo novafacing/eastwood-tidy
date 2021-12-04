@@ -15,6 +15,14 @@ using namespace clang::ast_matchers;
 namespace clang {
     namespace tidy {
         namespace eastwood {
+            Rule6aCheck(StringRef Name, ClangTidyContext *Context)
+                : ClangTidyCheck(Name, Context),
+                  debug_enabled(Options.get("debug", "false")) {
+                if (this->debug_enabled == "true") {
+                    this->debug = true;
+                }
+            }
+
             void Rule6aCheck::registerMatchers(MatchFinder *Finder) {
                 Finder->addMatcher(
                     binaryOperator(hasAnyOperatorName("&&", "||")).bind("op"), this);

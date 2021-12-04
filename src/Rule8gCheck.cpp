@@ -86,13 +86,21 @@ namespace clang {
                             }
                         }
                         if (SM.isWrittenInMainFile(HashLoc)) {
-                            this->Check->diag(HashLoc, "Non-local include must be included "
-                                                       "with <...>, not double quotes.");
+                            this->Check->diag(HashLoc,
+                                              "Non-local include must be included "
+                                              "with <...>, not double quotes.");
                         }
                     }
                 }
             };
 
+            Rule8gCheck(StringRef Name, ClangTidyContext *Context)
+                : ClangTidyCheck(Name, Context),
+                  debug_enabled(Options.get("debug", "false")) {
+                if (this->debug_enabled == "true") {
+                    this->debug = true;
+                }
+            }
             void Rule8gCheck::registerPPCallbacks(const SourceManager &SM,
                                                   Preprocessor *PP,
                                                   Preprocessor *ModuleExpanderPP) {

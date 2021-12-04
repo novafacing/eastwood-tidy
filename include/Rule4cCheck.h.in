@@ -31,6 +31,8 @@ namespace clang {
                 template <typename IfOrWhileStmt>
                 SourceLocation findRParenLoc(const IfOrWhileStmt *S, const SourceManager &SM,
                                              const ASTContext *Context);
+                std::string debug_enabled;
+                bool debug;
             };
 
         } // namespace eastwood

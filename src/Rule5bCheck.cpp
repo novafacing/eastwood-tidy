@@ -14,6 +14,13 @@ using namespace clang::ast_matchers;
 namespace clang {
     namespace tidy {
         namespace eastwood {
+            Rule5bCheck(StringRef Name, ClangTidyContext *Context)
+                : ClangTidyCheck(Name, Context), visited(false), checked(false),
+                  debug_enabled(Options.get("debug", "false")) {
+                if (this->debug_enabled == "true") {
+                    this->debug = true;
+                }
+            }
             void Rule5bCheck::registerMatchers(MatchFinder *Finder) {
                 Finder->addMatcher(functionDecl().bind("function_decl"), this);
             }
@@ -111,7 +118,10 @@ namespace clang {
                                     }
                                 } else {
                                     Token last_start = line_begin_tokens.back();
-                                    // std::cout << "LAST START" << std::string(SM.getCharacterData(last_start.getLocation()), SM.getCharacterData(last_start.getEndLoc())) << ":" << last_start.getName() << std::endl;
+                                    // std::cout << "LAST START" <<
+                                    // std::string(SM.getCharacterData(last_start.getLocation()),
+                                    // SM.getCharacterData(last_start.getEndLoc())) <<
+                                    // ":" << last_start.getName() << std::endl;
                                     if (last_start.isOneOf(tok::kw_if, tok::kw_else,
                                                            tok::kw_case, tok::hash) or
                                         (last_start.isAnyIdentifier() and
@@ -119,7 +129,9 @@ namespace clang {
                                           last_start.getRawIdentifier().str() ==
                                               "else" or
                                           last_start.getRawIdentifier().str() ==
-                                              "case" or last_start.getRawIdentifier().str() == "#endif"))) {
+                                              "case" or
+                                          last_start.getRawIdentifier().str() ==
+                                              "#endif"))) {
                                         // OK
                                         // std::cout << "Last start is OK" << std::endl;
                                     } else {

@@ -16,15 +16,18 @@ using namespace clang::ast_matchers;
 namespace clang {
     namespace tidy {
         namespace eastwood {
-
             Rule1bCheck::Rule1bCheck(StringRef Name, ClangTidyContext *Context)
-                : ClangTidyCheck(Name, Context), dump(Options.get("dump", "false")) {
+                : ClangTidyCheck(Name, Context), dump(Options.get("dump", "false")),
+                  debug_enabled(Options.get("debug", "false")) {
                 if (this->dump == "true") {
                     for (auto type : {"variable", "function", "enum", "union", "struct",
                                       "field", "typedef"}) {
                         std::vector<std::string> sources{};
                         this->declarations.insert(std::make_pair(type, sources));
                     }
+                }
+                if (this->debug_enabled == "true") {
+                    this->debug = true;
                 }
             }
 

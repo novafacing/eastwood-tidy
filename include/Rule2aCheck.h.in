@@ -23,14 +23,18 @@ namespace clang {
         namespace eastwood {
 
             class Rule2aCheck : public ClangTidyCheck {
+            private:
+                std::string debug_enabled;
+                bool debug;
+
             public:
                 /* Constructors */
-                Rule2aCheck(StringRef Name, ClangTidyContext *Context)
-                    : ClangTidyCheck(Name, Context), checked(false) {}
+                Rule2aCheck(StringRef Name, ClangTidyContext *Context);
 
                 /* Overrides */
                 void registerMatchers(ast_matchers::MatchFinder *Finder) override;
-                void check(const ast_matchers::MatchFinder::MatchResult &Result) override;
+                void
+                check(const ast_matchers::MatchFinder::MatchResult &Result) override;
 
                 std::vector<size_t> over_length_lines;
                 std::vector<size_t> broken_lines;

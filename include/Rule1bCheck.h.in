@@ -31,6 +31,8 @@ namespace clang {
             private:
                 std::string dump;
                 std::map<std::string, std::vector<std::string>> declarations;
+                std::string debug_enabled;
+                bool debug;
 
             public:
                 /* Constructors */

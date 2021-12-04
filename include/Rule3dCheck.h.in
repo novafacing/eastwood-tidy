@@ -20,6 +20,9 @@ namespace clang {
         namespace eastwood {
 
             class Rule3dCheck : public ClangTidyCheck {
+            private:
+                std::string debug_enabled;
+                bool debug;
             public:
                 /* Constructors */
                 Rule3dCheck(StringRef Name, ClangTidyContext *Context)

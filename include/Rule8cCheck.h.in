@@ -25,17 +25,21 @@ namespace clang {
         namespace eastwood {
 
             class Rule8cCheck : public ClangTidyCheck {
+            private:
+                std::string debug_enabled;
+                bool debug;
+
             public:
                 /* Constructors */
-                Rule8cCheck(StringRef Name, ClangTidyContext *Context)
-                    : ClangTidyCheck(Name, Context) {}
+                Rule8cCheck(StringRef Name, ClangTidyContext *Context);
 
                 /* Overrides */
-                void registerPPCallbacks(const SourceManager &SM,
-                                         Preprocessor *PP, Preprocessor *ModuleExpanderPP) override;
+                void registerPPCallbacks(const SourceManager &SM, Preprocessor *PP,
+                                         Preprocessor *ModuleExpanderPP) override;
                 void onEndOfTranslationUnit() override;
                 void registerMatchers(ast_matchers::MatchFinder *Finder) override;
-                void check(const ast_matchers::MatchFinder::MatchResult &Result) override;
+                void
+                check(const ast_matchers::MatchFinder::MatchResult &Result) override;
                 std::vector<std::pair<std::string, SourceLocation>> required_guards;
                 std::vector<std::string> found_ifndef_checks;
                 std::vector<std::string> found_defined_macro_guards;

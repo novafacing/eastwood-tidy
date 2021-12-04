@@ -19,6 +19,15 @@ using namespace clang::ast_matchers;
 namespace clang {
     namespace tidy {
         namespace eastwood {
+
+            Rule4aCheck(StringRef Name, ClangTidyContext *Context)
+                : ClangTidyCheck(Name, Context), indent_level(0),
+                  lexer_initialized(false),
+                  debug_enabled(Options.get("debug", "false")) {
+                if (this->debug_enabled == "true") {
+                    this->debug = true;
+                }
+            }
             void Rule4aCheck::registerMatchers(MatchFinder *Finder) {
                 Finder->addMatcher(recordDecl().bind("record"), this);
                 Finder->addMatcher(enumDecl().bind("enum"), this);

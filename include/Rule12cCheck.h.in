@@ -20,6 +20,9 @@ namespace clang {
         namespace eastwood {
 
             class Rule12cCheck : public ClangTidyCheck {
+            private:
+                std::string debug_enabled;
+                bool debug;
             public:
                 /* Constructors */
                 Rule12cCheck(StringRef Name, ClangTidyContext *Context)

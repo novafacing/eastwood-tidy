@@ -120,8 +120,13 @@ namespace clang {
 
             } // namespace
 
-            Rule4cCheck::Rule4cCheck(StringRef Name, ClangTidyContext *Context)
-                : ClangTidyCheck(Name, Context) {}
+            Rule4cCheck(StringRef Name, ClangTidyContext *Context)
+                : ClangTidyCheck(Name, Context),
+                  debug_enabled(Options.get("debug", "false")) {
+                if (this->debug_enabled == "true") {
+                    this->debug = true;
+                }
+            }
 
             void Rule4cCheck::registerMatchers(MatchFinder *Finder) {
                 Finder->addMatcher(doStmt().bind("do"), this);
