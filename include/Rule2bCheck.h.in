@@ -8,6 +8,8 @@
 
 #ifndef LLVM_CLANG_TOOLS_EXTRA_CLANG_TIDY_EASTWOOD_RULE2BCHECK_H
 #define LLVM_CLANG_TOOLS_EXTRA_CLANG_TIDY_EASTWOOD_RULE2BCHECK_H
+#include "EastwoodTidyUtil.h"
+
 
 #include "@CLANG_TIDY_TOPLEVEL@/ClangTidyCheck.h"
 
@@ -15,15 +17,17 @@
 #include "clang/ASTMatchers/ASTMatchFinder.h"
 
 #define MAX_FN_SIZE 240 // This is approximately 2 pages
+#include "EastwoodTidyUtil.h"
+
 
 namespace clang {
     namespace tidy {
         namespace eastwood {
 
-            class Rule2bCheck : public ClangTidyCheck {
+            class Rule2bCheck : public ClangTidyCheck, public EastwoodTidyCheckBase {
             private:
                 std::string debug_enabled;
-                bool debug;
+
 
             public:
                 /* Constructors */

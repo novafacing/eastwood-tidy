@@ -47,6 +47,7 @@ configure_file(${CMAKE_CURRENT_SOURCE_DIR}/include/Rule12aCheck.h.in ${CMAKE_CUR
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/include/Rule12bCheck.h.in ${CMAKE_CURRENT_SOURCE_DIR}/include/Rule12bCheck.h)
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/include/Rule12cCheck.h.in ${CMAKE_CURRENT_SOURCE_DIR}/include/Rule12cCheck.h)
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/include/EastwoodTidyModule.h.in ${CMAKE_CURRENT_SOURCE_DIR}/include/EastwoodTidyModule.h)
+configure_file(${CMAKE_CURRENT_SOURCE_DIR}/include/EastwoodTidyUtil.h.in ${CMAKE_CURRENT_SOURCE_DIR}/include/EastwoodTidyUtil.h)
 
 message(STATUS "INCLUDING CURRENT SOURCE DIR ${CMAKE_CURRENT_SOURCE_DIR}")
 include_directories(

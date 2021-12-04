@@ -9,6 +9,8 @@
 
 #ifndef LLVM_CLANG_TOOLS_EXTRA_CLANG_TIDY_EASTWOOD_RULE9DCHECK_H
 #define LLVM_CLANG_TOOLS_EXTRA_CLANG_TIDY_EASTWOOD_RULE9DCHECK_H
+#include "EastwoodTidyUtil.h"
+
 
 #include "@CLANG_TIDY_TOPLEVEL@/ClangTidyCheck.h"
 
@@ -19,10 +21,10 @@ namespace clang {
     namespace tidy {
         namespace eastwood {
 
-            class Rule9dCheck : public ClangTidyCheck {
+            class Rule9dCheck : public ClangTidyCheck, public EastwoodTidyCheckBase {
             private:
                 std::string debug_enabled;
-                bool debug;
+
             public:
                 /* Constructors */
                 Rule9dCheck(StringRef Name, ClangTidyContext *Context)

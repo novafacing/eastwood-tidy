@@ -344,6 +344,7 @@ namespace clang {
                         SM.isMacroBodyExpansion(MatchedDecl->getBeginLoc())) {
                         return;
                     }
+                    this->dbgdump(MatchedDecl, *Context);
                     this->opens.push_back(MatchedDecl->getBody()->getBeginLoc());
                     // std::string
                     // file_str(SM.getCharacterData(SM.getLocForStartOfFile(SM.getFileID(MatchedDecl->getBeginLoc()))),
@@ -386,12 +387,17 @@ namespace clang {
                     }
 
                     if (doit) {
+                        // Indent starts after `case`
                         this->opens.push_back(MatchedDecl->getBeginLoc());
+
                         if (auto CS =
                                 dyn_cast<CompoundStmt>(MatchedDecl->getSubStmt())) {
                             this->closes.push_back(
                                 CS->getEndLoc().getLocWithOffset(-1));
                         } else {
+                            this->dout() << "Case statement is not a compound statement"
+                                         << std::endl;
+                            this->dbgdump(MatchedDecl, *Context);
                             this->closes.push_back(
                                 MatchedDecl->getSubStmt()->getEndLoc().getLocWithOffset(
                                     1));
@@ -503,17 +509,17 @@ namespace clang {
                     while (not opens.empty() and
                            this->SMan->isBeforeInTranslationUnit(opens.front(),
                                                                  tok.getLocation())) {
-                        /*
-                           std::string ws(this->SMan->getCharacterData(opens.front()),
-                           this->SMan->getCharacterData(tok.getEndLoc()));
-                        std::string
-                        cur(this->SMan->getCharacterData(tokens.at(0).getLocation()),
-                                this->SMan->getCharacterData(tok.getLocation()));
-                           */
+
                         opens.pop_front();
                         indent_amount += 2;
-                        // std::cout << "Increasing indent at location |" << cur << "|
-                        // ++Indent " << indent_amount << std::endl;
+                        this->dout()
+                            << "Increasing indent at "
+                            << std::string(
+                                   this->SMan->getCharacterData(
+                                       eol_tokens.back().getLocation()),
+                                   this->SMan->getCharacterData(tok.getEndLoc()))
+                            << ":" << tok.getLocation().printToString(*this->SMan)
+                            << std::endl;
                     }
                     /*
                        if (TokenSourceRange.fullyContains(SourceRange(closes.front())))
@@ -522,17 +528,16 @@ namespace clang {
                     while (not closes.empty() and
                            this->SMan->isBeforeInTranslationUnit(closes.front(),
                                                                  tok.getLocation())) {
-                        /*
-                           std::string ws(this->SMan->getCharacterData(closes.front()),
-                           this->SMan->getCharacterData(tok.getEndLoc()));
-                        std::string
-                        cur(this->SMan->getCharacterData(tokens.at(0).getLocation()),
-                                this->SMan->getCharacterData(tok.getLocation()));
-                           */
                         closes.pop_front();
                         indent_amount -= 2;
-                        // std::cout << "Decreasing indent at location |" << cur <<
-                        // "|---Indent " << indent_amount << std::endl;
+                        this->dout()
+                            << "Decreasing indent at "
+                            << std::string(
+                                   this->SMan->getCharacterData(
+                                       eol_tokens.back().getLocation()),
+                                   this->SMan->getCharacterData(tok.getEndLoc()))
+                            << ":" << tok.getLocation().printToString(*this->SMan)
+                            << std::endl;
                     }
                     if (tok.isAtStartOfLine() and tokens.size() > 1) {
                         std::string ws(this->SMan->getCharacterData(
