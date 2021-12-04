@@ -20,7 +20,7 @@ namespace clang {
     namespace tidy {
         namespace eastwood {
 
-            Rule4aCheck(StringRef Name, ClangTidyContext *Context)
+            Rule4aCheck::Rule4aCheck(StringRef Name, ClangTidyContext *Context)
                 : ClangTidyCheck(Name, Context), indent_level(0),
                   lexer_initialized(false),
                   debug_enabled(Options.get("debug", "false")) {

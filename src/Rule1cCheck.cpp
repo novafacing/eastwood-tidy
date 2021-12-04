@@ -31,7 +31,7 @@ namespace clang {
 
             class Rule1cPPCallBack : public PPCallbacks {
             private:
-                Rule1cCheck *Check;
+                Rule1cCheck::Rule1cCheck *Check;
                 Preprocessor *PP;
 
             public:
@@ -99,7 +99,7 @@ namespace clang {
                 }
             };
 
-            Rule1cCheck(StringRef Name, ClangTidyContext *Context)
+            Rule1cCheck::Rule1cCheck(StringRef Name, ClangTidyContext *Context)
                 : ClangTidyCheck(Name, Context),
                   debug_enabled(Options.get("debug", "false")) {
                 if (this->debug_enabled == "true") {

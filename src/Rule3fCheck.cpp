@@ -15,7 +15,7 @@ using namespace clang::ast_matchers;
 namespace clang {
     namespace tidy {
         namespace eastwood {
-            Rule3fCheck(StringRef Name, ClangTidyContext *Context)
+            Rule3fCheck::Rule3fCheck(StringRef Name, ClangTidyContext *Context)
                 : ClangTidyCheck(Name, Context),
                   debug_enabled(Options.get("debug", "false")) {
                 if (this->debug_enabled == "true") {

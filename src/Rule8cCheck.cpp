@@ -20,7 +20,7 @@ namespace clang {
         namespace eastwood {
             class Rule8cPPCallBack : public PPCallbacks {
             private:
-                Rule8cCheck *Check;
+                Rule8cCheck::Rule8cCheck *Check;
                 Preprocessor *PP;
                 const SourceManager &SM;
                 bool checked;
@@ -157,7 +157,7 @@ namespace clang {
                 }
             };
 
-            Rule8cCheck(StringRef Name, ClangTidyContext *Context)
+            Rule8cCheck::Rule8cCheck(StringRef Name, ClangTidyContext *Context)
                 : ClangTidyCheck(Name, Context),
                   debug_enabled(Options.get("debug", "false")) {
                 if (this->debug_enabled == "true") {

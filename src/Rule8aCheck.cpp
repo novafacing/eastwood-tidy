@@ -29,7 +29,7 @@ namespace clang {
 
             class Rule8aPPCallBack : public PPCallbacks {
             private:
-                Rule8aCheck *Check;
+                Rule8aCheck::Rule8aCheck *Check;
                 Preprocessor *PP;
                 const SourceManager &SM;
                 bool checked;
@@ -83,7 +83,7 @@ namespace clang {
                 }
             };
 
-            Rule8aCheck(StringRef Name, ClangTidyContext *Context)
+            Rule8aCheck::Rule8aCheck(StringRef Name, ClangTidyContext *Context)
                 : ClangTidyCheck(Name, Context),
                   debug_enabled(Options.get("debug", "false")) {
                 if (this->debug_enabled == "true") {

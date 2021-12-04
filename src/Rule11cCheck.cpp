@@ -61,7 +61,7 @@ namespace clang {
                 ASTContext *Context;
             };
 
-            Rule11cCheck(StringRef Name, ClangTidyContext *Context)
+            Rule11cCheck::Rule11cCheck(StringRef Name, ClangTidyContext *Context)
                 : ClangTidyCheck(Name, Context),
                   debug_enabled(Options.get("debug", "false")) {
                 if (this->debug_enabled == "true") {

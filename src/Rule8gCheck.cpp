@@ -33,7 +33,7 @@ namespace clang {
         namespace eastwood {
             class Rule8gPPCallBack : public PPCallbacks {
             private:
-                Rule8gCheck *Check;
+                Rule8gCheck::Rule8gCheck *Check;
                 Preprocessor *PP;
                 const SourceManager &SM;
                 bool checked;
@@ -94,7 +94,7 @@ namespace clang {
                 }
             };
 
-            Rule8gCheck(StringRef Name, ClangTidyContext *Context)
+            Rule8gCheck::Rule8gCheck(StringRef Name, ClangTidyContext *Context)
                 : ClangTidyCheck(Name, Context),
                   debug_enabled(Options.get("debug", "false")) {
                 if (this->debug_enabled == "true") {

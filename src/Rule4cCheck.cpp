@@ -120,7 +120,7 @@ namespace clang {
 
             } // namespace
 
-            Rule4cCheck(StringRef Name, ClangTidyContext *Context)
+            Rule4cCheck::Rule4cCheck(StringRef Name, ClangTidyContext *Context)
                 : ClangTidyCheck(Name, Context),
                   debug_enabled(Options.get("debug", "false")) {
                 if (this->debug_enabled == "true") {

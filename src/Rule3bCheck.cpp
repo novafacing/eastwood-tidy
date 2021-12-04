@@ -18,7 +18,7 @@ namespace clang {
     namespace tidy {
         namespace eastwood {
 
-            Rule3bCheck(StringRef Name, ClangTidyContext *Context)
+            Rule3bCheck::Rule3bCheck(StringRef Name, ClangTidyContext *Context)
                 : ClangTidyCheck(Name, Context),
                   debug_enabled(Options.get("debug", "false")) {
                 if (this->debug_enabled == "true") {
