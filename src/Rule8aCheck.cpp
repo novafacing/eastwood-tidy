@@ -29,7 +29,7 @@ namespace clang {
 
             class Rule8aPPCallBack : public PPCallbacks {
             private:
-                Rule8aCheck::Rule8aCheck *Check;
+                Rule8aCheck *Check;
                 Preprocessor *PP;
                 const SourceManager &SM;
                 bool checked;

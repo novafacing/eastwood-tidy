@@ -29,7 +29,7 @@ namespace clang {
 
             class Rule11dPPCallBack : public PPCallbacks {
             private:
-                Rule11dCheck::Rule11dCheck *Check;
+                Rule11dCheck *Check;
                 Preprocessor *PP;
 
             public:
@@ -112,7 +112,8 @@ namespace clang {
                 PP->addPPCallbacks(std::make_unique<Rule11dPPCallBack>(this, PP));
             }
 
-            Rule11dCheck::Rule11dCheck::Rule11dCheck(StringRef Name, ClangTidyContext *Context)
+            Rule11dCheck::Rule11dCheck::Rule11dCheck(StringRef Name,
+                                                     ClangTidyContext *Context)
                 : ClangTidyCheck(Name, Context), dump(Options.get("dump", "false")),
                   debug_enabled(Options.get("debug", "false")) {
 

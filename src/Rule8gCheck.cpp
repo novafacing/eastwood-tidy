@@ -33,7 +33,7 @@ namespace clang {
         namespace eastwood {
             class Rule8gPPCallBack : public PPCallbacks {
             private:
-                Rule8gCheck::Rule8gCheck *Check;
+                Rule8gCheck *Check;
                 Preprocessor *PP;
                 const SourceManager &SM;
                 bool checked;

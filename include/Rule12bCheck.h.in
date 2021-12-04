@@ -23,14 +23,16 @@ namespace clang {
             private:
                 std::string debug_enabled;
                 bool debug;
+                size_t last_line;
+
             public:
                 /* Constructors */
-                Rule12bCheck(StringRef Name, ClangTidyContext *Context)
-                    : ClangTidyCheck(Name, Context) {}
+                Rule12bCheck(StringRef Name, ClangTidyContext *Context);
 
                 /* Overrides */
                 void registerMatchers(ast_matchers::MatchFinder *Finder) override;
-                void check(const ast_matchers::MatchFinder::MatchResult &Result) override;
+                void
+                check(const ast_matchers::MatchFinder::MatchResult &Result) override;
             }; // Rule12bCheck
         }      // namespace eastwood
     }          // namespace tidy

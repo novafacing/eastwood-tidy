@@ -31,7 +31,7 @@ namespace clang {
 
             class Rule1cPPCallBack : public PPCallbacks {
             private:
-                Rule1cCheck::Rule1cCheck *Check;
+                Rule1cCheck *Check;
                 Preprocessor *PP;
 
             public:
