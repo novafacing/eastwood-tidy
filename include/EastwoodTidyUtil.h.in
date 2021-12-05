@@ -1,0 +1,70 @@
+#ifndef LLVM_CLANG_TOOLS_EXTRA_CLANG_TIDY_EASTWOOD_TIDY_UTIL_H
+#define LLVM_CLANG_TOOLS_EXTRA_CLANG_TIDY_EASTWOOD_TIDY_UTIL_H
+
+#include "clang/AST/ASTContext.h"
+#include "llvm/Support/raw_ostream.h"
+#include <iostream>
+#include <sstream>
+#include <string>
+
+class EastwoodTidyDebugStream {
+private:
+    bool enabled;
+
+public:
+    EastwoodTidyDebugStream(bool enabled) : enabled(enabled) {}
+    template <typename T>
+    friend EastwoodTidyDebugStream &operator<<(EastwoodTidyDebugStream &stream,
+                                               T thing) {
+        if (stream.enabled) {
+            std::cout << thing;
+        }
+        return stream;
+    }
+    friend EastwoodTidyDebugStream &operator<<(EastwoodTidyDebugStream &stream,
+                                               std::ostream &(*pf)(std::ostream &)) {
+        if (stream.enabled) {
+            std::cout << pf;
+        }
+        return stream;
+    }
+    friend EastwoodTidyDebugStream &
+    operator<<(EastwoodTidyDebugStream &stream,
+               std::basic_ios<char> &(*pf)(std::ostream &)) {
+        if (stream.enabled) {
+            std::cout << pf;
+        }
+        return stream;
+    }
+    friend EastwoodTidyDebugStream &operator<<(EastwoodTidyDebugStream &stream,
+                                               std::ios_base &(*pf)(std::ostream &)) {
+        if (stream.enabled) {
+            std::cout << pf;
+        }
+        return stream;
+    }
+};
+
+/* Provides base common uility functions for eastwood tidy checks. */
+class EastwoodTidyCheckBase {
+protected:
+    bool debug;
+    EastwoodTidyDebugStream *debugStream;
+
+public:
+    EastwoodTidyCheckBase(void) : debug(false) {}
+    EastwoodTidyDebugStream &dout() {
+        if (this->debugStream == nullptr) {
+            this->debugStream = new EastwoodTidyDebugStream(this->debug);
+        }
+        return *this->debugStream;
+    }
+    template <typename T> void dbgdump(T dumpable, const clang::ASTContext &Context) {
+        std::string init;
+        llvm::raw_string_ostream rso(init);
+        dumpable->dump(rso, Context);
+        this->dout() << rso.str() << std::endl;
+    }
+};
+
+#endif // LLVM_CLANG_TOOLS_EXTRA_CLANG_TIDY_EASTWOOD_TIDY_UTIL_H
