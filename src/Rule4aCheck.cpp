@@ -364,66 +364,35 @@ namespace clang {
                              "Open brace must be located on same line as switch.");
                     }
 
+                    // Add the closes for every case statement
+                    if (auto *Body = dyn_cast<CompoundStmt>(MatchedDecl->getBody())) {
+                        std::vector<Stmt *> children;
+                        std::vector<Stmt *> dedent_locations;
+                        for (auto it = Body->body_begin(); it != Body->body_end();
+                             ++it) {
+                            if (dyn_cast<CaseStmt>(*it) || dyn_cast<DefaultStmt>(*it)) {
+                                this->opens.push_back((*it)->getBeginLoc());
+                                if (children.size() != 0) {
+                                    dedent_locations.push_back(children.back());
+                                }
+                            } else {
+                                children.push_back(*it);
+                            }
+                        }
+                        for (Stmt *Dedent : dedent_locations) {
+                            this->closes.push_back(Dedent->getEndLoc());
+                        }
+                        if (children.size() > 0 &&
+                            std::find(dedent_locations.begin(), dedent_locations.end(),
+                                      children.back()) == dedent_locations.end()) {
+                            this->closes.push_back(children.back()->getEndLoc());
+                        }
+                    }
+
                     // std::cout << "SWITCH BODY: |" <<
                     // std::string(SM.getCharacterData(opens.back()),
-                    //        SM.getCharacterData(closes.back())) << "|" << std::endl;
-                } else if (auto MatchedDecl =
-                               Result.Nodes.getNodeAs<CaseStmt>("case")) {
-                    if (not SM.isWrittenInMainFile(MatchedDecl->getBeginLoc()) or
-                        not MatchedDecl->getBeginLoc().isValid() or
-                        SM.isMacroArgExpansion(MatchedDecl->getBeginLoc()) or
-                        SM.isMacroBodyExpansion(MatchedDecl->getBeginLoc())) {
-                        return;
-                    }
-
-                    bool doit = true;
-
-                    for (auto it = MatchedDecl->child_begin();
-                         it != MatchedDecl->child_end(); it++) {
-                        if (dyn_cast<CaseStmt>(*it)) {
-                            // Don't add a close on this case if it is not the last
-                            doit = false;
-                        }
-                    }
-
-                    if (doit) {
-                        // Indent starts after `case`
-                        this->opens.push_back(MatchedDecl->getBeginLoc());
-
-                        if (auto CS =
-                                dyn_cast<CompoundStmt>(MatchedDecl->getSubStmt())) {
-                            this->closes.push_back(
-                                CS->getEndLoc().getLocWithOffset(-1));
-                        } else {
-                            this->dout() << "Case statement is not a compound statement"
-                                         << std::endl;
-                            this->dbgdump(MatchedDecl, *Context);
-                            this->closes.push_back(
-                                MatchedDecl->getSubStmt()->getEndLoc().getLocWithOffset(
-                                    1));
-                        }
-                    }
-
-                } else if (auto MatchedDecl =
-                               Result.Nodes.getNodeAs<DefaultStmt>("default")) {
-                    if (not SM.isWrittenInMainFile(MatchedDecl->getBeginLoc()) or
-                        not MatchedDecl->getBeginLoc().isValid() or
-                        SM.isMacroArgExpansion(MatchedDecl->getBeginLoc()) or
-                        SM.isMacroBodyExpansion(MatchedDecl->getBeginLoc())) {
-                        return;
-                    }
-                    this->opens.push_back(MatchedDecl->getBeginLoc());
-                    // std::string
-                    // file_str(SM.getCharacterData(SM.getLocForStartOfFile(SM.getFileID(MatchedDecl->getBeginLoc()))),
-                    // SM.getCharacterData(this->opens.back()));
-
-                    this->closes.push_back(
-                        MatchedDecl->getEndLoc().getLocWithOffset(-1));
-                    // std::string
-                    // file_str_close(SM.getCharacterData(SM.getLocForStartOfFile(SM.getFileID(MatchedDecl->getBeginLoc()))),
-                    // SM.getCharacterData(this->closes.back()));
-                    // std::cout << "Opening at: |" << file_str << "| OPEN" << std::endl
-                    // << "Closing at: |" << file_str_close << "| CLOSE" << std::endl;
+                    //        SM.getCharacterData(closes.back())) << "|" <<
+                    //        std::endl;
                 } else if (auto MatchedDecl =
                                Result.Nodes.getNodeAs<WhileStmt>("while")) {
                     if (not SM.isWrittenInMainFile(MatchedDecl->getBeginLoc()) or
@@ -443,12 +412,15 @@ namespace clang {
                     // std::string
                     // file_str_close(SM.getCharacterData(SM.getLocForStartOfFile(SM.getFileID(MatchedDecl->getBeginLoc()))),
                     // SM.getCharacterData(this->closes.back()));
-                    // std::cout << "Opening at: |" << file_str << "| OPEN" << std::endl
-                    // << "Closing at: |" << file_str_close << "| CLOSE" << std::endl;
+                    // std::cout << "Opening at: |" << file_str << "| OPEN" <<
+                    // std::endl
+                    // << "Closing at: |" << file_str_close << "| CLOSE" <<
+                    // std::endl;
 
                     // std::cout << "WHILE BODY: |" <<
                     // std::string(SM.getCharacterData(opens.back()),
-                    //        SM.getCharacterData(closes.back())) << "|" << std::endl;
+                    //        SM.getCharacterData(closes.back())) << "|" <<
+                    //        std::endl;
 
                     if (SM.getSpellingLineNumber(MatchedDecl->getRParenLoc()) !=
                         SM.getSpellingLineNumber(this->opens.back())) {
@@ -494,8 +466,8 @@ namespace clang {
                     std::string raw_tok_data =
                         Lexer::getSpelling(tok, *this->SMan, this->ctx->getLangOpts());
 
-                    // This is a line break, so we push the last token into the vector
-                    // of EOL tokens
+                    // This is a line break, so we push the last token into the
+                    // vector of EOL tokens
                     if (raw_tok_data.find('\n') != std::string::npos) {
                         if (tokens.size() > 0) {
                             eol_tokens.push_back(tokens.back());
@@ -504,7 +476,9 @@ namespace clang {
                     tokens.push_back(tok);
                     SourceRange TokenSourceRange(tok.getLocation(), tok.getEndLoc());
                     /*
-                       if (TokenSourceRange.fullyContains(SourceRange(opens.front()))) {
+                       if
+                       (TokenSourceRange.fullyContains(SourceRange(opens.front())))
+                       {
                        */
                     while (not opens.empty() and
                            this->SMan->isBeforeInTranslationUnit(opens.front(),
@@ -522,7 +496,8 @@ namespace clang {
                             << std::endl;
                     }
                     /*
-                       if (TokenSourceRange.fullyContains(SourceRange(closes.front())))
+                       if
+                       (TokenSourceRange.fullyContains(SourceRange(closes.front())))
                        {
                        */
                     while (not closes.empty() and
@@ -554,8 +529,8 @@ namespace clang {
 
                         bool breakable = false;
                         for (auto t : eol_tokens) {
-                            // This EOL token is the one for the line before the current
-                            // line
+                            // This EOL token is the one for the line before the
+                            // current line
                             if (this->SMan->getSpellingLineNumber(t.getLocation()) ==
                                 this->SMan->getSpellingLineNumber(tok.getLocation()) -
                                     1) {
@@ -583,7 +558,8 @@ namespace clang {
                                         << std::to_string(indent_amount + 2)
                                         << std::to_string(spc_ct(ws));
                                 }
-                                // Is the end of the previous line something other than:
+                                // Is the end of the previous line something other
+                                // than:
                                 // - ';'
                                 // - '{'
                                 // - A comment
@@ -591,7 +567,8 @@ namespace clang {
                             } else if (breakable) {
                                 if (spc_ct(ws) < indent_amount + 2) {
                                     diag(tok.getLocation(),
-                                         "Incorrect indentation level for broken line. "
+                                         "Incorrect indentation level for broken "
+                                         "line. "
                                          "Expected at "
                                          "least %0, got %1")
                                         << std::to_string(indent_amount + 2)
@@ -609,13 +586,14 @@ namespace clang {
                                 }
                             } else {
                                 diag(tok.getLocation(),
-                                     "Incorrect indentation level. Expected %0, got %1")
+                                     "Incorrect indentation level. Expected %0, "
+                                     "got %1")
                                     << std::to_string(indent_amount)
                                     << std::to_string(spc_ct(ws));
                             }
                             // std::cout << "reporting incorrect indentation level.
-                            // Expected " << indent_amount << " got " << spc_ct(ws) <<
-                            // std::endl;
+                            // Expected " << indent_amount << " got " << spc_ct(ws)
+                            // << std::endl;
                         }
                     }
                 }
