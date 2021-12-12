@@ -344,55 +344,35 @@ namespace clang {
                         SM.isMacroBodyExpansion(MatchedDecl->getBeginLoc())) {
                         return;
                     }
-                    this->dbgdump(MatchedDecl, *Context);
+                    // Add an open/close for the switch itself
                     this->opens.push_back(MatchedDecl->getBody()->getBeginLoc());
-                    // std::string
-                    // file_str(SM.getCharacterData(SM.getLocForStartOfFile(SM.getFileID(MatchedDecl->getBeginLoc()))),
-                    // SM.getCharacterData(this->opens.back()));
-
                     this->closes.push_back(
                         MatchedDecl->getBody()->getEndLoc().getLocWithOffset(-1));
-                    // std::string
-                    // file_str_close(SM.getCharacterData(SM.getLocForStartOfFile(SM.getFileID(MatchedDecl->getBeginLoc()))),
-                    // SM.getCharacterData(this->closes.back()));
-                    // std::cout << "Opening at: |" << file_str << "| OPEN" << std::endl
-                    // << "Closing at: |" << file_str_close << "| CLOSE" << std::endl;
 
-                    if (SM.getSpellingLineNumber(this->opens.back()) !=
-                        SM.getSpellingLineNumber(MatchedDecl->getBeginLoc())) {
-                        diag(this->opens.back(),
-                             "Open brace must be located on same line as switch.");
-                    }
+                    this->dbgdump(MatchedDecl, *Context);
 
-                    // Add the closes for every case statement
-                    if (auto *Body = dyn_cast<CompoundStmt>(MatchedDecl->getBody())) {
-                        std::vector<Stmt *> children;
-                        std::vector<Stmt *> dedent_locations;
-                        for (auto it = Body->body_begin(); it != Body->body_end();
-                             ++it) {
-                            if (dyn_cast<CaseStmt>(*it) || dyn_cast<DefaultStmt>(*it)) {
-                                this->opens.push_back((*it)->getBeginLoc());
-                                if (children.size() != 0) {
-                                    dedent_locations.push_back(children.back());
-                                }
+                    // Add an open/close for each case
+                    const SwitchCase *Case = MatchedDecl->getSwitchCaseList();
+                    while (Case) {
+                        this->dout() << "SWITCH CASE: " << std::endl;
+                        this->dbgdump(Case, *Context);
+                        if (!dyn_cast<CaseStmt>(Case->getSubStmt())) {
+                            this->opens.push_back(Case->getBeginLoc());
+                            if (dyn_cast<CompoundStmt>(Case->getSubStmt())) {
+                                this->dout() << "COMPOUND STMT" << std::endl;
+                                this->dbgdump(Case->getSubStmt(), *Context);
+                                this->closes.push_back(
+                                    Case->getSubStmt()->getEndLoc().getLocWithOffset(
+                                        -1));
                             } else {
-                                children.push_back(*it);
+                                this->dout() << "NON COMPOUND STMT" << std::endl;
+                                this->dbgdump(Case->getSubStmt(), *Context);
+                                this->closes.push_back(Case->getSubStmt()->getEndLoc());
                             }
                         }
-                        for (Stmt *Dedent : dedent_locations) {
-                            this->closes.push_back(Dedent->getEndLoc());
-                        }
-                        if (children.size() > 0 &&
-                            std::find(dedent_locations.begin(), dedent_locations.end(),
-                                      children.back()) == dedent_locations.end()) {
-                            this->closes.push_back(children.back()->getEndLoc());
-                        }
-                    }
 
-                    // std::cout << "SWITCH BODY: |" <<
-                    // std::string(SM.getCharacterData(opens.back()),
-                    //        SM.getCharacterData(closes.back())) << "|" <<
-                    //        std::endl;
+                        Case = Case->getNextSwitchCase();
+                    }
                 } else if (auto MatchedDecl =
                                Result.Nodes.getNodeAs<WhileStmt>("while")) {
                     if (not SM.isWrittenInMainFile(MatchedDecl->getBeginLoc()) or
@@ -456,7 +436,9 @@ namespace clang {
                 std::vector<Token> tokens;
                 std::vector<Token> eol_tokens;
                 std::sort(opens.begin(), opens.end());
+                opens.erase(std::unique(opens.begin(), opens.end()), opens.end());
                 std::sort(closes.begin(), closes.end());
+                closes.erase(std::unique(closes.begin(), closes.end()), closes.end());
                 while (!this->lexer->LexFromRawLexer(tok)) {
                     if (not this->SMan->isWrittenInMainFile(tok.getLocation()) or
                         not this->SMan->isWrittenInMainFile(tok.getEndLoc())) {
