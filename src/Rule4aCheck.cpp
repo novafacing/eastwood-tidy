@@ -231,8 +231,7 @@ namespace clang {
 
                     // Add an open/close for the switch itself
                     this->opens.push_back(MatchedDecl->getBody()->getBeginLoc());
-                    this->closes.push_back(
-                        MatchedDecl->getBody()->getEndLoc().getLocWithOffset(1));
+                    // Don't really need a close because it's a compound anyway
 
                     this->dbgdump(MatchedDecl, *Context);
 
