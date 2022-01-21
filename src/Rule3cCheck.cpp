@@ -69,8 +69,8 @@ namespace clang {
                                                               trailing_ws)) {
                                             continue;
                                         }
-                                        if (next_content == " " or
-                                            (next_content != "" and
+                                        if (next_content == " " ||
+                                            (next_content != "" &&
                                              next_content[0] == '\n')) {
                                             continue;
                                         }

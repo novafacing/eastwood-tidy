@@ -63,13 +63,13 @@ namespace clang {
                             // error anyway
                             return;
                         }
-                        while (!RawLexer.LexFromRawLexer(tok) and
+                        while (!RawLexer.LexFromRawLexer(tok) &&
                                isWhitespace(*SM.getCharacterData(tok.getLocation()))) {
                             ws_ct++;
                             ws_tokens.push_back(tok);
                         }
                         if (not ws_tokens.empty()) {
-                            if (ws_ct != 1 or
+                            if (ws_ct != 1 ||
                                 std::string(
                                     SM.getCharacterData(ws_tokens.back().getLocation()),
                                     SM.getCharacterData(ws_tokens.back().getEndLoc()))

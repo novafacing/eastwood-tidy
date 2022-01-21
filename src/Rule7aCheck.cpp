@@ -79,7 +79,7 @@ namespace clang {
                             std::vector<Token>::reverse_iterator rit = tokens.rbegin();
 
                             size_t comment_ct = 0;
-                            for (size_t i = 0; rit != tokens.rend() and i < 3;
+                            for (size_t i = 0; rit != tokens.rend() && i < 3;
                                  rit++, i++) {
                                 if (rit->getKind() == tok::comment) {
                                     comment_ct++;
@@ -110,7 +110,7 @@ namespace clang {
                                      "Empty line required.");
                                 return;
                             }
-                            // Make sure the last token is just a newline and the
+                            // Make sure the last token is just a newline && the
                             // previous is a comment. Then, check for comment formatting
                             if (not isWhitespace(*SM.getCharacterData(
                                     tokens.back().getLocation()))) {

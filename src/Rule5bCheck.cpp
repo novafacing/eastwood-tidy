@@ -81,7 +81,7 @@ namespace clang {
                                             // \\n\\n STRING: |" << contents << "|" <<
                                             // std::endl;
                                             if (tokens.at(tokens.size() - 2)
-                                                        .getKind() != tok::l_brace and
+                                                        .getKind() != tok::l_brace &&
                                                 tokens.at(tokens.size() - 2)
                                                         .getKind() != tok::comment) {
                                                 diag(tok.getLocation(),
@@ -103,7 +103,7 @@ namespace clang {
                                         if (count_newlines(std::string(
                                                 SM.getCharacterData(next.getLocation()),
                                                 SM.getCharacterData(
-                                                    next.getEndLoc()))) < 2 and
+                                                    next.getEndLoc()))) < 2 &&
                                             nnext.getKind() != tok::comment) {
                                             std::string contents(
                                                 SM.getCharacterData(next.getLocation()),
@@ -123,13 +123,13 @@ namespace clang {
                                     // SM.getCharacterData(last_start.getEndLoc())) <<
                                     // ":" << last_start.getName() << std::endl;
                                     if (last_start.isOneOf(tok::kw_if, tok::kw_else,
-                                                           tok::kw_case, tok::hash) or
-                                        (last_start.isAnyIdentifier() and
-                                         (last_start.getRawIdentifier().str() == "if" or
+                                                           tok::kw_case, tok::hash) ||
+                                        (last_start.isAnyIdentifier() &&
+                                         (last_start.getRawIdentifier().str() == "if" ||
                                           last_start.getRawIdentifier().str() ==
-                                              "else" or
+                                              "else" ||
                                           last_start.getRawIdentifier().str() ==
-                                              "case" or
+                                              "case" ||
                                           last_start.getRawIdentifier().str() ==
                                               "#endif"))) {
                                         // OK
@@ -170,10 +170,10 @@ namespace clang {
                             if (tok.isAtStartOfLine()) {
                                 line_begin_tokens.push_back(tok);
                             }
-                            if (add_next and next.isAtStartOfLine()) {
+                            if (add_next && next.isAtStartOfLine()) {
                                 line_begin_tokens.push_back(next);
                             }
-                            if (add_next and nnext.isAtStartOfLine()) {
+                            if (add_next && nnext.isAtStartOfLine()) {
                                 line_begin_tokens.push_back(nnext);
                             }
                             if (add_next) {

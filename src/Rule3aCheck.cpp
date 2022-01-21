@@ -177,7 +177,7 @@ namespace clang {
                 auto lit = left.begin();
                 auto rit = right.begin();
 
-                if (left.size() < 1 or right.size() < 1) {
+                if (left.size() < 1 || right.size() < 1) {
                     return;
                 }
 
@@ -186,7 +186,7 @@ namespace clang {
                     SM.getDecomposedLoc(Range.getEnd());
                 StringRef File = SM.getBufferData(LocInfo.first);
                 const char *TokenBegin = File.data();
-                if (not SM.getLocForStartOfFile(LocInfo.first).isValid() or
+                if (not SM.getLocForStartOfFile(LocInfo.first).isValid() ||
                     not SM.isWrittenInMainFile(
                         SM.getLocForStartOfFile(LocInfo.first))) {
                     return;
@@ -201,7 +201,7 @@ namespace clang {
                 Token t;
 
                 while (!RawLexer.LexFromRawLexer(t)) {
-                    if (not SM.isWrittenInMainFile(t.getLocation()) or
+                    if (not SM.isWrittenInMainFile(t.getLocation()) ||
                         not SM.isWrittenInMainFile(t.getEndLoc())) {
                         continue;
                     }
@@ -216,7 +216,7 @@ namespace clang {
                     std::string raw_trav_tok_data =
                         Lexer::getSpelling(*tt, SM, Context->getLangOpts());
 
-                    if (lit <= left.end() and *lit == tt->getLocation()) {
+                    if (lit <= left.end() && *lit == tt->getLocation()) {
                         auto rtok_it = std::make_reverse_iterator(tt);
                         // rtok_it++;
                         size_t ws = 0;
@@ -242,7 +242,7 @@ namespace clang {
                                 bad = true;
                             }
                         }
-                        if (bad or ws != 1) {
+                        if (bad || ws != 1) {
                             diag(*lit, "There must be exactly one space "
                                        "between %0 and open parenthesis.")
                                 << type;
@@ -251,7 +251,7 @@ namespace clang {
                         lit++;
                     }
 
-                    if (rit <= right.end() and *rit == tt->getLocation()) {
+                    if (rit <= right.end() && *rit == tt->getLocation()) {
                         auto rtok_it = tt;
                         rtok_it++;
                         size_t ws = 0;
@@ -279,7 +279,7 @@ namespace clang {
                             }
                         }
 
-                        if (bad or ws != 1) {
+                        if (bad || ws != 1) {
                             diag(*rit, "There must be exactly one space between "
                                        "parenthesis and open brace.")
                                 << type;

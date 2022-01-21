@@ -50,7 +50,7 @@ namespace clang {
                             this->SM.getFileEntryForID(this->SM.getFileID(HashLoc))
                                 ->tryGetRealPathName()
                                 .str());
-                        if (File and File->isValid()) {
+                        if (File && File->isValid()) {
                             std::string file_path(File->tryGetRealPathName().str());
                             /* std::filesystem won't link for SOME reason */
                             std::string header_file_name(getFileName(file_path));
@@ -72,7 +72,7 @@ namespace clang {
                                                          file_path.begin()));
                             auto cd_mm_res(std::mismatch(
                                 cdirpath.begin(), cdirpath.end(), file_path.begin()));
-                            if (pp_mm_res.first == ppath.end() or
+                            if (pp_mm_res.first == ppath.end() ||
                                 cd_mm_res.first == cdirpath.end()) {
                                 // diag(HashLoc, "Relative include paths are
                                 // forbidden");
@@ -107,7 +107,7 @@ namespace clang {
                     if (SM.isInMainFile(MatchedDecl->getLocation())) {
                         const FileEntry *MainFile = SM.getFileEntryForID(
                             SM.getFileID(MatchedDecl->getLocation()));
-                        if (MainFile and MainFile->isValid()) {
+                        if (MainFile && MainFile->isValid()) {
                             std::string file_path(MainFile->tryGetRealPathName().str());
                         }
                     }

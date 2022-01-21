@@ -61,7 +61,7 @@ namespace clang {
                         ftw(main_file_dir.c_str(), AddFile, 0x10);
                         this->checked = true;
                     }
-                    if (not File or not File->isValid()) {
+                    if (not File || not File->isValid()) {
                         return;
                     }
 

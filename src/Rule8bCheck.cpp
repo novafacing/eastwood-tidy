@@ -33,7 +33,7 @@ namespace clang {
                                         SrcMgr::CharacteristicKind FileType) override {
 
                     if (not isAngled) {
-                        if (File and File->isValid()) {
+                        if (File && File->isValid()) {
                             std::string file_path(File->tryGetRealPathName().str());
                             std::string ext(
                                 file_path.substr(file_path.find_last_of(".") + 1));

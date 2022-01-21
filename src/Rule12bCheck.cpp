@@ -28,7 +28,7 @@ namespace clang {
 
             void Rule12bCheck::check(const MatchFinder::MatchResult &Result) {
                 if (auto MatchedDecl = Result.Nodes.getNodeAs<VarDecl>("var_decl")) {
-                    if (MatchedDecl->isLocalVarDeclOrParm() and
+                    if (MatchedDecl->isLocalVarDeclOrParm() &&
                         not MatchedDecl->isLocalVarDecl()) {
                         // This is a function parameter
                         return;

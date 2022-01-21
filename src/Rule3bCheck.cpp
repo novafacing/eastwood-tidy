@@ -84,7 +84,7 @@ namespace clang {
                                 }
                                 donext = true;
 
-                                if (not(tokens.empty()) and
+                                if (not(tokens.empty()) &&
                                     SM.isWrittenInMainFile(
                                         tokens.back().getLocation())) {
                                     std::string match(
@@ -95,15 +95,15 @@ namespace clang {
                                     // "|" << std::endl;
                                 }
 
-                                if (not(tokens.empty()) and
+                                if (not(tokens.empty()) &&
                                     SM.isWrittenInMainFile(
-                                        tokens.back().getLocation()) and
-                                    not MatchedDecl->isCommaOp() and
+                                        tokens.back().getLocation()) &&
+                                    not MatchedDecl->isCommaOp() &&
                                     std::string(SM.getCharacterData(
                                                     tokens.back().getLocation()),
                                                 SM.getCharacterData(
                                                     tokens.back().getEndLoc())) !=
-                                        " " and
+                                        " " &&
                                     not tok.isAtStartOfLine()) {
                                     diag(tok.getLocation(), "Leading space required.");
                                 }
@@ -113,7 +113,7 @@ namespace clang {
                                         SM.getCharacterData(next.getLocation()),
                                         SM.getCharacterData(next.getEndLoc()));
 
-                                    if (match != " " and
+                                    if (match != " " &&
                                         match.find('\n') == std::string::npos) {
                                         diag(tok.getEndLoc(),
                                              "Trailing space required.");
@@ -124,7 +124,7 @@ namespace clang {
                             }
                             if (SM.isWrittenInMainFile(tok.getLocation())) {
                                 tokens.push_back(tok);
-                                if (donext and
+                                if (donext &&
                                     SM.isWrittenInMainFile(next.getLocation())) {
                                     donext = false;
                                     tokens.push_back(next);

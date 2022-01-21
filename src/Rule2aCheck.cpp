@@ -37,6 +37,8 @@ namespace clang {
 
             void Rule2aCheck::registerMatchers(MatchFinder *Finder) {
                 Finder->addMatcher(functionDecl().bind("function"), this);
+                Finder->addMatcher(translationUnitDecl().bind("translation_unit"),
+                                   this);
             }
 
             void Rule2aCheck::check(const MatchFinder::MatchResult &Result) {
@@ -112,14 +114,6 @@ namespace clang {
                                 std::string Indentation =
                                     Lexer::getIndentationForLine(tok.getLocation(), SM)
                                         .str();
-                                /* TODO: Check indentation matches current level (add
-                                matchers to except param lists) if (Indentation.size() %
-                                2 != 0) {
-                                    // IV.A
-                                    diag(tok.getLocation(), "Indentation must be groups
-                                of 2 spaces only.");
-                                }
-                                */
                                 for (auto c : Indentation) {
                                     if (c != ' ') {
                                         // diag(tok.getLocation(), "Indentation must
@@ -131,6 +125,13 @@ namespace clang {
                         }
                     }
                     this->checked = true;
+                } else if (auto MatchedDecl =
+                               Result.Nodes.getNodeAs<TranslationUnitDecl>(
+                                   "translation_unit")) {
+                    std::cout << "Got translation unit" << std::endl;
+                    std::string match(SM.getCharacterData(MatchedDecl->getBeginLoc()),
+                                      SM.getCharacterData(MatchedDecl->getEndLoc()));
+                    std::cout << match << std::endl;
                 }
             }
         } // namespace eastwood

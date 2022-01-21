@@ -39,7 +39,7 @@ namespace clang {
                                 std::make_pair(isAngled, FileName.str()));
                         } else {
                             if (this->Check->incls.size() > 1) {
-                                if (not this->Check->incls.back().first and isAngled) {
+                                if (not this->Check->incls.back().first && isAngled) {
                                     this->Check->diag(
                                         HashLoc,
                                         "All global includes must preceed any local "
