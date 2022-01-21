@@ -16,10 +16,14 @@ if [ ! -d "${TIDY_INC}" ]; then
     exit 1
 fi
 
+# Transfer binary to server
 scp "${BASEDIR}/linter" "${USER}@${REMOTE}:${REMOTE_BINDIR}/linter"
 scp "${TIDY_BIN}" "${USER}@${REMOTE}:${REMOTE_BINDIR}/"
 scp -r "${TIDY_INC}" "${USER}@${REMOTE}:${REMOTE_INCLUDEDIR}"
 ssh "${USER}@${REMOTE}" "chmod -R 755 ${REMOTE_INCLUDEDIR}"
+
+# Copy binary to releases
+cp "${TIDY_BIN}" "${BASEDIR}/../releases/clang-tidy-$(date +%y%m%d%H%M%S)"
 
 echo "Done."
 
