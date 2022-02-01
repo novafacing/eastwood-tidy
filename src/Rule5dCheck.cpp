@@ -84,17 +84,23 @@ namespace clang {
                                 }
                             }
                         }
-                        if (tok.getKind() == tok::comment) {
+                        if (SM.getSpellingLineNumber(tok.getLocation()) != SM.getSpellingLineNumber(FunctionDefinitionRange.getEnd())) {
+                            diag(FunctionDefinitionRange.getEnd(),
+                                "Missing function footer comment");
+                        }
+                        else if (tok.getKind() == tok::comment) {
                             std::string comment_raw(
                                 SM.getCharacterData(tok.getLocation()),
                                 SM.getCharacterData(tok.getEndLoc()));
-                            std::string correct_annotation("/* " + fname + "() */");
-                            if (comment_raw != "/* " + fname + "() */") {
-                                diag(tok.getLocation(),
-                                     std::string("End of function comment is "
-                                                 "malformed. Got \"") +
-                                         comment_raw + "\" Expected \"/* " + fname +
-                                         "() */\".");
+                                std::string correct_annotation("/* " + fname + "() */");
+                            if (tok.getLocation().isValid() && SM.isWrittenInMainFile(tok.getLocation()) && comment_raw != "/* " + fname + "() */") {
+                                std::string msg("End of function comment is "
+                                            "malformed. Got \"");
+                                msg += comment_raw;
+                                msg += "\" Expected \"/* ";
+                                msg += fname;
+                                msg += "() */\".";
+                                diag(tok.getLocation(), msg);
                                 return;
                             } else {
                                 return;

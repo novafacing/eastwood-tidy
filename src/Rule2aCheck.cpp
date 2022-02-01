@@ -128,10 +128,6 @@ namespace clang {
                 } else if (auto MatchedDecl =
                                Result.Nodes.getNodeAs<TranslationUnitDecl>(
                                    "translation_unit")) {
-                    std::cout << "Got translation unit" << std::endl;
-                    std::string match(SM.getCharacterData(MatchedDecl->getBeginLoc()),
-                                      SM.getCharacterData(MatchedDecl->getEndLoc()));
-                    std::cout << match << std::endl;
                 }
             }
         } // namespace eastwood
