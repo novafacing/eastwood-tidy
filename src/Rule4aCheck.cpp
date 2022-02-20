@@ -406,12 +406,14 @@ namespace clang {
                         }
 
                         if (spc_ct(ws) != indent_amount) {
-                            // Is this a known broken line?
-                            if (std::find(this->broken_lines.begin(),
-                                          this->broken_lines.end(),
-                                          this->SMan->getSpellingLineNumber(
-                                              tok.getLocation())) !=
-                                this->broken_lines.end()) {
+                            if (this->tok_string(*this->SMan, tok)->rfind("#", 0) ==
+                                0) {
+                                // Do nothing, this is a preprocessor directive.
+                            } else if (std::find(this->broken_lines.begin(),
+                                                 this->broken_lines.end(),
+                                                 this->SMan->getSpellingLineNumber(
+                                                     tok.getLocation())) !=
+                                       this->broken_lines.end()) {
                                 if (spc_ct(ws) < indent_amount + 2) {
                                     diag(tok.getLocation(),
                                          "Incorrect indentation level. Expected at "
