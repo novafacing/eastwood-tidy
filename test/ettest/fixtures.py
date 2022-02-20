@@ -13,6 +13,7 @@ from pytest import fixture
 
 from ettest.rule import Rule
 from ettest.testcases.snippets.snippets import Snippet, Error
+from ettest.filetest import FileTest
 
 
 @dataclass
@@ -64,7 +65,7 @@ class TestManager:
             self.clang_tidy.exists()
         ), f"Clang tidy does not exist at {self.clang_tidy}"
         self.testcase_dir = Path(__file__).with_name("testcases")
-        self.last_snippet_file: Optional[Path] = None
+        self.last_file: Optional[Path] = None
 
     @classmethod
     def build_config(
@@ -137,7 +138,8 @@ class TestManager:
         cmd += [str(sourcefile)]
 
         try:
-            res = run(cmd, cwd=str(cwd.resolve()), capture_output=True, check=True)
+            # Don't check, we return 1 if there are errors :facepalm:
+            res = run(cmd, cwd=str(cwd.resolve()), capture_output=True, check=False)
         except CalledProcessError as e:
             raise Exception(f"Failed to run '{' '.join(cmd)}'") from e
 
@@ -219,7 +221,7 @@ class TestManager:
         :param snippet: The snippet to run.
         """
         with self.make_code(snippet) as tf:
-            self.last_snippet_file = tf
+            self.last_file = tf
             res = self.run(tf, opts=self.DUMP_OPTS if dump else None)
             return res
 
@@ -253,7 +255,7 @@ class TestManager:
         """
         errs = []
         for line in map(lambda l: l.split(" "), output.splitlines()):
-            if line[0].startswith(str(self.last_snippet_file.resolve())):
+            if line[0].startswith(str(self.last_file.resolve())):
                 _, _line_num, _col_num, *_ = line[0].split(":")
                 line_num = int(_line_num)
                 col_num = int(_col_num)
@@ -294,6 +296,28 @@ class TestManager:
         notes = self.collect_output(res, "note", snippets=True)
         all_msgs = set(errors + warnings + notes)
         expected_msgs = set(snippet.errors)
+        return TestResult(
+            list(all_msgs & expected_msgs),
+            list(all_msgs - expected_msgs),
+            list(expected_msgs - all_msgs),
+            res,
+        )
+
+    def test_file(self, file_test: FileTest) -> TestResult:
+        """
+        Test a file.
+
+        :param file_test: The file to test.
+        """
+        tf = self.get_test(file_test.testfile)
+        self.last_file = tf
+        assert tf.exists(), f"File does not exist: {tf}"
+        res = self.run(tf)
+        errors = self.collect_output(res, "error", snippets=True)
+        warnings = self.collect_output(res, "warning", snippets=True)
+        notes = self.collect_output(res, "note", snippets=True)
+        all_msgs = set(errors + warnings + notes)
+        expected_msgs = set(file_test.errors)
         return TestResult(
             list(all_msgs & expected_msgs),
             list(all_msgs - expected_msgs),
