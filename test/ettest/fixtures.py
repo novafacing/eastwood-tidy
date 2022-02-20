@@ -279,7 +279,12 @@ class TestManager:
 
                 sev = line[1].split(":")[0]
                 msg = line[2:-1]
-                rule = self.output_to_rule(line[-1])
+                try:
+                    rule = self.output_to_rule(line[-1])
+                except Exception:
+                    # Failed to parse the output probably due to [clang-diagnostic-error]
+                    continue
+
                 if severity is None or severity == sev:
                     errs.append(Error(rule, line_num, col_num, " ".join(msg), sev))
         return errs

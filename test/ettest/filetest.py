@@ -1,6 +1,6 @@
 """File test configurations for ettest"""
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import List, Optional
 from ettest.testcases.snippets.snippets import Error
 
@@ -12,4 +12,4 @@ class FileTest:
     """
 
     testfile: str  # The filename like "test_rule_1_a.c"
-    errors: Optional[List[Error]] = None  # The expected errors
+    errors: Optional[List[Error]] = field(default_factory=list)  # The expected errors

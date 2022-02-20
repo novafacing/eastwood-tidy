@@ -12,7 +12,7 @@ usage() {
     exit 1
 }
 
-while getopts ":l:u:r:b:i" o; do
+while getopts ":l:u:r:b:i:" o; do
     case "${o}" in
         l)
             LLVM_DIR=${OPTARG}
@@ -36,6 +36,12 @@ while getopts ":l:u:r:b:i" o; do
     esac
 done
 shift $((OPTIND-1))
+
+echo "Running with:"
+echo "LLVM_DIR=${LLVM_DIR}"
+echo "REMOTE=${REMOTE}"
+echo "REMOTE_BINDIR=${REMOTE_BINDIR}"
+echo "REMOTE_INCLUDEDIR=${REMOTE_INCLUDEDIR}"
 
 TIDY_BIN="${LLVM_DIR}/llvm/build/bin/clang-tidy"
 TIDY_INC="${LLVM_DIR}/llvm/build/lib/clang/14.0.0/include/"
@@ -61,7 +67,7 @@ BASEDIR=$(dirname "$0")
 # LLVM_DIR=/home/novafacing/hub/llvm-project
 
 
-if [ ! -z "${USER}" -a ! -z "${REMOTe}" -a ! -z "${REMOTE_BINDIR}" -a ! -z "${REMOTE_INCLUDEDIR}" ]; then
+if [ ! -z "${USER}" -a ! -z "${REMOTE}" -a ! -z "${REMOTE_BINDIR}" -a ! -z "${REMOTE_INCLUDEDIR}" ]; then
     # Transfer binary to server
     echo "Uploading binary..."
     scp "${BASEDIR}/linter" "${USER}@${REMOTE}:${REMOTE_BINDIR}/linter"

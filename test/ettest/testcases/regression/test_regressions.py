@@ -63,7 +63,21 @@ def test_header_comments_73(manager) -> None:
 
     https://github.com/novafacing/eastwood-tidy/issues/72
     """
-    tests = [FileTest("header_comments_73.c", [])]
+    tests = [FileTest("header_comments_73.c")]
+    for test in tests:
+        res = manager.test_file(test)
+        assert not res.unexpected_errors
+        assert not res.unseen_errors
+
+
+def test_max_funcsize_74(manager) -> None:
+    """
+    Test max function size detection when a bool function is defined more than 240
+    lines away from the line number of `#define bool X` in stdbool.h
+
+    https://github.com/novafacing/eastwood-tidy/issues/74
+    """
+    tests = [FileTest("max_funcsize_74.c")]
     for test in tests:
         res = manager.test_file(test)
         assert not res.unexpected_errors

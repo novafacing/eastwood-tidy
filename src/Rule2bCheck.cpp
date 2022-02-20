@@ -28,24 +28,33 @@ namespace clang {
             }
 
             void Rule2bCheck::check(const MatchFinder::MatchResult &Result) {
+                const SourceManager &SM = *Result.SourceManager;
                 if (auto MatchedDecl =
                         Result.Nodes.getNodeAs<FunctionDecl>("function")) {
-                    SourceLocation loc = MatchedDecl->getLocation();
                     std::string name = MatchedDecl->getName().str();
-                    std::string type = "Function";
-                    if ((Result.SourceManager)->isWrittenInMainFile(loc)) {
-                        SourceRange range = MatchedDecl->getSourceRange();
-                        SourceLocation beg = range.getBegin();
-                        SourceLocation end = range.getEnd();
-                        unsigned beg_ln =
-                            (Result.SourceManager)->getSpellingLineNumber(beg, nullptr);
-                        unsigned end_ln =
-                            (Result.SourceManager)->getSpellingLineNumber(end, nullptr);
-                        if (end_ln - beg_ln >= MAX_FN_SIZE) {
-                            diag(loc, "%0 %1 is over the maximum function size"
-                                      " of %2 lines")
-                                << type << name << MAX_FN_SIZE;
-                        }
+
+                    const FunctionDecl *FunctionDefinition =
+                        MatchedDecl->getDefinition();
+                    if (!MatchedDecl->doesThisDeclarationHaveABody()) {
+                        return;
+                    }
+                    unsigned func_start_line = 0;
+                    if (SM.isWrittenInMainFile(
+                            FunctionDefinition->getReturnTypeSourceRange()
+                                .getBegin())) {
+                        func_start_line = SM.getSpellingLineNumber(
+                            FunctionDefinition->getReturnTypeSourceRange().getBegin());
+                    } else {
+                        func_start_line = SM.getSpellingLineNumber(
+                            FunctionDefinition->getNameInfo().getLoc());
+                    }
+                    SourceLocation end = FunctionDefinition->getSourceRange().getEnd();
+                    unsigned end_ln = SM.getSpellingLineNumber(end);
+                    if (end_ln - func_start_line >= MAX_FN_SIZE) {
+                        diag(FunctionDefinition->getSourceRange().getBegin(),
+                             "Function %0 is over the maximum function size"
+                             " of %2 lines")
+                            << name << MAX_FN_SIZE;
                     }
                 } else {
                     return;

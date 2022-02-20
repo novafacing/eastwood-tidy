@@ -8,6 +8,7 @@
 //===----------------------------------------------------------------------===//
 
 #include "Rule7aCheck.h"
+#include <algorithm>
 #include <iostream>
 #include <regex>
 #include <vector>
@@ -90,28 +91,21 @@ namespace clang {
                                          ".");
                                 return;
                             }
-
-                            if (*this->tok_string(SM, tokens.at(tokens.size() - 3)) !=
-                                "\n\n") {
+                            std::string before_tok_str =
+                                *this->tok_string(SM, tokens.at(tokens.size() - 3));
+                            if (std::count(before_tok_str.begin(), before_tok_str.end(),
+                                           '\n') < 2) {
                                 diag(tokens.at(tokens.size() - 2).getLocation(),
-                                     "Empty line required before function header "
+                                     "At least one empty line required before function "
+                                     "header "
                                      "comment for function " +
                                          fname + ".");
                             }
 
                             if (*this->tok_string(SM, tokens.back()) != "\n\n") {
                                 diag(tokens.back().getEndLoc(),
-                                     "Empty line required after function header "
-                                     "comment for function " +
-                                         fname + ".");
-                            }
-
-                            // Make sure the last token is just a newline && the
-                            // previous is a comment. Then, check for comment formatting
-                            if (!isWhitespace(*SM.getCharacterData(
-                                    tokens.back().getLocation()))) {
-                                diag(tokens.back().getEndLoc(),
-                                     "Empty line required after function header "
+                                     "Exactly one empty line required after function "
+                                     "header "
                                      "comment for function " +
                                          fname + ".");
                             }
@@ -119,7 +113,17 @@ namespace clang {
                             if (!isWhitespace(*SM.getCharacterData(
                                     tokens.at(tokens.size() - 3).getLocation()))) {
                                 diag(tokens.at(tokens.size() - 2).getLocation(),
-                                     "Empty line required before function header "
+                                     "At least one empty line required before function "
+                                     "header "
+                                     "comment for function " +
+                                         fname + ".");
+                            }
+
+                            if (!isWhitespace(*SM.getCharacterData(
+                                    tokens.back().getLocation()))) {
+                                diag(tokens.back().getEndLoc(),
+                                     "Exactly one empty line required after function "
+                                     "header "
                                      "comment for function " +
                                          fname + ".");
                             }
