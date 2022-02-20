@@ -30,7 +30,6 @@ namespace clang {
             void Rule7aCheck::check(const MatchFinder::MatchResult &Result) {
 
                 const SourceManager &SM = *Result.SourceManager;
-                const ASTContext *Context = Result.Context;
 
                 if (auto MatchedDecl =
                         Result.Nodes.getNodeAs<FunctionDecl>("function_decl")) {
@@ -41,96 +40,94 @@ namespace clang {
                         MatchedDecl->getDefinition();
                     std::string fname =
                         FunctionDefinition->getNameInfo().getName().getAsString();
-                    if (FunctionDefinition) {
-                        SourceRange FunctionDefinitionRange =
-                            FunctionDefinition->getSourceRange();
-                        std::pair<FileID, unsigned> LocInfo =
-                            SM.getDecomposedLoc(FunctionDefinitionRange.getBegin());
-                        SourceLocation StartOfFile = SM.getLocForStartOfFile(
-                            SM.getFileID(FunctionDefinitionRange.getBegin()));
-                        StringRef File = SM.getBufferData(SM.getFileID(StartOfFile));
-                        const char *TokenBegin = File.data();
-
-                        Lexer RawLexer(SM.getLocForStartOfFile(LocInfo.first),
-                                       Context->getLangOpts(), File.begin(), TokenBegin,
-                                       File.end());
-
-                        RawLexer.SetKeepWhitespaceMode(true);
-
-                        Token tok;
+                    SourceRange FunctionDefinitionRange =
+                        FunctionDefinition->getSourceRange();
+                    unsigned int func_start_line = 0;
+                    if (SM.isWrittenInMainFile(
+                            FunctionDefinition->getReturnTypeSourceRange()
+                                .getBegin())) {
+                        func_start_line = SM.getSpellingLineNumber(
+                            FunctionDefinition->getReturnTypeSourceRange().getBegin());
+                    } else {
+                        // if the return type is not in the main file, then we can't
+                        // use it to check preceeding lines, grab the function name
+                        // location instead
+                        func_start_line = SM.getSpellingLineNumber(
+                            FunctionDefinition->getNameInfo().getLoc());
+                    }
+                    if (MatchedDecl->doesThisDeclarationHaveABody() &&
+                        FunctionDefinition) {
+                        auto toks = this->relex_file(Result, "function_decl");
                         std::vector<Token> tokens;
-                        while (!RawLexer.LexFromRawLexer(tok)) {
-                            if (tok.getLocation() ==
-                                FunctionDefinitionRange.getBegin()) {
-                                /*std::cout << "Stopping lex at token |" <<
-                                   std::string(SM.getCharacterData(tok.getLocation()),
-                                    SM.getCharacterData(tok.getEndLoc())) << "|" <<
-                                   std::endl; */
+                        for (auto t : *toks) {
+                            // Make sure the lines we grab backward from the decl are on
+                            // lines above and come before in the TU - this fixes #73
+                            if (SM.getSpellingLineNumber(t.getLocation()) <
+                                func_start_line) {
+                                tokens.push_back(t);
+                            } else {
                                 break;
                             }
-                            tokens.push_back(tok);
                         }
-                        /*std::cout << "Token range: |" <<
-                           std::string(SM.getCharacterData(tokens.at(tokens.size() -
-                           3).getLocation()),
-                                    SM.getCharacterData(tokens.back().getEndLoc())) <<
-                           "|" << std::endl; */
+
                         if (tokens.size() >= 3) {
                             std::vector<Token>::reverse_iterator rit = tokens.rbegin();
 
                             size_t comment_ct = 0;
                             for (size_t i = 0; rit != tokens.rend() && i < 3;
                                  rit++, i++) {
+                                this->dout()
+                                    << "[Rule7a : checking preheader token for " +
+                                           fname + "] "
+                                    << *this->tok_string(SM, *rit) << "\n";
                                 if (rit->getKind() == tok::comment) {
                                     comment_ct++;
                                 }
                             }
                             if (comment_ct == 0) {
-                                diag(tokens.back().getEndLoc(),
-                                     "Missing header comment.");
+                                diag(FunctionDefinitionRange.getBegin(),
+                                     "Missing header comment for function " + fname +
+                                         ".");
                                 return;
                             }
 
-                            if (not(std::string(SM.getCharacterData(
-                                                    tokens.back().getLocation()),
-                                                SM.getCharacterData(
-                                                    tokens.back().getEndLoc())) ==
-                                    "\n\n")) {
-                                diag(tokens.back().getEndLoc(), "Empty line required.");
-                                return;
-                            }
-
-                            if (not(std::string(
-                                        SM.getCharacterData(
-                                            tokens.at(tokens.size() - 3).getLocation()),
-                                        SM.getCharacterData(tokens.at(tokens.size() - 3)
-                                                                .getEndLoc())) ==
-                                    "\n\n")) {
+                            if (*this->tok_string(SM, tokens.at(tokens.size() - 3)) !=
+                                "\n\n") {
                                 diag(tokens.at(tokens.size() - 2).getLocation(),
-                                     "Empty line required.");
-                                return;
+                                     "Empty line required before function header "
+                                     "comment for function " +
+                                         fname + ".");
                             }
+
+                            if (*this->tok_string(SM, tokens.back()) != "\n\n") {
+                                diag(tokens.back().getEndLoc(),
+                                     "Empty line required after function header "
+                                     "comment for function " +
+                                         fname + ".");
+                            }
+
                             // Make sure the last token is just a newline && the
                             // previous is a comment. Then, check for comment formatting
-                            if (not isWhitespace(*SM.getCharacterData(
+                            if (!isWhitespace(*SM.getCharacterData(
                                     tokens.back().getLocation()))) {
-                                diag(tokens.back().getEndLoc(), "Empty line required.");
-                                return;
+                                diag(tokens.back().getEndLoc(),
+                                     "Empty line required after function header "
+                                     "comment for function " +
+                                         fname + ".");
                             }
-                            if (not isWhitespace(*SM.getCharacterData(
+
+                            if (!isWhitespace(*SM.getCharacterData(
                                     tokens.at(tokens.size() - 3).getLocation()))) {
                                 diag(tokens.at(tokens.size() - 2).getLocation(),
-                                     "Empty line required.");
-                                return;
+                                     "Empty line required before function header "
+                                     "comment for function " +
+                                         fname + ".");
                             }
+
                             if (tokens.at(tokens.size() - 2).getKind() ==
                                 tok::comment) {
-                                std::string raw_header_comment(
-                                    SM.getCharacterData(
-                                        tokens.at(tokens.size() - 2).getLocation()),
-                                    SM.getCharacterData(
-                                        tokens.at(tokens.size() - 2).getEndLoc()));
-
+                                std::string raw_header_comment =
+                                    *this->tok_string(SM, tokens.at(tokens.size() - 2));
                                 std::regex pre_regex{
                                     R"([\/][*]([^\n]*[\n][ ][*])([ ]*[^ ][^\n]*[\n][ ][*]){1,}[\/])"};
                                 std::smatch result;
@@ -138,16 +135,19 @@ namespace clang {
                                                      pre_regex)) {
                                     return;
                                 }
-                                // std::cout << "Print A" << std::endl;
                                 diag(tokens.at(tokens.size() - 2).getLocation(),
-                                     "Malformed header comment.");
+                                     "Malformed function header comment for function " +
+                                         fname + ".");
                                 return;
                             }
-                            diag(tokens.back().getEndLoc(), "Missing header comment.");
+                            diag(FunctionDefinitionRange.getBegin(),
+                                 "Missing function header comment for function " +
+                                     fname + ".");
                             return;
                         }
-                        // std::cout << "Pring B" << std::endl;
-                        diag(tok.getLocation(), "Malformed header comment.");
+                        diag(MatchedDecl->getLocation(),
+                             "Malformed function header comment for function " + fname +
+                                 ".");
                     }
                 }
             }

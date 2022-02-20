@@ -1,6 +1,7 @@
 set -e
 
 usage() {
+    echo "$0"
     echo "update.sh -l <llvm-project> [-u <user>] [-r <remote>] [-b <remote-bindir>]" 1>&2
     echo "    [-i <remote-include-dir>]" 1>&2
     echo "-l <llvm-project>: Full or relative path to llvm-project repository" 1>&2
@@ -15,7 +16,7 @@ while getopts ":l:u:r:b:i" o; do
     case "${o}" in
         l)
             LLVM_DIR=${OPTARG}
-            [ ! -d "${LLVM_DIR}" ] && echo "LLVM Directory ${LLVM_DIR} does not exist."; usage;
+            [ ! -d "${LLVM_DIR}" -o -z "${LLVM_DIR}" ] && usage "LLVM Directory ${LLVM_DIR} does not exist."
             ;;
         u)
             USER=${OPTARG}
@@ -30,11 +31,10 @@ while getopts ":l:u:r:b:i" o; do
             REMOTE_INCLUDEDIR=${OPTARG}
             ;;
         *)
-            usage
+            usage "Unrecognized argument ${o}"
             ;;
     esac
 done
-
 shift $((OPTIND-1))
 
 TIDY_BIN="${LLVM_DIR}/llvm/build/bin/clang-tidy"
@@ -63,6 +63,7 @@ BASEDIR=$(dirname "$0")
 
 if [ ! -z "${USER}" -a ! -z "${REMOTe}" -a ! -z "${REMOTE_BINDIR}" -a ! -z "${REMOTE_INCLUDEDIR}" ]; then
     # Transfer binary to server
+    echo "Uploading binary..."
     scp "${BASEDIR}/linter" "${USER}@${REMOTE}:${REMOTE_BINDIR}/linter"
     scp "${TIDY_BIN}" "${USER}@${REMOTE}:${REMOTE_BINDIR}/"
     scp -r "${TIDY_INC}" "${USER}@${REMOTE}:${REMOTE_INCLUDEDIR}"
@@ -70,6 +71,7 @@ if [ ! -z "${USER}" -a ! -z "${REMOTe}" -a ! -z "${REMOTE_BINDIR}" -a ! -z "${RE
 fi
 
 # Copy binary to releases
+echo "Copying binary to releases..."
 cp "${TIDY_BIN}" "${BASEDIR}/../releases/clang-tidy-$(date +%y%m%d%H%M%S)"
 
 echo "Done."

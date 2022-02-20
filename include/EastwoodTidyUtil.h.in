@@ -2,10 +2,22 @@
 #define LLVM_CLANG_TOOLS_EXTRA_CLANG_TIDY_EASTWOOD_TIDY_UTIL_H
 
 #include "clang/AST/ASTContext.h"
+#include "clang/AST/DeclBase.h"
+#include "clang/ASTMatchers/ASTMatchFinder.h"
+#include "clang/Basic/SourceLocation.h"
+#include "clang/Basic/SourceManager.h"
+#include "clang/Lex/Lexer.h"
+#include "clang/Lex/Token.h"
+#include "llvm/ADT/StringRef.h"
 #include "llvm/Support/raw_ostream.h"
 #include <iostream>
+#include <memory>
 #include <sstream>
 #include <string>
+
+using namespace clang;
+using namespace clang::ast_matchers;
+using namespace llvm;
 
 class EastwoodTidyDebugStream {
 private:
@@ -53,18 +65,22 @@ protected:
 
 public:
     EastwoodTidyCheckBase(void) : debug(false) {}
-    EastwoodTidyDebugStream &dout() {
-        if (this->debugStream == nullptr) {
-            this->debugStream = new EastwoodTidyDebugStream(this->debug);
-        }
-        return *this->debugStream;
-    }
-    template <typename T> void dbgdump(T dumpable, const clang::ASTContext &Context) {
+    EastwoodTidyDebugStream &dout();
+
+    template <typename T> void dbgdump(T dumpable, const ASTContext &Context) {
         std::string init;
-        llvm::raw_string_ostream rso(init);
+        raw_string_ostream rso(init);
         dumpable->dump(rso, Context);
         this->dout() << rso.str() << std::endl;
     }
+
+    std::shared_ptr<std::string> tok_string(const SourceManager &SM, const Token &tok);
+    std::shared_ptr<std::string> sourcerange_string(const SourceManager &SM,
+                                                    const SourceRange &range);
+
+    std::shared_ptr<std::vector<Token>>
+    relex_file(const MatchFinder::MatchResult &Result, const std::string &match_name,
+               bool keep_whitespace = true);
 };
 
 #endif // LLVM_CLANG_TOOLS_EXTRA_CLANG_TIDY_EASTWOOD_TIDY_UTIL_H

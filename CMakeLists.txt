@@ -56,6 +56,7 @@ include_directories(
 )
 
 add_clang_library(clangTidyEastwoodModule
+    src/EastwoodTidyUtil.cpp
     src/EastwoodTidyModule.cpp
     src/Rule10aCheck.cpp
     src/Rule11aCheck.cpp
