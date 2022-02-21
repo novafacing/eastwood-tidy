@@ -1,7 +1,7 @@
 """Functionality tests to make sure we can even run our tests..."""
 
 from ettest.fixtures import manager
-from ettest.testcases.snippets.snippets import Snippet, Error
+from ettest.snippets import Snippet, Error
 from ettest.rule import Rule
 
 

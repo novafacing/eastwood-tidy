@@ -12,7 +12,7 @@ from re import search
 from pytest import fixture
 
 from ettest.rule import Rule
-from ettest.testcases.snippets.snippets import Snippet, Error
+from ettest.snippets import Snippet, Error
 from ettest.filetest import FileTest
 
 

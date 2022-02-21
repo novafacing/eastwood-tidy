@@ -2,7 +2,7 @@
 
 from dataclasses import dataclass, field
 from typing import List, Optional
-from ettest.testcases.snippets.snippets import Error
+from ettest.snippets import Error
 
 
 @dataclass

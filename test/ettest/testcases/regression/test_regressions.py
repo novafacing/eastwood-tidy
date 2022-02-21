@@ -4,7 +4,7 @@ Use for errors that crop up over time and bugs that occur to check that we do no
 let them happen in the future
 """
 
-from ettest.testcases.snippets.snippets import Snippet, Error
+from ettest.snippets import Snippet, Error
 from ettest.fixtures import manager
 from ettest.rule import Rule
 from ettest.filetest import FileTest

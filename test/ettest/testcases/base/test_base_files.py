@@ -1,4 +1,4 @@
-from ettest.testcases.snippets.snippets import Error
+from ettest.snippets import Error
 from ettest.fixtures import manager
 from ettest.rule import Rule
 from ettest.filetest import FileTest
