@@ -49,7 +49,15 @@ def test_define_in_function_72(manager) -> None:
                 "#define SOMETHING (0)",
                 "  int something = 0;",
             ]
-        )
+        ),
+        # Make sure we can *only* do this if define is aligned to the left
+        Snippet(
+            [
+                "  #define SOMETHING (0)",
+                "  int something = 0;",
+            ],
+            [Error(Rule.IV_A, 0, 3)],
+        ),
     ]
     for snip in snippets:
         res = manager.test_snippet(snip)

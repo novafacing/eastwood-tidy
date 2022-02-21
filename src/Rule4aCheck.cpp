@@ -405,15 +405,22 @@ namespace clang {
                             }
                         }
 
-                        if (spc_ct(ws) != indent_amount) {
-                            if (this->tok_string(*this->SMan, tok)->rfind("#", 0) ==
-                                0) {
-                                // Do nothing, this is a preprocessor directive.
-                            } else if (std::find(this->broken_lines.begin(),
-                                                 this->broken_lines.end(),
-                                                 this->SMan->getSpellingLineNumber(
-                                                     tok.getLocation())) !=
-                                       this->broken_lines.end()) {
+                        if (this->tok_string(*this->SMan, tok)->rfind("#", 0) == 0) {
+                            // This is a preprocessor directive, so it must be on
+                            // the left edge.
+                            if (spc_ct(ws) != 0) {
+                                diag(tok.getLocation(),
+                                     "Incorrect indentation level. Preprocessor "
+                                     "directives should not be indented. Expected "
+                                     "%0, got %1")
+                                    << 0 << spc_ct(ws);
+                            }
+                        } else if (spc_ct(ws) != indent_amount) {
+                            if (std::find(this->broken_lines.begin(),
+                                          this->broken_lines.end(),
+                                          this->SMan->getSpellingLineNumber(
+                                              tok.getLocation())) !=
+                                this->broken_lines.end()) {
                                 if (spc_ct(ws) < indent_amount + 2) {
                                     diag(tok.getLocation(),
                                          "Incorrect indentation level. Expected at "
