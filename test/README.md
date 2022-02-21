@@ -91,7 +91,7 @@ Snippet tests for Rule1a:
 "Variable names should be all in lowercase, optionally separated by underscores."
 """
 
-from ettest.snippetsror
+from ettest.snippets import Snippet, Error
 from ettest.fixtures import manager
 from ettest.rule import Rule
 
