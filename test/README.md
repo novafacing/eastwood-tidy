@@ -4,6 +4,20 @@ Running tests is handled using `pytest` instead of `gtest` or the
 [bespoke method](https://github.com/llvm/llvm-project/blob/main/clang-tools-extra/test/clang-tidy/check_clang_tidy.py)
 provided by `LLVM`.
 
+## Configuring Tests
+
+First, configure the `config.json` file in this directory to point to your built
+`clang-tidy` binary. Since we are out of tree, this is unfortunately, required.
+
+    Next, you will need to run `poetry install` and `poetry shell` to activate the python
+environment for the tests. If you don't have `poetry`, you can install it 
+[`here`](https://python-poetry.org/blog/announcing-poetry-1.2.0a1/).
+
+## Running Tests
+
+Tests are run normally using `pytest`. Any normal pytest options apply, eg.
+`pytest -k test_rule_1_a_file -s`.
+
 ## Errors
 
 Errors in the module tests are specified using the [`Error`](ettest/snippets.py)
