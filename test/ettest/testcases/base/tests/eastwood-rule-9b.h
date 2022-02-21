@@ -1,0 +1,4 @@
+#ifndef EASTWOOD_RULE_9B
+#define EASTWOOD_RULE_9B
+
+#endif // EASTWOOD_RULE_9B_H

@@ -259,6 +259,7 @@ class TestManager:
                 _, _line_num, _col_num, *_ = line[0].split(":")
                 line_num = int(_line_num)
                 col_num = int(_col_num)
+
                 if snippets:
                     skip_lines = (
                         self.C_TEMPLATE[: self.C_TEMPLATE.index("{code}")].count("\n")
@@ -318,9 +319,9 @@ class TestManager:
         self.last_file = tf
         assert tf.exists(), f"File does not exist: {tf}"
         res = self.run(tf)
-        errors = self.collect_output(res, "error", snippets=True)
-        warnings = self.collect_output(res, "warning", snippets=True)
-        notes = self.collect_output(res, "note", snippets=True)
+        errors = self.collect_output(res, "error", snippets=False)
+        warnings = self.collect_output(res, "warning", snippets=False)
+        notes = self.collect_output(res, "note", snippets=False)
         all_msgs = set(errors + warnings + notes)
         expected_msgs = set(file_test.errors)
         return TestResult(

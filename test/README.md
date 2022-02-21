@@ -6,6 +6,28 @@ provided by `LLVM`.
 
 ## File Tests
 
+File tests are "classic" tests that run `clang-tidy` against a C file and make assertions
+over the reported errors. File tests look like:
+
+```python
+from ettest.testcases.snippets.snippets import Error
+from ettest.fixtures import manager
+from ettest.rule import Rule
+from ettest.filetest import FileTest
+
+def test_rule_1_a_file(manager) -> None:
+    """
+    File test cases for rule 1a
+    """
+    tests = [
+        FileTest("eastwood-rule-1a.c", [Error(Rule.I_A, 11, 5), Error(Rule.I_A, 13, 5)])
+    ]
+    for test in tests:
+        res = manager.test_file(test)
+        assert not res.unexpected_errors
+        assert not res.unseen_errors
+```
+
 
 ## Snippet Tests
 
