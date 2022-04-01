@@ -19,7 +19,7 @@ namespace clang {
         namespace eastwood {
 
             Rule3bCheck::Rule3bCheck(StringRef Name, ClangTidyContext *Context)
-                : ClangTidyCheck(Name, Context),
+                : ClangTidyCheck(Name, Context), EastwoodTidyCheckBase(Name),
                   debug_enabled(Options.get("debug", "false")) {
                 if (this->debug_enabled == "true") {
                     this->debug = true;
@@ -27,10 +27,13 @@ namespace clang {
             }
 
             void Rule3bCheck::registerMatchers(MatchFinder *Finder) {
+                Finder->addMatcher(stmt().bind("relex"), this);
+                Finder->addMatcher(decl().bind("relex"), this);
                 Finder->addMatcher(binaryOperator().bind("binary_operator"), this);
             }
 
             void Rule3bCheck::check(const MatchFinder::MatchResult &Result) {
+                RELEX();
                 const SourceManager &SM = *Result.SourceManager;
                 SourceLocation loc;
                 std::string name = "";

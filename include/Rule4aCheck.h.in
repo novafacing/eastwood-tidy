@@ -49,9 +49,8 @@ namespace clang {
                 std::deque<SourceLocation> opens;
                 std::deque<SourceLocation> closes;
                 std::deque<size_t> broken_lines;
-                Lexer *lexer;
+                std::vector<Token> tokens;
                 const SourceManager *SMan;
-                bool lexer_initialized;
                 ASTContext *ctx;
             }; // Rule4bCheck
         }      // namespace eastwood

@@ -1,9 +1,21 @@
 #include "EastwoodTidyUtil.h"
 
-EastwoodTidyDebugStream &EastwoodTidyCheckBase::dout() {
+EastwoodTidyCheckBase::EastwoodTidyCheckBase(StringRef Name)
+    : name(Name.str()), debug(false) {}
+
+EastwoodTidyDebugStream &EastwoodTidyCheckBase::dout(const std::string &s) {
     if (this->debugStream == nullptr) {
         this->debugStream = new EastwoodTidyDebugStream(this->debug);
     }
+
+    std::string st;
+    if (s != "") {
+        st += " " + s;
+    } else {
+        st += s;
+    }
+
+    (*this->debugStream) << "[" << this->name << st << "]:  ";
     return *this->debugStream;
 }
 
@@ -32,36 +44,54 @@ EastwoodTidyCheckBase::sourcerange_string(const SourceManager &SM,
                                          SM.getCharacterData(range.getEnd()));
 }
 
-/*
- * Relex a source file containing a match result into a vector of tokens.
- */
-std::shared_ptr<std::vector<Token>>
-EastwoodTidyCheckBase::relex_file(const MatchFinder::MatchResult &Result,
-                                  const std::string &match_name, bool keep_whitespace) {
+void EastwoodTidyCheckBase::relex_file(const MatchFinder::MatchResult &Result,
+                                       const std::string &match_name,
+                                       const Optional<SourceLocation> &loc_override,
+                                       bool keep_whitespace) {
+
     const SourceManager &SM = *Result.SourceManager;
     const ASTContext *Context = Result.Context;
-    auto MatchedDecl = Result.Nodes.getNodeAs<Decl>(match_name);
 
-    if (!MatchedDecl) {
-        return std::make_shared<std::vector<Token>>();
+    SourceLocation loc;
+    auto MatchedStmt = Result.Nodes.getNodeAs<Stmt>(match_name.c_str());
+    auto MatchedDecl = Result.Nodes.getNodeAs<Decl>(match_name.c_str());
+
+    if (MatchedDecl) {
+        loc = MatchedDecl->getBeginLoc();
+    } else if (MatchedStmt) {
+        loc = MatchedStmt->getBeginLoc();
+    } else {
+        return;
     }
 
-    std::shared_ptr<std::vector<Token>> tokens = std::make_shared<std::vector<Token>>();
-    std::pair<FileID, unsigned> LocInfo =
-        SM.getDecomposedLoc(MatchedDecl->getLocation());
-    SourceLocation StartOfFile =
-        SM.getLocForStartOfFile(SM.getFileID(MatchedDecl->getLocation()));
+    if (!SM.isWrittenInMainFile(loc) || !loc.isValid()) {
+        return;
+    }
+
+    /* If the location is overridden, use that instead. Useful if the Result location is
+     * not in the main file or something like that. */
+    if (loc_override.hasValue()) {
+        loc = loc_override.getValue();
+    }
+
+    this->tokens.clear();
+    std::pair<FileID, unsigned> LocInfo = SM.getDecomposedLoc(loc);
+    SourceLocation StartOfFile = SM.getLocForStartOfFile(SM.getFileID(loc));
     StringRef File = SM.getBufferData(SM.getFileID(StartOfFile));
     const char *TokenBegin = File.data();
     Lexer RawLexer(SM.getLocForStartOfFile(LocInfo.first), Context->getLangOpts(),
                    File.begin(), TokenBegin, File.end());
+
     RawLexer.SetKeepWhitespaceMode(keep_whitespace);
 
     Token tok;
     while (!RawLexer.LexFromRawLexer(tok)) {
         if (tok.getLocation().isValid() && SM.isWrittenInMainFile(tok.getLocation())) {
-            tokens->push_back(tok);
+            this->tokens.push_back(tok);
         }
     }
-    return tokens;
+    this->dout() << "Relexed file for match: " << match_name << " with "
+                 << this->tokens.size() << " tokens.\n";
+
+    this->relexed = true;
 }

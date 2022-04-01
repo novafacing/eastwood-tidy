@@ -16,7 +16,7 @@ namespace clang {
     namespace tidy {
         namespace eastwood {
             Rule3cCheck::Rule3cCheck(StringRef Name, ClangTidyContext *Context)
-                : ClangTidyCheck(Name, Context), checked(false),
+                : ClangTidyCheck(Name, Context), EastwoodTidyCheckBase(Name), checked(false),
                   debug_enabled(Options.get("debug", "false")) {
                 if (this->debug_enabled == "true") {
                     this->debug = true;

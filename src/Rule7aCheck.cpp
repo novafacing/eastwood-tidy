@@ -19,16 +19,19 @@ namespace clang {
     namespace tidy {
         namespace eastwood {
             Rule7aCheck::Rule7aCheck(StringRef Name, ClangTidyContext *Context)
-                : ClangTidyCheck(Name, Context),
+                : ClangTidyCheck(Name, Context), EastwoodTidyCheckBase(Name),
                   debug_enabled(Options.get("debug", "false")) {
                 if (this->debug_enabled == "true") {
                     this->debug = true;
                 }
             }
             void Rule7aCheck::registerMatchers(MatchFinder *Finder) {
+                Finder->addMatcher(stmt().bind("relex"), this);
+                Finder->addMatcher(decl().bind("relex"), this);
                 Finder->addMatcher(functionDecl().bind("function_decl"), this);
             }
             void Rule7aCheck::check(const MatchFinder::MatchResult &Result) {
+                RELEX();
 
                 const SourceManager &SM = *Result.SourceManager;
 
@@ -44,23 +47,25 @@ namespace clang {
                     SourceRange FunctionDefinitionRange =
                         FunctionDefinition->getSourceRange();
                     unsigned int func_start_line = 0;
+                    SourceLocation func_start_loc;
                     if (SM.isWrittenInMainFile(
                             FunctionDefinition->getReturnTypeSourceRange()
                                 .getBegin())) {
-                        func_start_line = SM.getSpellingLineNumber(
-                            FunctionDefinition->getReturnTypeSourceRange().getBegin());
+                        func_start_loc =
+                            FunctionDefinition->getReturnTypeSourceRange().getBegin();
+                        func_start_line = SM.getSpellingLineNumber(func_start_loc);
                     } else {
                         // if the return type is not in the main file, then we can't
                         // use it to check preceeding lines, grab the function name
                         // location instead
-                        func_start_line = SM.getSpellingLineNumber(
-                            FunctionDefinition->getNameInfo().getLoc());
+                        func_start_loc = FunctionDefinition->getNameInfo().getLoc();
+                        func_start_line = SM.getSpellingLineNumber(func_start_loc);
                     }
                     if (MatchedDecl->doesThisDeclarationHaveABody() &&
                         FunctionDefinition) {
-                        auto toks = this->relex_file(Result, "function_decl");
+                        std::vector<Token> toks = this->tokens;
                         std::vector<Token> tokens;
-                        for (auto t : *toks) {
+                        for (auto t : toks) {
                             // Make sure the lines we grab backward from the decl are on
                             // lines above and come before in the TU - this fixes #73
                             if (SM.getSpellingLineNumber(t.getLocation()) <
@@ -77,9 +82,7 @@ namespace clang {
                             size_t comment_ct = 0;
                             for (size_t i = 0; rit != tokens.rend() && i < 3;
                                  rit++, i++) {
-                                this->dout()
-                                    << "[Rule7a : checking preheader token for " +
-                                           fname + "] "
+                                this->dout(fname + " preheader check tok")
                                     << *this->tok_string(SM, *rit) << "\n";
                                 if (rit->getKind() == tok::comment) {
                                     comment_ct++;

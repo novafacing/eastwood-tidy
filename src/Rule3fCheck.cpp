@@ -16,16 +16,19 @@ namespace clang {
     namespace tidy {
         namespace eastwood {
             Rule3fCheck::Rule3fCheck(StringRef Name, ClangTidyContext *Context)
-                : ClangTidyCheck(Name, Context),
+                : ClangTidyCheck(Name, Context), EastwoodTidyCheckBase(Name),
                   debug_enabled(Options.get("debug", "false")) {
                 if (this->debug_enabled == "true") {
                     this->debug = true;
                 }
             }
             void Rule3fCheck::registerMatchers(MatchFinder *Finder) {
+                Finder->addMatcher(stmt().bind("relex"), this);
+                Finder->addMatcher(decl().bind("relex"), this);
                 Finder->addMatcher(functionDecl().bind("function_decl"), this);
             }
             void Rule3fCheck::check(const MatchFinder::MatchResult &Result) {
+                RELEX();
                 const SourceManager &SM = *Result.SourceManager;
                 const ASTContext *Context = Result.Context;
 

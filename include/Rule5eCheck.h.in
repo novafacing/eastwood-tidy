@@ -28,7 +28,7 @@ namespace clang {
             public:
                 /* Constructors */
                 Rule5eCheck(StringRef Name, ClangTidyContext *Context)
-                    : ClangTidyCheck(Name, Context) {}
+                    : ClangTidyCheck(Name, Context), EastwoodTidyCheckBase(Name) {}
 
                 /* Overrides */
                 void registerMatchers(ast_matchers::MatchFinder *Finder) override;

@@ -27,17 +27,20 @@ namespace clang {
     namespace tidy {
         namespace eastwood {
             Rule11bCheck::Rule11bCheck(StringRef Name, ClangTidyContext *Context)
-                : ClangTidyCheck(Name, Context), checked(false),
-                  debug_enabled(Options.get("debug", "false")) {
+                : ClangTidyCheck(Name, Context), EastwoodTidyCheckBase(Name),
+                  checked(false), debug_enabled(Options.get("debug", "false")) {
                 if (this->debug_enabled == "true") {
                     this->debug = true;
                 }
             }
             void Rule11bCheck::registerMatchers(MatchFinder *Finder) {
+                Finder->addMatcher(stmt().bind("relex"), this);
+                Finder->addMatcher(decl().bind("relex"), this);
                 Finder->addMatcher(functionDecl().bind("function"), this);
             }
 
             void Rule11bCheck::check(const MatchFinder::MatchResult &Result) {
+                RELEX();
 
                 const SourceManager &SM = *Result.SourceManager;
                 const ASTContext *Context = Result.Context;

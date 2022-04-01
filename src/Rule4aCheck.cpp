@@ -21,14 +21,15 @@ namespace clang {
         namespace eastwood {
 
             Rule4aCheck::Rule4aCheck(StringRef Name, ClangTidyContext *Context)
-                : ClangTidyCheck(Name, Context), indent_level(0),
-                  lexer_initialized(false),
-                  debug_enabled(Options.get("debug", "false")) {
+                : ClangTidyCheck(Name, Context), EastwoodTidyCheckBase(Name),
+                  indent_level(0), debug_enabled(Options.get("debug", "false")) {
                 if (this->debug_enabled == "true") {
                     this->debug = true;
                 }
             }
             void Rule4aCheck::registerMatchers(MatchFinder *Finder) {
+                Finder->addMatcher(stmt().bind("relex"), this);
+                Finder->addMatcher(decl().bind("relex"), this);
                 Finder->addMatcher(recordDecl().bind("record"), this);
                 Finder->addMatcher(enumDecl().bind("enum"), this);
                 Finder->addMatcher(functionDecl().bind("function"), this);
@@ -43,6 +44,7 @@ namespace clang {
             }
 
             void Rule4aCheck::check(const MatchFinder::MatchResult &Result) {
+                RELEX();
                 const SourceManager &SM = *Result.SourceManager;
                 this->SMan = Result.SourceManager;
                 ASTContext *Context = Result.Context;
@@ -59,8 +61,8 @@ namespace clang {
 
                         if (SM.getSpellingLineNumber(this->opens.back()) !=
                             SM.getSpellingLineNumber(MatchedDecl->getLocation())) {
-                            diag(this->opens.back(),
-                                 "Open brace must be located on same line as record.");
+                            diag(this->opens.back(), "Open brace must be located "
+                                                     "on same line as record.");
                         }
                     }
                 } else if (auto MatchedDecl =
@@ -76,31 +78,16 @@ namespace clang {
 
                         if (SM.getSpellingLineNumber(this->opens.back()) !=
                             SM.getSpellingLineNumber(MatchedDecl->getLocation())) {
-                            diag(this->opens.back(),
-                                 "Open brace must be located on same line as record.");
+                            diag(this->opens.back(), "Open brace must be located "
+                                                     "on same line as record.");
                         }
                     }
                 } else if (auto MatchedDecl =
                                Result.Nodes.getNodeAs<FunctionDecl>("function")) {
                     CHECK_LOC(MatchedDecl);
 
-                    /* This is just a hack to set up the lexer in a known location */
-                    if (not this->lexer_initialized) {
-                        SourceRange FunctionDefinitionRange =
-                            MatchedDecl->getSourceRange();
-                        std::pair<FileID, unsigned> LocInfo =
-                            SM.getDecomposedLoc(FunctionDefinitionRange.getBegin());
-                        SourceLocation StartOfFile = SM.getLocForStartOfFile(
-                            SM.getFileID(FunctionDefinitionRange.getBegin()));
-                        StringRef File = SM.getBufferData(SM.getFileID(StartOfFile));
-                        const char *TokenBegin = File.data();
-                        this->lexer = new Lexer(SM.getLocForStartOfFile(LocInfo.first),
-                                                Context->getLangOpts(), File.begin(),
-                                                TokenBegin, File.end());
-                        this->lexer->SetKeepWhitespaceMode(true);
-                        this->lexer_initialized = true;
-                    }
-
+                    /* This is just a hack to set up the lexer in a known location
+                     */
                     if (MatchedDecl->isThisDeclarationADefinition() &&
                         MatchedDecl->doesThisDeclarationHaveABody()) {
                         size_t start, end;
@@ -133,7 +120,8 @@ namespace clang {
                                  SM.getSpellingLineNumber(this->opens.back()))) {
 
                             diag(this->opens.back(),
-                                 "Open brace on line %0 must be located on same line "
+                                 "Open brace on line %0 must be located on same "
+                                 "line "
                                  "as function "
                                  "declaration or after parameters on line %1.")
                                 << SM.getSpellingLineNumber(this->opens.back())
@@ -171,9 +159,9 @@ namespace clang {
                     }
                     if (SM.getSpellingLineNumber(MatchedDecl->getRParenLoc()) !=
                         SM.getSpellingLineNumber(this->opens.back())) {
-                        diag(this->opens.back(),
-                             "Open brace must be located on same line as for or after "
-                             "split contents.");
+                        diag(this->opens.back(), "Open brace must be located on "
+                                                 "same line as for or after "
+                                                 "split contents.");
                     }
                 } else if (auto MatchedDecl = Result.Nodes.getNodeAs<IfStmt>("if")) {
                     CHECK_LOC(MatchedDecl)
@@ -205,7 +193,8 @@ namespace clang {
                         if (SM.getSpellingLineNumber(If->getThen()->getEndLoc()) !=
                             SM.getSpellingLineNumber(Else->getBeginLoc()) - 1) {
                             diag(Else->getBeginLoc().getLocWithOffset(-1),
-                                 "Else must be on the line after the associated 'if' "
+                                 "Else must be on the line after the associated "
+                                 "'if' "
                                  "statement's closing brace.");
                         }
                         if (const auto *ChildIf = dyn_cast<IfStmt>(Else)) {
@@ -215,9 +204,9 @@ namespace clang {
 
                             if (SM.getSpellingLineNumber(StartElse) !=
                                 SM.getSpellingLineNumber(ChildIf->getRParenLoc())) {
-                                diag(
-                                    this->opens.back(),
-                                    "Open brace must be located on same line as else.");
+                                diag(this->opens.back(),
+                                     "Open brace must be located on same line as "
+                                     "else.");
                             }
                         } else {
                             this->opens.push_back(Else->getBeginLoc());
@@ -321,19 +310,18 @@ namespace clang {
             }
 
             void Rule4aCheck::onEndOfTranslationUnit(void) {
-                if (not this->lexer_initialized) {
-                    return;
-                }
                 size_t indent_amount = 0;
-                Token tok;
-                std::vector<Token> tokens;
+                std::vector<Token> checked_tokens;
                 std::vector<Token> eol_tokens;
                 // Sort open and close locations and remove duplicates
                 std::sort(opens.begin(), opens.end());
                 opens.erase(std::unique(opens.begin(), opens.end()), opens.end());
                 std::sort(closes.begin(), closes.end());
                 closes.erase(std::unique(closes.begin(), closes.end()), closes.end());
-                while (!this->lexer->LexFromRawLexer(tok)) {
+                for (auto tok : this->tokens) {
+                    this->dout()
+                        << "Token: " << *this->tok_string(*this->SMan, tok) << " "
+                        << tok.getLocation().printToString(*this->SMan) << "\n";
                     if (not this->SMan->isWrittenInMainFile(tok.getLocation()) ||
                         not this->SMan->isWrittenInMainFile(tok.getEndLoc())) {
                         continue;
@@ -345,11 +333,11 @@ namespace clang {
                     // This is a line break, so we push the last token into the
                     // vector of EOL tokens
                     if (raw_tok_data.find('\n') != std::string::npos) {
-                        if (tokens.size() > 0) {
-                            eol_tokens.push_back(tokens.back());
+                        if (checked_tokens.size() > 0) {
+                            eol_tokens.push_back(checked_tokens.back());
                         }
                     }
-                    tokens.push_back(tok);
+                    checked_tokens.push_back(tok);
                     SourceRange TokenSourceRange(tok.getLocation(), tok.getEndLoc());
 
                     while (not opens.empty() && this->SMan->isBeforeInTranslationUnit(
@@ -358,12 +346,12 @@ namespace clang {
                         opens.pop_front();
                         indent_amount += 2;
                         this->dout()
-                            << "Increasing indent at "
+                            << "++ (" + std::to_string(indent_amount) + ") |"
                             << std::string(
                                    this->SMan->getCharacterData(
                                        eol_tokens.back().getLocation()),
                                    this->SMan->getCharacterData(tok.getEndLoc()))
-                            << ":" << tok.getLocation().printToString(*this->SMan)
+                            << "|" << tok.getLocation().printToString(*this->SMan)
                             << std::endl;
                     }
 
@@ -373,20 +361,17 @@ namespace clang {
                         closes.pop_front();
                         indent_amount -= 2;
                         this->dout()
-                            << "Decreasing indent at "
+                            << "-- (" + std::to_string(indent_amount) + ") |"
                             << std::string(
                                    this->SMan->getCharacterData(
                                        eol_tokens.back().getLocation()),
                                    this->SMan->getCharacterData(tok.getEndLoc()))
-                            << ":" << tok.getLocation().printToString(*this->SMan)
+                            << "|" << tok.getLocation().printToString(*this->SMan)
                             << std::endl;
                     }
-                    if (tok.isAtStartOfLine() && tokens.size() > 1) {
-                        std::string ws(this->SMan->getCharacterData(
-                                           tokens.at(tokens.size() - 2).getLocation()),
-                                       this->SMan->getCharacterData(
-                                           tokens.at(tokens.size() - 2).getEndLoc()));
-
+                    if (tok.isAtStartOfLine() && checked_tokens.size() > 1) {
+                        std::string ws(*this->tok_string(
+                            *this->SMan, checked_tokens.at(checked_tokens.size() - 2)));
                         bool breakable = false;
                         for (auto t : eol_tokens) {
                             // This EOL token is the one for the line before the

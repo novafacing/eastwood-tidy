@@ -15,7 +15,7 @@ namespace clang {
     namespace tidy {
         namespace eastwood {
             Rule12bCheck::Rule12bCheck(StringRef Name, ClangTidyContext *Context)
-                : ClangTidyCheck(Name, Context),
+                : ClangTidyCheck(Name, Context), EastwoodTidyCheckBase(Name),
                   debug_enabled(Options.get("debug", "false")), last_line(0) {
                 if (this->debug_enabled == "true") {
                     this->debug = true;

@@ -17,7 +17,7 @@ namespace clang {
     namespace tidy {
         namespace eastwood {
             Rule1bCheck::Rule1bCheck::Rule1bCheck(StringRef Name, ClangTidyContext *Context)
-                : ClangTidyCheck(Name, Context), dump(Options.get("dump", "false")),
+                : ClangTidyCheck(Name, Context), EastwoodTidyCheckBase(Name), dump(Options.get("dump", "false")),
                   debug_enabled(Options.get("debug", "false")) {
                 if (this->dump == "true") {
                     for (auto type : {"variable", "function", "enum", "union", "struct",

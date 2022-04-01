@@ -17,7 +17,7 @@ namespace clang {
     namespace tidy {
         namespace eastwood {
             Rule3aCheck::Rule3aCheck(StringRef Name, ClangTidyContext *Context)
-                : ClangTidyCheck(Name, Context),
+                : ClangTidyCheck(Name, Context), EastwoodTidyCheckBase(Name),
                   debug_enabled(Options.get("debug", "false")) {
                 if (this->debug_enabled == "true") {
                     this->debug = true;
@@ -97,6 +97,8 @@ namespace clang {
             }
 
             void Rule3aCheck::registerMatchers(MatchFinder *Finder) {
+                Finder->addMatcher(stmt().bind("relex"), this);
+                Finder->addMatcher(decl().bind("relex"), this);
                 Finder->addMatcher(whileStmt().bind("while"), this);
                 Finder->addMatcher(forStmt().bind("for"), this);
                 Finder->addMatcher(ifStmt().bind("if"), this);
@@ -134,6 +136,7 @@ namespace clang {
             }
 
             void Rule3aCheck::check(const MatchFinder::MatchResult &Result) {
+                RELEX();
                 const SourceManager &SM = *Result.SourceManager;
                 const ASTContext *Context = Result.Context;
 

@@ -17,16 +17,19 @@ namespace clang {
     namespace tidy {
         namespace eastwood {
             Rule5dCheck::Rule5dCheck(StringRef Name, ClangTidyContext *Context)
-                : ClangTidyCheck(Name, Context),
+                : ClangTidyCheck(Name, Context), EastwoodTidyCheckBase(Name),
                   debug_enabled(Options.get("debug", "false")) {
                 if (this->debug_enabled == "true") {
                     this->debug = true;
                 }
             }
             void Rule5dCheck::registerMatchers(MatchFinder *Finder) {
+                Finder->addMatcher(stmt().bind("relex"), this);
+                Finder->addMatcher(decl().bind("relex"), this);
                 Finder->addMatcher(functionDecl().bind("function_decl"), this);
             }
             void Rule5dCheck::check(const MatchFinder::MatchResult &Result) {
+                RELEX();
                 const SourceManager &SM = *Result.SourceManager;
                 const ASTContext *Context = Result.Context;
 
@@ -84,18 +87,21 @@ namespace clang {
                                 }
                             }
                         }
-                        if (SM.getSpellingLineNumber(tok.getLocation()) != SM.getSpellingLineNumber(FunctionDefinitionRange.getEnd())) {
+                        if (SM.getSpellingLineNumber(tok.getLocation()) !=
+                            SM.getSpellingLineNumber(
+                                FunctionDefinitionRange.getEnd())) {
                             diag(FunctionDefinitionRange.getEnd(),
-                                "Missing function footer comment");
-                        }
-                        else if (tok.getKind() == tok::comment) {
+                                 "Missing function footer comment");
+                        } else if (tok.getKind() == tok::comment) {
                             std::string comment_raw(
                                 SM.getCharacterData(tok.getLocation()),
                                 SM.getCharacterData(tok.getEndLoc()));
-                                std::string correct_annotation("/* " + fname + "() */");
-                            if (tok.getLocation().isValid() && SM.isWrittenInMainFile(tok.getLocation()) && comment_raw != "/* " + fname + "() */") {
+                            std::string correct_annotation("/* " + fname + "() */");
+                            if (tok.getLocation().isValid() &&
+                                SM.isWrittenInMainFile(tok.getLocation()) &&
+                                comment_raw != "/* " + fname + "() */") {
                                 std::string msg("End of function comment is "
-                                            "malformed. Got \"");
+                                                "malformed. Got \"");
                                 msg += comment_raw;
                                 msg += "\" Expected \"/* ";
                                 msg += fname;
