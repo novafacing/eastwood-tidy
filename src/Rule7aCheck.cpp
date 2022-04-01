@@ -26,11 +26,13 @@ Rule7aCheck::Rule7aCheck(StringRef Name, ClangTidyContext *Context)
     }
 }
 void Rule7aCheck::registerMatchers(MatchFinder *Finder) {
+    this->register_relex_matchers(Finder, this);
     Finder->addMatcher(stmt().bind("relex"), this);
     Finder->addMatcher(decl().bind("relex"), this);
     Finder->addMatcher(functionDecl().bind("function_decl"), this);
 }
 void Rule7aCheck::check(const MatchFinder::MatchResult &Result) {
+    this->acquire_common(Result);
     RELEX();
 
     const SourceManager &SM = *Result.SourceManager;

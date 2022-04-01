@@ -21,13 +21,14 @@ namespace tidy {
 namespace eastwood {
 
 Rule4aCheck::Rule4aCheck(StringRef Name, ClangTidyContext *Context)
-    : ClangTidyCheck(Name, Context), EastwoodTidyCheckBase(Name), indent_level(0),
-      debug_enabled(Options.get("debug", "false")) {
+    : ClangTidyCheck(Name, Context), EastwoodTidyCheckBase(Name),
+      debug_enabled(Options.get("debug", "false")), indent_level(0) {
     if (this->debug_enabled == "true") {
         this->debug = true;
     }
 }
 void Rule4aCheck::registerMatchers(MatchFinder *Finder) {
+    this->register_relex_matchers(Finder, this);
     Finder->addMatcher(stmt().bind("relex"), this);
     Finder->addMatcher(decl().bind("relex"), this);
     Finder->addMatcher(recordDecl().bind("record"), this);
@@ -44,6 +45,7 @@ void Rule4aCheck::registerMatchers(MatchFinder *Finder) {
 }
 
 void Rule4aCheck::check(const MatchFinder::MatchResult &Result) {
+    this->acquire_common(Result);
     RELEX();
     const SourceManager &SM = *Result.SourceManager;
     this->SMan = Result.SourceManager;
@@ -185,7 +187,6 @@ void Rule4aCheck::check(const MatchFinder::MatchResult &Result) {
             }
             if (const auto *ChildIf = dyn_cast<IfStmt>(Else)) {
                 SourceLocation StartElse = ChildIf->getThen()->getBeginLoc();
-                SourceLocation EndElse = ChildIf->getThen()->getEndLoc();
 
                 if (SM.getSpellingLineNumber(StartElse) !=
                     SM.getSpellingLineNumber(ChildIf->getRParenLoc())) {

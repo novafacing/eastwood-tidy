@@ -23,9 +23,11 @@ Rule3cCheck::Rule3cCheck(StringRef Name, ClangTidyContext *Context)
     }
 }
 void Rule3cCheck::registerMatchers(MatchFinder *Finder) {
+    this->register_relex_matchers(Finder, this);
     Finder->addMatcher(functionDecl().bind("function_decl"), this);
 }
 void Rule3cCheck::check(const MatchFinder::MatchResult &Result) {
+    this->acquire_common(Result);
     const SourceManager &SM = *Result.SourceManager;
     const ASTContext *Context = Result.Context;
 

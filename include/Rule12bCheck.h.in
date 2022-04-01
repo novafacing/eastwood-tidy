@@ -25,8 +25,6 @@ class Rule12bCheck : public ClangTidyCheck, public EastwoodTidyCheckBase {
 private:
     std::string debug_enabled;
 
-    size_t last_line;
-
 public:
     /* Constructors */
     Rule12bCheck(StringRef Name, ClangTidyContext *Context);

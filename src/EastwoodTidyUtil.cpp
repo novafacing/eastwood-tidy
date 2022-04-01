@@ -4,8 +4,8 @@ EastwoodTidyCheckBase::EastwoodTidyCheckBase(StringRef Name)
     : name(Name.str()), debug(false), checked(false) {}
 
 EastwoodTidyDebugStream &EastwoodTidyCheckBase::dout(const std::string &s) {
-    if (this->debugStream == nullptr) {
-        this->debugStream = new EastwoodTidyDebugStream(this->debug);
+    if (this->debug_stream == nullptr) {
+        this->debug_stream = new EastwoodTidyDebugStream(this->debug);
     }
 
     std::string st;
@@ -15,8 +15,8 @@ EastwoodTidyDebugStream &EastwoodTidyCheckBase::dout(const std::string &s) {
         st += s;
     }
 
-    (*this->debugStream) << "[" << this->name << st << "]:  ";
-    return *this->debugStream;
+    (*this->debug_stream) << "[" << this->name << st << "]:  ";
+    return *this->debug_stream;
 }
 
 /*
@@ -44,18 +44,38 @@ EastwoodTidyCheckBase::sourcerange_string(const SourceManager &SM,
                                          SM.getCharacterData(range.getEnd()));
 }
 
-void EastwoodTidyCheckBase::register_relex_matchers(MatchFinder *Finder) {
-    Finder->addMatcher(stmt().bind("relex"), this);
-    Finder->addMatcher(decl().bind("relex"), this);
+void EastwoodTidyCheckBase::register_relex_matchers(MatchFinder *Finder,
+                                                    ClangTidyCheck *Check) {
+    Finder->addMatcher(stmt().bind("relex"), Check);
+    Finder->addMatcher(decl().bind("relex"), Check);
+}
+
+ssize_t EastwoodTidyCheckBase::token_index(const Token &t) {
+    ssize_t idx = -1;
+    for (size_t i = 0; i < this->tokens.size(); i++) {
+        if (this->tokens.at(i).getLocation() == t.getLocation()) {
+            idx = i;
+            break;
+        }
+    }
+    return idx;
+}
+
+ssize_t EastwoodTidyCheckBase::token_index(const SourceLocation &loc) {
+    ssize_t idx = -1;
+    for (size_t i = 0; i < this->tokens.size(); i++) {
+        if (this->tokens.at(i).getLocation() == loc) {
+            idx = i;
+            break;
+        }
+    }
+    return idx;
 }
 
 void EastwoodTidyCheckBase::relex_file(const MatchFinder::MatchResult &Result,
                                        const std::string &match_name,
                                        const Optional<SourceLocation> &loc_override,
                                        bool keep_whitespace) {
-
-    const SourceManager &SM = *Result.SourceManager;
-    const ASTContext *Context = Result.Context;
 
     SourceLocation loc;
     auto MatchedStmt = Result.Nodes.getNodeAs<Stmt>(match_name.c_str());
@@ -69,7 +89,7 @@ void EastwoodTidyCheckBase::relex_file(const MatchFinder::MatchResult &Result,
         return;
     }
 
-    if (!SM.isWrittenInMainFile(loc) || !loc.isValid()) {
+    if (!this->source_manager->isWrittenInMainFile(loc) || !loc.isValid()) {
         return;
     }
 
@@ -80,18 +100,22 @@ void EastwoodTidyCheckBase::relex_file(const MatchFinder::MatchResult &Result,
     }
 
     this->tokens.clear();
-    std::pair<FileID, unsigned> LocInfo = SM.getDecomposedLoc(loc);
-    SourceLocation StartOfFile = SM.getLocForStartOfFile(SM.getFileID(loc));
-    StringRef File = SM.getBufferData(SM.getFileID(StartOfFile));
+    std::pair<FileID, unsigned> LocInfo = this->source_manager->getDecomposedLoc(loc);
+    SourceLocation StartOfFile = this->source_manager->getLocForStartOfFile(
+        this->source_manager->getFileID(loc));
+    StringRef File = this->source_manager->getBufferData(
+        this->source_manager->getFileID(StartOfFile));
     const char *TokenBegin = File.data();
-    Lexer RawLexer(SM.getLocForStartOfFile(LocInfo.first), Context->getLangOpts(),
-                   File.begin(), TokenBegin, File.end());
+    Lexer RawLexer(this->source_manager->getLocForStartOfFile(LocInfo.first),
+                   this->ast_context->getLangOpts(), File.begin(), TokenBegin,
+                   File.end());
 
     RawLexer.SetKeepWhitespaceMode(keep_whitespace);
 
     Token tok;
     while (!RawLexer.LexFromRawLexer(tok)) {
-        if (tok.getLocation().isValid() && SM.isWrittenInMainFile(tok.getLocation())) {
+        if (tok.getLocation().isValid() &&
+            this->source_manager->isWrittenInMainFile(tok.getLocation())) {
             this->tokens.push_back(tok);
         }
     }
@@ -99,4 +123,9 @@ void EastwoodTidyCheckBase::relex_file(const MatchFinder::MatchResult &Result,
                  << this->tokens.size() << " tokens.\n";
 
     this->relexed = true;
+}
+
+void EastwoodTidyCheckBase::acquire_common(const MatchFinder::MatchResult &Result) {
+    this->source_manager = Result.SourceManager;
+    this->ast_context = Result.Context;
 }

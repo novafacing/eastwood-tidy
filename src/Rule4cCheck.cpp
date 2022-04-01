@@ -120,33 +120,25 @@ Rule4cCheck::Rule4cCheck(StringRef Name, ClangTidyContext *Context)
 }
 
 void Rule4cCheck::registerMatchers(MatchFinder *Finder) {
+    this->register_relex_matchers(Finder, this);
     Finder->addMatcher(doStmt().bind("do"), this);
 }
 
 void Rule4cCheck::check(const MatchFinder::MatchResult &Result) {
+    this->acquire_common(Result);
 
-    // Get location of closing 'do'
     if (auto S = Result.Nodes.getNodeAs<DoStmt>("do")) {
         checkStmt(Result, S->getBody(), S->getDoLoc(), S->getWhileLoc());
-    } else {
-        llvm_unreachable("Invalid match");
     }
 }
 
 bool Rule4cCheck::checkStmt(const MatchFinder::MatchResult &Result, const Stmt *S,
                             SourceLocation InitialLoc, SourceLocation EndLocHint) {
 
-    if (!InitialLoc.isValid()) {
-        return false;
-    }
-
-    const SourceManager &SM = *Result.SourceManager;
-    const ASTContext *Context = Result.Context;
-
     // Treat macros.
-    CharSourceRange FileRange =
-        Lexer::makeFileCharRange(CharSourceRange::getTokenRange(S->getSourceRange()),
-                                 SM, Context->getLangOpts());
+    CharSourceRange FileRange = Lexer::makeFileCharRange(
+        CharSourceRange::getTokenRange(S->getSourceRange()), *this->source_manager,
+        this->ast_context->getLangOpts());
     if (FileRange.isInvalid())
         return false;
 
@@ -154,8 +146,8 @@ bool Rule4cCheck::checkStmt(const MatchFinder::MatchResult &Result, const Stmt *
     // expansion level as the start of the statement. We also need file
     // locations for Lexer::getLocForEndOfToken working properly.
     InitialLoc = Lexer::makeFileCharRange(
-                     CharSourceRange::getCharRange(InitialLoc, S->getBeginLoc()), SM,
-                     Context->getLangOpts())
+                     CharSourceRange::getCharRange(InitialLoc, S->getBeginLoc()),
+                     *this->source_manager, this->ast_context->getLangOpts())
                      .getBegin();
     if (InitialLoc.isInvalid())
         return false;
@@ -166,17 +158,17 @@ bool Rule4cCheck::checkStmt(const MatchFinder::MatchResult &Result, const Stmt *
         EndLoc = EndLocHint;
     } else {
         const auto FREnd = FileRange.getEnd().getLocWithOffset(-1);
-        EndLoc = findEndLocation(FREnd, SM, Context);
+        EndLoc = findEndLocation(FREnd, *this->source_manager, this->ast_context);
     }
 
     assert(EndLoc.isValid());
-    assert(*SM.getCharacterData(EndLoc) == 'w');
+    assert(*this->source_manager->getCharacterData(EndLoc) == 'w');
 
     EndLoc = EndLoc.getLocWithOffset(-1);
 
     // Check that
-    while (*SM.getCharacterData(EndLoc) != '}') {
-        if (*SM.getCharacterData(EndLoc) == '\n') {
+    while (*this->source_manager->getCharacterData(EndLoc) != '}') {
+        if (*this->source_manager->getCharacterData(EndLoc) == '\n') {
             diag(EndLoc, "While statement in a do-while must be on same "
                          "line as the closing brace.");
             return true;

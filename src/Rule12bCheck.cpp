@@ -17,17 +17,19 @@ namespace tidy {
 namespace eastwood {
 Rule12bCheck::Rule12bCheck(StringRef Name, ClangTidyContext *Context)
     : ClangTidyCheck(Name, Context), EastwoodTidyCheckBase(Name),
-      debug_enabled(Options.get("debug", "false")), last_line(0) {
+      debug_enabled(Options.get("debug", "false")) {
     if (this->debug_enabled == "true") {
         this->debug = true;
     }
 }
 
 void Rule12bCheck::registerMatchers(MatchFinder *Finder) {
+    this->register_relex_matchers(Finder, this);
     Finder->addMatcher(varDecl().bind("var_decl"), this);
 }
 
 void Rule12bCheck::check(const MatchFinder::MatchResult &Result) {
+    this->acquire_common(Result);
     if (auto MatchedDecl = Result.Nodes.getNodeAs<VarDecl>("var_decl")) {
         if (MatchedDecl->isLocalVarDeclOrParm() && not MatchedDecl->isLocalVarDecl()) {
             // This is a function parameter

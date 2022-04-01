@@ -23,11 +23,13 @@ Rule3fCheck::Rule3fCheck(StringRef Name, ClangTidyContext *Context)
     }
 }
 void Rule3fCheck::registerMatchers(MatchFinder *Finder) {
+    this->register_relex_matchers(Finder, this);
     Finder->addMatcher(stmt().bind("relex"), this);
     Finder->addMatcher(decl().bind("relex"), this);
     Finder->addMatcher(functionDecl().bind("function_decl"), this);
 }
 void Rule3fCheck::check(const MatchFinder::MatchResult &Result) {
+    this->acquire_common(Result);
     RELEX();
     const SourceManager &SM = *Result.SourceManager;
     const ASTContext *Context = Result.Context;
@@ -35,7 +37,6 @@ void Rule3fCheck::check(const MatchFinder::MatchResult &Result) {
     if (auto MatchedDecl = Result.Nodes.getNodeAs<FunctionDecl>("function_decl")) {
         DeclarationNameInfo NameInfo = MatchedDecl->getNameInfo();
         SourceLocation NameEnd(NameInfo.getEndLoc());
-        SourceRange ParamsRange = MatchedDecl->getParametersSourceRange();
         std::pair<FileID, unsigned> LocInfo = SM.getDecomposedLoc(NameEnd);
         SourceLocation StartOfFile = SM.getLocForStartOfFile(SM.getFileID(NameEnd));
         StringRef File = SM.getBufferData(SM.getFileID(StartOfFile));

@@ -69,12 +69,12 @@ Rule11cCheck::Rule11cCheck(StringRef Name, ClangTidyContext *Context)
 }
 
 void Rule11cCheck::registerMatchers(MatchFinder *Finder) {
+    this->register_relex_matchers(Finder, this);
     Finder->addMatcher(binaryOperator(isAssignmentOperator()).bind("binary_operator"),
                        this);
 }
 void Rule11cCheck::check(const MatchFinder::MatchResult &Result) {
-    ASTContext *Context = Result.Context;
-    SourceManager &SM = *Result.SourceManager;
+    this->acquire_common(Result);
     ASTNodeKind stop_kinds[] = {
         ASTNodeKind::getFromNodeKind<CompoundStmt>(),
         ASTNodeKind::getFromNodeKind<DeclStmt>(),
@@ -92,12 +92,13 @@ void Rule11cCheck::check(const MatchFinder::MatchResult &Result) {
 
     if (auto MatchedDecl = Result.Nodes.getNodeAs<BinaryOperator>("binary_operator")) {
 
-        ParentMapContext &PMC = Context->getParentMapContext();
+        ParentMapContext &PMC =
+            const_cast<ASTContext *>(this->ast_context)->getParentMapContext();
         ascend_q.push_back(DynTypedNode::create<BinaryOperator>(*MatchedDecl));
 
         while (not ascend_q.empty()) {
             DynTypedNode node = ascend_q.front();
-            node.dump(rso, *Context);
+            node.dump(rso, *this->ast_context);
             rso << "\n";
             ascend_q.pop_front();
             DynTypedNodeList Parents = PMC.getParents(node);
@@ -116,7 +117,8 @@ void Rule11cCheck::check(const MatchFinder::MatchResult &Result) {
                     // std::cout << "Number of assignments under this
                     // parent: " << assignCount(parent) << std::endl;
                     if (s_parent) {
-                        StmtAssignCountVisitor s_visitor(Context, s_parent);
+                        StmtAssignCountVisitor s_visitor(
+                            const_cast<ASTContext *>(this->ast_context), s_parent);
                         s_visitor.TraverseStmt(s_parent);
                         if (s_visitor.getAssignOpCount() > 1) {
                             diag(s_parent->getBeginLoc(),
@@ -126,7 +128,8 @@ void Rule11cCheck::check(const MatchFinder::MatchResult &Result) {
 
                     } else {
                         Decl *d_parent = const_cast<Decl *>(node.get<Decl>());
-                        DeclAssignCountVisitor d_visitor(Context, d_parent);
+                        DeclAssignCountVisitor d_visitor(
+                            const_cast<ASTContext *>(this->ast_context), d_parent);
                         d_visitor.TraverseDecl(d_parent);
                         if (d_visitor.getAssignOpCount() > 1) {
                             diag(d_parent->getLocation(),

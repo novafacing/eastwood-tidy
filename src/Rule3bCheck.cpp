@@ -27,12 +27,14 @@ Rule3bCheck::Rule3bCheck(StringRef Name, ClangTidyContext *Context)
 }
 
 void Rule3bCheck::registerMatchers(MatchFinder *Finder) {
+    this->register_relex_matchers(Finder, this);
     Finder->addMatcher(stmt().bind("relex"), this);
     Finder->addMatcher(decl().bind("relex"), this);
     Finder->addMatcher(binaryOperator().bind("binary_operator"), this);
 }
 
 void Rule3bCheck::check(const MatchFinder::MatchResult &Result) {
+    this->acquire_common(Result);
     RELEX();
     const SourceManager &SM = *Result.SourceManager;
     SourceLocation loc;

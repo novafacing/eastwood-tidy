@@ -37,24 +37,22 @@ Rule11aCheck::Rule11aCheck(StringRef Name, ClangTidyContext *Context)
 }
 
 void Rule11aCheck::registerMatchers(MatchFinder *Finder) {
+    this->register_relex_matchers(Finder, this);
     Finder->addMatcher(stmt().bind("relex"), this);
     Finder->addMatcher(decl().bind("relex"), this);
     Finder->addMatcher(functionDecl().bind("function"), this);
 }
 
 void Rule11aCheck::check(const MatchFinder::MatchResult &Result) {
+    this->acquire_common(Result);
     RELEX();
-
-    const SourceManager &SM = *Result.SourceManager;
-    const ASTContext *Context = Result.Context;
 
     if (auto MatchedDecl = Result.Nodes.getNodeAs<FunctionDecl>("function")) {
         if (not this->checked) {
-            SourceLocation Location = MatchedDecl->getSourceRange().getBegin();
-
             for (size_t i = 0; i < this->tokens.size(); i++) {
                 if (this->tokens.at(i).isAtStartOfLine() && i > 0) {
-                    std::string ws(*this->tok_string(SM, this->tokens.at(i - 1)));
+                    std::string ws(*this->tok_string(*this->source_manager,
+                                                     this->tokens.at(i - 1)));
 
                     for (auto c : ws) {
                         if (c != ' ' && c != '\n') {

@@ -4,13 +4,18 @@
  *  is less than two pages. Exception can be made, if the logic of the function 
  * requires its size to be longer than two pages. Common sense needs to be follo
  * wed.
- * ---------------------------------------------------------------------------------------------------- */
+ * ----------------------------------------------------------------------- */
 #include "eastwood-rule-2b.h"
 
 
 // Bad: the function is too big
+
+/*
+ * main
+ */
+
 int main() {
-  int a;
+  int a = 1;
 
 
 
@@ -268,9 +273,14 @@ int main() {
 
 
     return 1;
-}
+} /* main() */
 
 // Good: This function is under the 2-page limit
+
+/*
+ * good
+ */
+
 int good() {
 
 
@@ -508,4 +518,4 @@ int good() {
 
 
     return 1;
-}
+} /* good() */

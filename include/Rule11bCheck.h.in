@@ -39,6 +39,7 @@ private:
     std::map<std::string, std::vector<SourceLocation>> embeddedConstants;
     std::vector<SourceRange> declarationRanges;
     std::string dump;
+    size_t indentation_level = 0;
 
     std::string debug_enabled;
 

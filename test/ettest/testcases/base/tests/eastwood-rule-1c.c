@@ -4,7 +4,7 @@
  * nstants must be declared using #define. A constant numeric value assigned mus
  * t be enclosed in parenthesis. String constants need to be placed in quotes bu
  * t do not have surrounding parentheses.
- * --------------------------------------------------------------------------------------------------- */
+ * ------------------------------------------------------------------------- */
 #include "eastwood-rule-1c.h"
 #include <stdio.h>
 

@@ -30,12 +30,11 @@ std::string getFileName(const std::string &s) {
 class Rule8aPPCallBack : public PPCallbacks {
 private:
     Rule8aCheck *Check;
-    Preprocessor *PP;
     const SourceManager &SM;
 
 public:
-    Rule8aPPCallBack(Rule8aCheck *Check, Preprocessor *PP, const SourceManager &SM)
-        : Check(Check), PP(PP), SM(SM){};
+    Rule8aPPCallBack(Rule8aCheck *Check, const SourceManager &SM)
+        : Check(Check), SM(SM){};
     void InclusionDirective(SourceLocation HashLoc, const Token &IncludeTok,
                             StringRef FileName, bool isAngled,
                             CharSourceRange FilenameRange, const FileEntry *File,
@@ -90,13 +89,15 @@ Rule8aCheck::Rule8aCheck(StringRef Name, ClangTidyContext *Context)
 
 void Rule8aCheck::registerPPCallbacks(const SourceManager &SM, Preprocessor *PP,
                                       Preprocessor *ModuleExpanderPP) {
-    PP->addPPCallbacks(std::make_unique<Rule8aPPCallBack>(this, PP, SM));
+    PP->addPPCallbacks(std::make_unique<Rule8aPPCallBack>(this, SM));
 }
 
 void Rule8aCheck::registerMatchers(MatchFinder *Finder) {
+    this->register_relex_matchers(Finder, this);
     Finder->addMatcher(functionDecl().bind("function_decl"), this);
 }
 void Rule8aCheck::check(const MatchFinder::MatchResult &Result) {
+    this->acquire_common(Result);
     if (auto MatchedDecl = Result.Nodes.getNodeAs<FunctionDecl>("function_decl")) {
         const SourceManager &SM = *Result.SourceManager;
         if (SM.isInMainFile(MatchedDecl->getLocation())) {

@@ -24,11 +24,12 @@ Rule2bCheck::Rule2bCheck(StringRef Name, ClangTidyContext *Context)
     }
 }
 void Rule2bCheck::registerMatchers(MatchFinder *Finder) {
+    this->register_relex_matchers(Finder, this);
     Finder->addMatcher(functionDecl().bind("function"), this);
 }
 
 void Rule2bCheck::check(const MatchFinder::MatchResult &Result) {
-    const SourceManager &SM = *Result.SourceManager;
+    this->acquire_common(Result);
     if (auto MatchedDecl = Result.Nodes.getNodeAs<FunctionDecl>("function")) {
         std::string name = MatchedDecl->getName().str();
 
@@ -37,20 +38,21 @@ void Rule2bCheck::check(const MatchFinder::MatchResult &Result) {
             return;
         }
         unsigned func_start_line = 0;
-        if (SM.isWrittenInMainFile(
+        if (this->source_manager->isWrittenInMainFile(
                 FunctionDefinition->getReturnTypeSourceRange().getBegin())) {
-            func_start_line = SM.getSpellingLineNumber(
+            func_start_line = this->source_manager->getSpellingLineNumber(
                 FunctionDefinition->getReturnTypeSourceRange().getBegin());
         } else {
-            func_start_line =
-                SM.getSpellingLineNumber(FunctionDefinition->getNameInfo().getLoc());
+            func_start_line = this->source_manager->getSpellingLineNumber(
+                FunctionDefinition->getNameInfo().getLoc());
         }
         SourceLocation end = FunctionDefinition->getSourceRange().getEnd();
-        unsigned end_ln = SM.getSpellingLineNumber(end);
+        unsigned end_ln = this->source_manager->getSpellingLineNumber(end);
+
         if (end_ln - func_start_line >= MAX_FN_SIZE) {
             diag(FunctionDefinition->getSourceRange().getBegin(),
                  "Function %0 is over the maximum function size"
-                 " of %2 lines")
+                 " of %1 lines")
                 << name << MAX_FN_SIZE;
         }
     } else {

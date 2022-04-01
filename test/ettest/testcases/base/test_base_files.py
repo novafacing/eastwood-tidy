@@ -117,8 +117,9 @@ def test_rule_2_a_file(manager) -> None:
         FileTest(
             "eastwood-rule-2a.c",
             [
-                Error(Rule.II_A, 20, 80),
-                Error(Rule.II_A, 27, 2),
+                Error(Rule.II_A, 7, 97),
+                Error(Rule.II_A, 24, 91),
+                Error(Rule.II_A, 33, 92),
             ],
         )
     ]
@@ -141,7 +142,7 @@ def test_rule_2_b_file(manager) -> None:
     """
     File test cases for rule 2b
     """
-    tests = [FileTest("eastwood-rule-2b.c", [Error(Rule.II_B, 271, 0)])]
+    tests = [FileTest("eastwood-rule-2b.c", [Error(Rule.II_B, 17, 1)])]
     for test in tests:
         res = manager.test_file(test)
         assert (
@@ -161,7 +162,26 @@ def test_rule_3_a_file(manager) -> None:
     """
     File test cases for rule 3a
     """
-    tests = [FileTest("eastwood-rule-3a.c", [])]
+    tests = [
+        FileTest(
+            "eastwood-rule-3a.c",
+            [
+                Error(Rule.III_A, 15, 15),
+                Error(Rule.III_A, 20, 15),
+                Error(Rule.III_A, 25, 8),
+                Error(Rule.III_A, 29, 30),
+                Error(Rule.III_A, 33, 30),
+                Error(Rule.III_A, 37, 6),
+                Error(Rule.III_A, 41, 15),
+                Error(Rule.III_A, 45, 15),
+                Error(Rule.III_A, 49, 5),
+                Error(Rule.III_A, 51, 7),
+                Error(Rule.III_A, 56, 13),
+                Error(Rule.III_A, 62, 13),
+                Error(Rule.III_A, 68, 9),
+            ],
+        )
+    ]
     for test in tests:
         res = manager.test_file(test)
         assert (

@@ -34,11 +34,6 @@ public:
     /* Overrides */
     void registerMatchers(ast_matchers::MatchFinder *Finder) override;
     void check(const ast_matchers::MatchFinder::MatchResult &Result) override;
-    void checkStmt(const MatchFinder::MatchResult &Result, const Stmt *S,
-                   SourceLocation InitialLoc, SourceLocation EndLocHint);
-    template <typename IfOrWhileStmt>
-    SourceLocation findRParenLoc(const IfOrWhileStmt *S, const SourceManager &SM,
-                                 const ASTContext *Context);
 }; // Rule3aCheck
 } // namespace eastwood
 } // namespace tidy

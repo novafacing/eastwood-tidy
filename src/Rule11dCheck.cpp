@@ -30,11 +30,10 @@ namespace eastwood {
 
 class Rule11dPPCallBack : public PPCallbacks {
 private:
-    Rule11dCheck *Check;
     Preprocessor *PP;
 
 public:
-    Rule11dPPCallBack(Rule11dCheck *Check, Preprocessor *PP) : Check(Check), PP(PP) {}
+    Rule11dPPCallBack(Rule11dCheck *Check, Preprocessor *PP) : PP(PP) {}
 
     /* Can also implement:
      *  - MacroExpands (whenever macro is expanded)
@@ -124,6 +123,7 @@ Rule11dCheck::Rule11dCheck::Rule11dCheck(StringRef Name, ClangTidyContext *Conte
 }
 
 void Rule11dCheck::registerMatchers(MatchFinder *Finder) {
+    this->register_relex_matchers(Finder, this);
     /* We want to be able to ignore varDecls */
     Finder->addMatcher(varDecl().bind("variable"), this);
     /* Embedded Constants Matchers */
@@ -138,6 +138,7 @@ void Rule11dCheck::registerMatchers(MatchFinder *Finder) {
 }
 
 void Rule11dCheck::check(const MatchFinder::MatchResult &Result) {
+    this->acquire_common(Result);
 
     std::string type = "";
     SourceLocation loc;

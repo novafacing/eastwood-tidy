@@ -23,9 +23,11 @@ Rule4bCheck::Rule4bCheck(StringRef Name, ClangTidyContext *Context)
 }
 
 void Rule4bCheck::registerMatchers(MatchFinder *Finder) {
+    this->register_relex_matchers(Finder, this);
     Finder->addMatcher(functionDecl().bind("function_decl"), this);
 }
 void Rule4bCheck::check(const MatchFinder::MatchResult &Result) {
+    this->acquire_common(Result);
     const SourceManager &SM = *Result.SourceManager;
     if (auto MatchedDecl = Result.Nodes.getNodeAs<FunctionDecl>("function_decl")) {
         if (MatchedDecl->param_size() < 2) {

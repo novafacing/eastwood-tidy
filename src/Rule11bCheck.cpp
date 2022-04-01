@@ -36,12 +36,14 @@ Rule11bCheck::Rule11bCheck(StringRef Name, ClangTidyContext *Context)
     }
 }
 void Rule11bCheck::registerMatchers(MatchFinder *Finder) {
+    this->register_relex_matchers(Finder, this);
     Finder->addMatcher(stmt().bind("relex"), this);
     Finder->addMatcher(decl().bind("relex"), this);
     Finder->addMatcher(functionDecl().bind("function"), this);
 }
 
 void Rule11bCheck::check(const MatchFinder::MatchResult &Result) {
+    this->acquire_common(Result);
     RELEX();
 
     const SourceManager &SM = *Result.SourceManager;
@@ -60,12 +62,10 @@ void Rule11bCheck::check(const MatchFinder::MatchResult &Result) {
             RawLexer.SetKeepWhitespaceMode(true);
 
             Token tok;
-            llvm::Optional<Token> ConstTok;
             size_t lines = 0;
             std::vector<std::pair<Token, std::string>> tq;
             std::regex trailing_ws{R"([ \t\f\p\v])"};
             std::smatch results;
-            size_t indentation_level = 0;
             while (!RawLexer.LexFromRawLexer(tok)) {
                 if (tok.getKind() == tok::l_brace) {
                     indentation_level += 2;
@@ -95,7 +95,6 @@ void Rule11bCheck::check(const MatchFinder::MatchResult &Result) {
                         }
                         unsigned lcol = SM.getSpellingColumnNumber(
                             tq.at(tq.size() - 2).first.getLocation());
-                        unsigned col = SM.getSpellingColumnNumber(tok.getLocation());
                         if (lcol >= MAX_LINE_LEN) {
                             // diag(tq.at(tq.size() -
                             // 1).first.getLocation(), "Lines must be <= " +

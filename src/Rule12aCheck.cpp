@@ -23,24 +23,26 @@ Rule12aCheck::Rule12aCheck(StringRef Name, ClangTidyContext *Context)
     }
 }
 void Rule12aCheck::registerMatchers(MatchFinder *Finder) {
+    this->register_relex_matchers(Finder, this);
     Finder->addMatcher(varDecl().bind("var_decl"), this);
 }
 
 void Rule12aCheck::check(const MatchFinder::MatchResult &Result) {
+    this->acquire_common(Result);
     if (auto MatchedDecl = Result.Nodes.getNodeAs<VarDecl>("var_decl")) {
         if (MatchedDecl->isLocalVarDeclOrParm() && not MatchedDecl->isLocalVarDecl()) {
             // This is a function parameter
             return;
         }
-        const SourceManager &SM = *Result.SourceManager;
-        const ASTContext *Context = Result.Context;
         if (not MatchedDecl->hasExternalStorage()) {
-            unsigned line_num = SM.getSpellingLineNumber(MatchedDecl->getLocation());
+            unsigned line_num =
+                this->source_manager->getSpellingLineNumber(MatchedDecl->getLocation());
             if (this->first) {
                 this->first = false;
             } else {
                 if (line_num == this->last_line) {
-                    if (SM.isWrittenInMainFile(MatchedDecl->getLocation())) {
+                    if (this->source_manager->isWrittenInMainFile(
+                            MatchedDecl->getLocation())) {
                         diag(MatchedDecl->getLocation(),
                              "Multiple variable declarations on a single "
                              "line are not allowed.");

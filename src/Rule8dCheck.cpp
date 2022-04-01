@@ -17,12 +17,9 @@ namespace eastwood {
 class Rule8dPPCallBack : public PPCallbacks {
 private:
     Rule8dCheck *Check;
-    Preprocessor *PP;
-    const SourceManager &SM;
 
 public:
-    Rule8dPPCallBack(Rule8dCheck *Check, Preprocessor *PP, const SourceManager &SM)
-        : Check(Check), PP(PP), SM(SM){};
+    Rule8dPPCallBack(Rule8dCheck *Check) : Check(Check){};
 
     void InclusionDirective(SourceLocation HashLoc, const Token &IncludeTok,
                             StringRef FileName, bool isAngled,
@@ -56,7 +53,7 @@ Rule8dCheck::Rule8dCheck(StringRef Name, ClangTidyContext *Context)
 
 void Rule8dCheck::registerPPCallbacks(const SourceManager &SM, Preprocessor *PP,
                                       Preprocessor *ModuleExpanderPP) {
-    PP->addPPCallbacks(std::make_unique<Rule8dPPCallBack>(this, PP, SM));
+    PP->addPPCallbacks(std::make_unique<Rule8dPPCallBack>(this));
 }
 void Rule8dCheck::registerMatchers(MatchFinder *Finder) {}
 void Rule8dCheck::check(const MatchFinder::MatchResult &Result) {}

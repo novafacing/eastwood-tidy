@@ -24,11 +24,13 @@ Rule5dCheck::Rule5dCheck(StringRef Name, ClangTidyContext *Context)
     }
 }
 void Rule5dCheck::registerMatchers(MatchFinder *Finder) {
+    this->register_relex_matchers(Finder, this);
     Finder->addMatcher(stmt().bind("relex"), this);
     Finder->addMatcher(decl().bind("relex"), this);
     Finder->addMatcher(functionDecl().bind("function_decl"), this);
 }
 void Rule5dCheck::check(const MatchFinder::MatchResult &Result) {
+    this->acquire_common(Result);
     RELEX();
     const SourceManager &SM = *Result.SourceManager;
     const ASTContext *Context = Result.Context;

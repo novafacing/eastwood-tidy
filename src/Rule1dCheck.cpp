@@ -27,11 +27,13 @@ Rule1dCheck::Rule1dCheck(StringRef Name, ClangTidyContext *Context)
 }
 
 void Rule1dCheck::registerMatchers(MatchFinder *Finder) {
+    this->register_relex_matchers(Finder, this);
     Finder->addMatcher(functionDecl().bind("function"), this);
     Finder->addMatcher(varDecl(hasGlobalStorage()).bind("variable"), this);
 }
 
 void Rule1dCheck::check(const MatchFinder::MatchResult &Result) {
+    this->acquire_common(Result);
     if (auto MatchedDecl = Result.Nodes.getNodeAs<VarDecl>("variable")) {
         if (!(Result.SourceManager)->isWrittenInMainFile(MatchedDecl->getLocation())) {
             return;

@@ -24,6 +24,7 @@ Rule6aCheck::Rule6aCheck(StringRef Name, ClangTidyContext *Context)
 }
 
 void Rule6aCheck::registerMatchers(MatchFinder *Finder) {
+    this->register_relex_matchers(Finder, this);
     Finder->addMatcher(binaryOperator(hasAnyOperatorName("&&", "||")).bind("op"), this);
 }
 
@@ -64,6 +65,7 @@ void Rule6aCheck::checkBinaryParens(BinaryOperator *BO, SourceManager &SM,
 }
 
 void Rule6aCheck::check(const MatchFinder::MatchResult &Result) {
+    this->acquire_common(Result);
     SourceManager &SM = *Result.SourceManager;
 
     if (auto MatchedDecl = Result.Nodes.getNodeAs<BinaryOperator>("op")) {

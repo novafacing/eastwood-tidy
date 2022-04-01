@@ -21,6 +21,7 @@
 
 using namespace clang;
 using namespace clang::ast_matchers;
+using namespace clang::tidy;
 using namespace llvm;
 
 /* RELEX Macro for fast relexing of a file. Should be placed at the top of the
@@ -76,12 +77,14 @@ class EastwoodTidyCheckBase {
 protected:
     std::string name;
     bool debug;
-    EastwoodTidyDebugStream *debugStream = nullptr;
+    EastwoodTidyDebugStream *debug_stream = nullptr;
     std::vector<Token> tokens;
     bool relexed = false;
     /* Whether this rule has been checked already,
       used to avoid re-running expensive checks */
     bool checked = false;
+    const SourceManager *source_manager = nullptr;
+    const ASTContext *ast_context = nullptr;
 
 public:
     EastwoodTidyCheckBase(StringRef Name);
@@ -103,11 +106,18 @@ public:
     std::shared_ptr<std::string> sourcerange_string(const SourceManager &SM,
                                                     const SourceRange &range);
 
+    void register_relex_matchers(MatchFinder *finder, ClangTidyCheck *check);
+
+    ssize_t token_index(const Token &t);
+    ssize_t token_index(const SourceLocation &loc);
+
     /* Relex a source file containing a match result into a vector of tokens. */
     void relex_file(
         const MatchFinder::MatchResult &Result, const std::string &match_name = "relex",
         const Optional<SourceLocation> &loc_override = Optional<SourceLocation>(),
         bool keep_whitespace = true);
+
+    void acquire_common(const MatchFinder::MatchResult &Result);
 };
 
 #endif // LLVM_CLANG_TOOLS_EXTRA_CLANG_TIDY_EASTWOOD_TIDY_UTIL_H

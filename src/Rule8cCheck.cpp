@@ -121,7 +121,7 @@ void Rule8cCheck::registerPPCallbacks(const SourceManager &SM, Preprocessor *PP,
 }
 
 void Rule8cCheck::registerMatchers(MatchFinder *Finder) {
-    Finder->addMatcher(functionDecl().bind("function"), this);
+    this->register_relex_matchers(Finder, this);
 }
 
 void Rule8cCheck::check(const MatchFinder::MatchResult &Result) { return; }

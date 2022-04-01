@@ -4,7 +4,7 @@
  * e will fit on printouts.  If the line is too long, then it must be broken up 
  * into readable segments. The indentation of the code on the following lines ne
  * eds to be at least 2 spaces.
- * ---------------------------------------------------------------------------------------------------- */
+ * ------------------------------------------------------------------------------------------ */
 #include "eastwood-rule-2a.h"
 
 #include <stdlib.h>
@@ -21,7 +21,7 @@ struct list_node {
 
 int foo(void) { 
   // Bad: line length
-  int aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa = 10; 
+  int aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa = 10;
 
   struct list_node * node = NULL;
 

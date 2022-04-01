@@ -103,6 +103,7 @@ void Rule1cCheck::registerPPCallbacks(const SourceManager &SM, Preprocessor *PP,
 }
 
 void Rule1cCheck::registerMatchers(MatchFinder *Finder) {
+    this->register_relex_matchers(Finder, this);
     /* We want to be able to ignore varDecls */
     Finder->addMatcher(varDecl().bind("variable"), this);
     /* Embedded Constants Matchers */
@@ -117,6 +118,7 @@ void Rule1cCheck::registerMatchers(MatchFinder *Finder) {
 }
 
 void Rule1cCheck::check(const MatchFinder::MatchResult &Result) {
+    this->acquire_common(Result);
 
     std::string type = "";
     SourceLocation loc;

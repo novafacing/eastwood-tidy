@@ -25,6 +25,7 @@ Rule1aCheck::Rule1aCheck(StringRef Name, ClangTidyContext *Context)
 }
 
 void Rule1aCheck::registerMatchers(MatchFinder *Finder) {
+    this->register_relex_matchers(Finder, this);
     Finder->addMatcher(varDecl().bind("variable"), this);
     Finder->addMatcher(functionDecl().bind("function"), this);
     Finder->addMatcher(enumDecl().bind("enum"), this);
@@ -53,6 +54,7 @@ void Rule1aCheck::checkName(SourceLocation loc, std::string name, std::string ty
 }
 
 void Rule1aCheck::check(const MatchFinder::MatchResult &Result) {
+    this->acquire_common(Result);
     SourceLocation loc;
     std::string name = "";
     std::string type = "";
