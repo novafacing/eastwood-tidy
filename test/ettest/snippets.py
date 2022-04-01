@@ -29,6 +29,26 @@ class Error:
             f"msg={self.msg})"
         )
 
+    def __lt__(self, other: "Error") -> bool:
+        """
+        Return whether this error is "less than" (before in the file)
+        another error to implement total ordering.
+
+        :param other: The other error to compare to
+        :return: True if this error is "less than" the other error
+        """
+        if self.line < other.line:
+            return True
+        elif self.line == other.line:
+            if self.col is None:
+                return False
+            elif other.col is None:
+                return True
+            else:
+                return self.col < other.col
+        else:
+            return False
+
 
 @dataclass
 class Snippet:

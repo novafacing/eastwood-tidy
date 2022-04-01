@@ -240,7 +240,18 @@ def test_rule_3_c_file(manager) -> None:
     """
     File test cases for rule 3c
     """
-    tests = [FileTest("eastwood-rule-3c.c", [])]
+    tests = [
+        FileTest(
+            "eastwood-rule-3c.c",
+            [
+                Error(Rule.III_C, 12, 15),
+                Error(Rule.III_C, 16, 22),
+                Error(Rule.III_C, 16, 24),
+                Error(Rule.III_C, 18, 20),
+                Error(Rule.III_C, 18, 27),
+            ],
+        )
+    ]
     for test in tests:
         res = manager.test_file(test)
         assert (
@@ -260,7 +271,18 @@ def test_rule_3_d_file(manager) -> None:
     """
     File test cases for rule 3d
     """
-    tests = [FileTest("eastwood-rule-3d.c", [])]
+    tests = [
+        FileTest(
+            "eastwood-rule-3d.c",
+            [
+                Error(Rule.III_D, 11, 3),
+                Error(Rule.III_D, 13, 1),
+                Error(Rule.III_D, 14, 3),
+                Error(Rule.III_D, 22, 3),
+                Error(Rule.III_D, 24, 1),
+            ],
+        )
+    ]
     for test in tests:
         res = manager.test_file(test)
         assert (
@@ -280,7 +302,55 @@ def test_rule_4_a_file(manager) -> None:
     """
     File test cases for rule 4a
     """
-    tests = [FileTest("eastwood-rule-4a.c", [])]
+    tests = [
+        FileTest(
+            "eastwood-rule-4a.c",
+            [
+                # There are a few things in this file that trigger 3a errors due to
+                # not just 1 space between paren and brace, but we want it to also
+                # flag for 4a since they are on the next line - we expect these
+                # Rule 4a tests
+                Error(Rule.IV_A, 14, 1),
+                Error(Rule.IV_A, 15, 5),
+                Error(Rule.IV_A, 16, 1),
+                Error(Rule.IV_A, 17, 7),
+                Error(Rule.IV_A, 18, 3),
+                Error(Rule.IV_A, 25, 1),
+                Error(Rule.IV_A, 26, 5),
+                Error(Rule.IV_A, 26, 10),
+                Error(Rule.IV_A, 27, 5),
+                Error(Rule.IV_A, 28, 9),
+                Error(Rule.IV_A, 29, 9),
+                Error(Rule.IV_A, 30, 13),
+                Error(Rule.IV_A, 31, 9),
+                Error(Rule.IV_A, 32, 9),
+                Error(Rule.IV_A, 33, 9),
+                Error(Rule.IV_A, 34, 13),
+                Error(Rule.IV_A, 35, 9),
+                Error(Rule.IV_A, 36, 5),
+                Error(Rule.IV_A, 37, 5),
+                Error(Rule.IV_A, 38, 9),
+                Error(Rule.IV_A, 39, 5),
+                Error(Rule.IV_A, 39, 7),
+                Error(Rule.IV_A, 40, 5),
+                Error(Rule.IV_A, 41, 9),
+                Error(Rule.IV_A, 42, 5),
+                Error(Rule.IV_A, 43, 5),
+                Error(Rule.IV_A, 44, 5),
+                Error(Rule.IV_A, 45, 7),
+                Error(Rule.IV_A, 46, 9),
+                Error(Rule.IV_A, 47, 11),
+                Error(Rule.IV_A, 48, 7),
+                Error(Rule.IV_A, 49, 7),
+                Error(Rule.IV_A, 53, 7),
+                Error(Rule.IV_A, 55, 7),
+                Error(Rule.IV_A, 56, 7),
+                Error(Rule.IV_A, 57, 9),
+                Error(Rule.IV_A, 58, 7),
+                Error(Rule.IV_A, 59, 5),
+            ],
+        )
+    ]
     for test in tests:
         res = manager.test_file(test)
         assert (

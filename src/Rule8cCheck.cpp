@@ -21,12 +21,11 @@ namespace eastwood {
 class Rule8cPPCallBack : public PPCallbacks {
 private:
     Rule8cCheck *Check;
-    Preprocessor *PP;
     const SourceManager &SM;
 
 public:
-    Rule8cPPCallBack(Rule8cCheck *Check, Preprocessor *PP, const SourceManager &SM)
-        : Check(Check), PP(PP), SM(SM){};
+    Rule8cPPCallBack(Rule8cCheck *Check, const SourceManager &SM)
+        : Check(Check), SM(SM){};
 
     void Ifndef(SourceLocation Loc, const Token &MacroNameTok,
                 const MacroDefinition &MD) override {}
@@ -117,7 +116,7 @@ Rule8cCheck::Rule8cCheck(StringRef Name, ClangTidyContext *Context)
 
 void Rule8cCheck::registerPPCallbacks(const SourceManager &SM, Preprocessor *PP,
                                       Preprocessor *ModuleExpanderPP) {
-    PP->addPPCallbacks(std::make_unique<Rule8cPPCallBack>(this, PP, SM));
+    PP->addPPCallbacks(std::make_unique<Rule8cPPCallBack>(this, SM));
 }
 
 void Rule8cCheck::registerMatchers(MatchFinder *Finder) {

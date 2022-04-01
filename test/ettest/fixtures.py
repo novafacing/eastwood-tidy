@@ -313,9 +313,9 @@ class TestManager:
         all_msgs = set(errors + warnings + notes)
         expected_msgs = set(snippet.errors)
         return TestResult(
-            ErrorCollection(all_msgs & expected_msgs),
-            ErrorCollection(all_msgs - expected_msgs),
-            ErrorCollection(expected_msgs - all_msgs),
+            ErrorCollection(sorted(list(all_msgs & expected_msgs))),
+            ErrorCollection(sorted(list(all_msgs - expected_msgs))),
+            ErrorCollection(sorted(list(expected_msgs - all_msgs))),
             res,
         )
 
@@ -335,9 +335,9 @@ class TestManager:
         all_msgs = set(errors + warnings + notes)
         expected_msgs = set(file_test.errors)
         return TestResult(
-            ErrorCollection(all_msgs & expected_msgs),
-            ErrorCollection(all_msgs - expected_msgs),
-            ErrorCollection(expected_msgs - all_msgs),
+            ErrorCollection(sorted(list(all_msgs & expected_msgs))),
+            ErrorCollection(sorted(list(all_msgs - expected_msgs))),
+            ErrorCollection(sorted(list(expected_msgs - all_msgs))),
             res,
         )
 

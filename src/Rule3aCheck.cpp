@@ -62,7 +62,9 @@ void Rule3aCheck::check(const MatchFinder::MatchResult &Result) {
         right.push_back(MatchedDecl->getRParenLoc());
         type = "if";
 
-        if (auto els = MatchedDecl->getElse()) {
+        Stmt *els = nullptr;
+        if ((els = const_cast<Stmt *>(MatchedDecl->getElse())) &&
+            !isa<IfStmt>(MatchedDecl->getElse())) {
             size_t idx = this->token_index(els->getBeginLoc());
             std::vector<Token> else_space_tokens;
             for (size_t i = idx + 1; i < this->tokens.size(); i++) {

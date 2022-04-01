@@ -7,15 +7,15 @@
  * ter the structure, control, or flow commands. The closing brace must also be 
  * alone on the line. Even if only one statement is to be executed it is necessa
  * ry to use braces.
- * ---------------------------------------------------------------------------------------------------- */
+ * ------------------------------------------------------------------------ */
 #include "eastwood-rule-4a.h"
 
 typedef struct a
 {
-  int a;
-  int b;
-  int c;
-};
+    int a;
+int b;
+        int c;
+  };
 
 /* 
  * Header comment
@@ -41,12 +41,16 @@ int foo(void)
         int a = 10;
     }
     int a = 5;
+      int b = 10;
     switch (a) {
       case 1:
         case 2:
           break;
       case 3:
       case 4:
+      a = 10;
+      b = 12;
+      break;
       case 5:
       break;
       case 6:
