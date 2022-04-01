@@ -12,12 +12,10 @@
 using namespace clang::ast_matchers;
 
 namespace clang {
-    namespace tidy {
-        namespace eastwood {
-            void Rule8fCheck::registerMatchers(MatchFinder *Finder) {
-            }
-            void Rule8fCheck::check(const MatchFinder::MatchResult &Result) {
-            }
-        } // namespace eastwood
-    }     // namespace tidy
+namespace tidy {
+namespace eastwood {
+void Rule8fCheck::registerMatchers(MatchFinder *Finder) {}
+void Rule8fCheck::check(const MatchFinder::MatchResult &Result) {}
+} // namespace eastwood
+} // namespace tidy
 } // namespace clang
