@@ -8,9 +8,9 @@
 #include "eastwood-rule-2b.h"
 
 
-// Put Something That Fails Here
+// Bad: the function is too big
 int main() {
-    int a;
+  int a;
 
 
 
@@ -269,9 +269,8 @@ int main() {
 
     return 1;
 }
-// CHECK-MESSAGES: :[[@LINE-1]]:[column goes here]:  Failure Message Goes Here
 
-// OK: This function is under the 2-page limit
+// Good: This function is under the 2-page limit
 int good() {
 
 
@@ -510,4 +509,3 @@ int good() {
 
     return 1;
 }
-// Some code that doesn't fail here

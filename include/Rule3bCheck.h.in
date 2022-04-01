@@ -21,15 +21,15 @@ namespace eastwood {
 
 class Rule3bCheck : public ClangTidyCheck, public EastwoodTidyCheckBase {
 private:
-  std::string debug_enabled;
+    std::string debug_enabled;
 
 public:
-  /* Constructors */
-  Rule3bCheck(StringRef Name, ClangTidyContext *Context);
+    /* Constructors */
+    Rule3bCheck(StringRef Name, ClangTidyContext *Context);
 
-  /* Overrides */
-  void registerMatchers(ast_matchers::MatchFinder *Finder) override;
-  void check(const ast_matchers::MatchFinder::MatchResult &Result) override;
+    /* Overrides */
+    void registerMatchers(ast_matchers::MatchFinder *Finder) override;
+    void check(const ast_matchers::MatchFinder::MatchResult &Result) override;
 }; // Rule3bCheck
 
 } // namespace eastwood

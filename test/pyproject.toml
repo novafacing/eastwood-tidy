@@ -87,3 +87,19 @@ strict_equality = true
 profile = "black"
 multi_line_output = 3
 use_parentheses = true
+
+[tool.pytest.ini_options]
+markers = [
+  "rule1: Marker for tests belonging to Rule 1",
+  "rule2: Marker for tests belonging to Rule 2",
+  "rule3: Marker for tests belonging to Rule 3",
+  "rule4: Marker for tests belonging to Rule 4",
+  "rule5: Marker for tests belonging to Rule 5",
+  "rule6: Marker for tests belonging to Rule 6",
+  "rule7: Marker for tests belonging to Rule 7",
+  "rule8: Marker for tests belonging to Rule 8",
+  "rule9: Marker for tests belonging to Rule 9",
+  "rule10: Marker for tests belonging to Rule 10",
+  "rule11: Marker for tests belonging to Rule 11",
+  "rule12: Marker for tests belonging to Rule 12",
+]

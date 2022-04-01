@@ -4,10 +4,13 @@
  * --------------------------------------------------------------------------------------------------- */
 #include "eastwood-rule-1b.h"
 
+// Ok: should print out when dumping variable names
 int a = 1;
 
+// Ok: should print out when dumping variable names
 int bnfunc() {
   return 1;
-}
+} /* bnfunc() */
 
+// Ok: should print out when dumping variable names
 int room_temp = 0;

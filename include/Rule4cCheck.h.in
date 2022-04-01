@@ -21,18 +21,18 @@ namespace eastwood {
 ///
 class Rule4cCheck : public ClangTidyCheck, public EastwoodTidyCheckBase {
 public:
-  Rule4cCheck(StringRef Name, ClangTidyContext *Context);
-  void registerMatchers(ast_matchers::MatchFinder *Finder) override;
-  void check(const ast_matchers::MatchFinder::MatchResult &Result) override;
+    Rule4cCheck(StringRef Name, ClangTidyContext *Context);
+    void registerMatchers(ast_matchers::MatchFinder *Finder) override;
+    void check(const ast_matchers::MatchFinder::MatchResult &Result) override;
 
 private:
-  bool checkStmt(const ast_matchers::MatchFinder::MatchResult &Result,
-                 const Stmt *S, SourceLocation StartLoc,
-                 SourceLocation EndLocHint = SourceLocation());
-  template <typename IfOrWhileStmt>
-  SourceLocation findRParenLoc(const IfOrWhileStmt *S, const SourceManager &SM,
-                               const ASTContext *Context);
-  std::string debug_enabled;
+    bool checkStmt(const ast_matchers::MatchFinder::MatchResult &Result, const Stmt *S,
+                   SourceLocation StartLoc,
+                   SourceLocation EndLocHint = SourceLocation());
+    template <typename IfOrWhileStmt>
+    SourceLocation findRParenLoc(const IfOrWhileStmt *S, const SourceManager &SM,
+                                 const ASTContext *Context);
+    std::string debug_enabled;
 };
 
 } // namespace eastwood

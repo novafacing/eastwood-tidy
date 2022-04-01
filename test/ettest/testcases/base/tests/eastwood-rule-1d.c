@@ -6,10 +6,16 @@
 #include "eastwood-rule-1d.h"
 
 
+// Bad: not started with g_
 int bad_global = 0;
-// CHECK-MESSAGES: :[[@LINE-1]]:5: warning: Global variable 'bad_global' doesn't conform to global naming scheme. [eastwood-Rule1D]
 
-// OK: Reason
-// Some code that doesn't fail here
+// Good: started with g_
 int g_good_global = 0;
 
+
+int main() {
+    return 0;
+} /* main() */
+
+// Bad: not at top of file
+int g_another_bad_global = 0;

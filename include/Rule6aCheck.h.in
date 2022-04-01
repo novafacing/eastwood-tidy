@@ -22,18 +22,17 @@ namespace eastwood {
 
 class Rule6aCheck : public ClangTidyCheck, public EastwoodTidyCheckBase {
 private:
-  std::string debug_enabled;
+    std::string debug_enabled;
 
 public:
-  /* Constructors */
-  Rule6aCheck(StringRef Name, ClangTidyContext *Context);
+    /* Constructors */
+    Rule6aCheck(StringRef Name, ClangTidyContext *Context);
 
-  /* Overrides */
-  void registerMatchers(ast_matchers::MatchFinder *Finder) override;
-  void checkBinaryParens(BinaryOperator *BO, SourceManager &SM,
-                         size_t depth = 0);
-  void check(const ast_matchers::MatchFinder::MatchResult &Result) override;
-  std::vector<Expr> toplevels;
+    /* Overrides */
+    void registerMatchers(ast_matchers::MatchFinder *Finder) override;
+    void checkBinaryParens(BinaryOperator *BO, SourceManager &SM, size_t depth = 0);
+    void check(const ast_matchers::MatchFinder::MatchResult &Result) override;
+    std::vector<Expr> toplevels;
 }; // Rule6aCheck
 } // namespace eastwood
 } // namespace tidy

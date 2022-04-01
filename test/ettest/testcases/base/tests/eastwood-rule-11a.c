@@ -5,8 +5,7 @@
 #include "eastwood-rule-11a.h"
 
 
-// Put Something That Fails Here
-// CHECK-MESSAGES: :[[@LINE-1]]:[column goes here]:  Failure Message Goes Here
-
-// OK: Reason
-// Some code that doesn't fail here
+int main() {
+  // Bad: there is a tab here instead of spaces
+	int a = 10;
+} /* main() */

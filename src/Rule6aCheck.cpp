@@ -18,62 +18,61 @@ namespace eastwood {
 Rule6aCheck::Rule6aCheck(StringRef Name, ClangTidyContext *Context)
     : ClangTidyCheck(Name, Context), EastwoodTidyCheckBase(Name),
       debug_enabled(Options.get("debug", "false")) {
-  if (this->debug_enabled == "true") {
-    this->debug = true;
-  }
+    if (this->debug_enabled == "true") {
+        this->debug = true;
+    }
 }
 
 void Rule6aCheck::registerMatchers(MatchFinder *Finder) {
-  Finder->addMatcher(binaryOperator(hasAnyOperatorName("&&", "||")).bind("op"),
-                     this);
+    Finder->addMatcher(binaryOperator(hasAnyOperatorName("&&", "||")).bind("op"), this);
 }
 
 void Rule6aCheck::checkBinaryParens(BinaryOperator *BO, SourceManager &SM,
                                     size_t depth) {
 
-  Expr *LHS = BO->getLHS();
-  Expr *RHS = BO->getRHS();
-  BinaryOperator *LHS_BO = nullptr;
-  BinaryOperator *RHS_BO = nullptr;
+    Expr *LHS = BO->getLHS();
+    Expr *RHS = BO->getRHS();
+    BinaryOperator *LHS_BO = nullptr;
+    BinaryOperator *RHS_BO = nullptr;
 
-  // Sanity checks that will cause segv
-  if ((LHS_BO = dyn_cast<BinaryOperator>(LHS->IgnoreParenCasts())) &&
-      LHS_BO->isLogicalOp()) {
-    this->checkBinaryParens(LHS_BO, SM, depth + 1);
+    // Sanity checks that will cause segv
+    if ((LHS_BO = dyn_cast<BinaryOperator>(LHS->IgnoreParenCasts())) &&
+        LHS_BO->isLogicalOp()) {
+        this->checkBinaryParens(LHS_BO, SM, depth + 1);
 
-  } else {
-    if (!dyn_cast<ParenExpr>(LHS)) {
-      if (auto NL_OP = dyn_cast<BinaryOperator>(LHS->IgnoreParenCasts())) {
-        diag(NL_OP->getOperatorLoc(), "This sub-expression must be "
-                                      "surrounded by parentheses");
-      }
+    } else {
+        if (!dyn_cast<ParenExpr>(LHS)) {
+            if (auto NL_OP = dyn_cast<BinaryOperator>(LHS->IgnoreParenCasts())) {
+                diag(NL_OP->getOperatorLoc(), "This sub-expression must be "
+                                              "surrounded by parentheses");
+            }
+        }
     }
-  }
 
-  if ((RHS_BO = dyn_cast<BinaryOperator>(RHS->IgnoreParenCasts())) &&
-      RHS_BO->isLogicalOp()) {
-    this->checkBinaryParens(RHS_BO, SM, depth + 1);
+    if ((RHS_BO = dyn_cast<BinaryOperator>(RHS->IgnoreParenCasts())) &&
+        RHS_BO->isLogicalOp()) {
+        this->checkBinaryParens(RHS_BO, SM, depth + 1);
 
-  } else {
-    if (!dyn_cast<ParenExpr>(RHS)) {
-      if (auto NL_OP = dyn_cast<BinaryOperator>(RHS->IgnoreParenCasts())) {
-        diag(NL_OP->getOperatorLoc(), "This sub-expression must be "
-                                      "surrounded by parentheses");
-      }
+    } else {
+        if (!dyn_cast<ParenExpr>(RHS)) {
+            if (auto NL_OP = dyn_cast<BinaryOperator>(RHS->IgnoreParenCasts())) {
+                diag(NL_OP->getOperatorLoc(), "This sub-expression must be "
+                                              "surrounded by parentheses");
+            }
+        }
     }
-  }
 }
 
 void Rule6aCheck::check(const MatchFinder::MatchResult &Result) {
-  SourceManager &SM = *Result.SourceManager;
+    SourceManager &SM = *Result.SourceManager;
 
-  if (auto MatchedDecl = Result.Nodes.getNodeAs<BinaryOperator>("op")) {
-    Expr *LHS = MatchedDecl->getLHS();
-    Expr *RHS = MatchedDecl->getRHS();
-    if (LHS && RHS) {
-      this->checkBinaryParens(const_cast<BinaryOperator *>(MatchedDecl), SM);
+    if (auto MatchedDecl = Result.Nodes.getNodeAs<BinaryOperator>("op")) {
+        Expr *LHS = MatchedDecl->getLHS();
+        Expr *RHS = MatchedDecl->getRHS();
+        if (LHS && RHS) {
+            this->checkBinaryParens(const_cast<BinaryOperator *>(MatchedDecl), SM);
+        }
     }
-  }
 }
 } // namespace eastwood
 } // namespace tidy

@@ -16,15 +16,25 @@ from ettest.snippets import Snippet, Error
 from ettest.filetest import FileTest
 
 
+class ErrorCollection(List[Error]):
+    """
+    Wrapper for a list of Errors that prints nicely in pytest
+    """
+
+    # The repr did not print nicely in pytest, but leaving this in case I want to change
+    # it in the future
+    ...
+
+
 @dataclass
 class TestResult:
     """
     Result of testing an eastwood-tidy testcase.
     """
 
-    expected_errors: List[Error] = field(default_factory=list)
-    unexpected_errors: List[Error] = field(default_factory=list)
-    unseen_errors: List[Error] = field(default_factory=list)
+    expected_errors: ErrorCollection = field(default_factory=ErrorCollection)
+    unexpected_errors: ErrorCollection = field(default_factory=ErrorCollection)
+    unseen_errors: ErrorCollection = field(default_factory=ErrorCollection)
     raw_output: Optional[str] = None
 
 
@@ -303,9 +313,9 @@ class TestManager:
         all_msgs = set(errors + warnings + notes)
         expected_msgs = set(snippet.errors)
         return TestResult(
-            list(all_msgs & expected_msgs),
-            list(all_msgs - expected_msgs),
-            list(expected_msgs - all_msgs),
+            ErrorCollection(all_msgs & expected_msgs),
+            ErrorCollection(all_msgs - expected_msgs),
+            ErrorCollection(expected_msgs - all_msgs),
             res,
         )
 
@@ -325,9 +335,9 @@ class TestManager:
         all_msgs = set(errors + warnings + notes)
         expected_msgs = set(file_test.errors)
         return TestResult(
-            list(all_msgs & expected_msgs),
-            list(all_msgs - expected_msgs),
-            list(expected_msgs - all_msgs),
+            ErrorCollection(all_msgs & expected_msgs),
+            ErrorCollection(all_msgs - expected_msgs),
+            ErrorCollection(expected_msgs - all_msgs),
             res,
         )
 

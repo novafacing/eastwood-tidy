@@ -16,44 +16,42 @@ namespace tidy {
 namespace eastwood {
 class Rule8bPPCallBack : public PPCallbacks {
 private:
-  Rule8bCheck *Check;
-  Preprocessor *PP;
-  const SourceManager &SM;
-  bool checked;
+    Rule8bCheck *Check;
+    Preprocessor *PP;
+    const SourceManager &SM;
 
 public:
-  Rule8bPPCallBack(Rule8bCheck *Check, Preprocessor *PP,
-                   const SourceManager &SM)
-      : Check(Check), PP(PP), SM(SM), checked(false){};
-  void InclusionDirective(SourceLocation HashLoc, const Token &IncludeTok,
-                          StringRef FileName, bool isAngled,
-                          CharSourceRange FilenameRange, const FileEntry *File,
-                          StringRef SearchPath, StringRef RelativePath,
-                          const Module *Imported,
-                          SrcMgr::CharacteristicKind FileType) override {
+    Rule8bPPCallBack(Rule8bCheck *Check, Preprocessor *PP, const SourceManager &SM)
+        : Check(Check), PP(PP), SM(SM){};
+    void InclusionDirective(SourceLocation HashLoc, const Token &IncludeTok,
+                            StringRef FileName, bool isAngled,
+                            CharSourceRange FilenameRange, const FileEntry *File,
+                            StringRef SearchPath, StringRef RelativePath,
+                            const Module *Imported,
+                            SrcMgr::CharacteristicKind FileType) override {
 
-    if (not isAngled) {
-      if (File && File->isValid()) {
-        std::string file_path(File->tryGetRealPathName().str());
-        std::string ext(file_path.substr(file_path.find_last_of(".") + 1));
-        if (ext != "h") {
-          this->Check->diag(HashLoc,
-                            "All non-global header files must end in '.h'.");
+        if (not isAngled) {
+            if (File && File->isValid()) {
+                std::string file_path(File->tryGetRealPathName().str());
+                std::string ext(file_path.substr(file_path.find_last_of(".") + 1));
+                if (ext != "h") {
+                    this->Check->diag(HashLoc,
+                                      "All non-global header files must end in '.h'.");
+                }
+            }
         }
-      }
     }
-  }
 };
 Rule8bCheck::Rule8bCheck(StringRef Name, ClangTidyContext *Context)
     : ClangTidyCheck(Name, Context), EastwoodTidyCheckBase(Name),
       debug_enabled(Options.get("debug", "false")) {
-  if (this->debug_enabled == "true") {
-    this->debug = true;
-  }
+    if (this->debug_enabled == "true") {
+        this->debug = true;
+    }
 }
 void Rule8bCheck::registerPPCallbacks(const SourceManager &SM, Preprocessor *PP,
                                       Preprocessor *ModuleExpanderPP) {
-  PP->addPPCallbacks(std::make_unique<Rule8bPPCallBack>(this, PP, SM));
+    PP->addPPCallbacks(std::make_unique<Rule8bPPCallBack>(this, PP, SM));
 }
 void Rule8bCheck::registerMatchers(MatchFinder *Finder) {}
 void Rule8bCheck::check(const MatchFinder::MatchResult &Result) {}

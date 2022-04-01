@@ -24,7 +24,8 @@ class Error:
         Override repr to easily appear in tb.
         """
         return (
-            f"Error(rule={self.rule.name}, line={self.line}, col={self.col}, "
+            "Error("
+            f"rule={self.rule.name}, line={self.line}, col={self.col}, "
             f"msg={self.msg})"
         )
 

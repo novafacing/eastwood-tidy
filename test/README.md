@@ -18,6 +18,16 @@ environment for the tests. If you don't have `poetry`, you can install it
 Tests are run normally using `pytest`. Any normal pytest options apply, eg.
 `pytest -k test_rule_1_a_file -s`.
 
+### Running Specific Tests
+
+Tests are marked by the rule they test -- for example tests the exercise the
+Rule 1A checks are marked with `@mark.rule1`. This lets you run:
+
+```pytest -m rule1 -v```
+
+To only run tests that exercise that rule. This makes it a little faster and
+easier to only run things tests on the code you are actively changing.
+
 ## Errors
 
 Errors in the module tests are specified using the [`Error`](ettest/snippets.py)

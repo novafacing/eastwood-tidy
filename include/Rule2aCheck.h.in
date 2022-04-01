@@ -25,19 +25,18 @@ namespace eastwood {
 
 class Rule2aCheck : public ClangTidyCheck, public EastwoodTidyCheckBase {
 private:
-  std::string debug_enabled;
+    std::string debug_enabled;
 
 public:
-  /* Constructors */
-  Rule2aCheck(StringRef Name, ClangTidyContext *Context);
+    /* Constructors */
+    Rule2aCheck(StringRef Name, ClangTidyContext *Context);
 
-  /* Overrides */
-  void registerMatchers(ast_matchers::MatchFinder *Finder) override;
-  void check(const ast_matchers::MatchFinder::MatchResult &Result) override;
+    /* Overrides */
+    void registerMatchers(ast_matchers::MatchFinder *Finder) override;
+    void check(const ast_matchers::MatchFinder::MatchResult &Result) override;
 
-  std::vector<size_t> over_length_lines;
-  std::vector<size_t> broken_lines;
-  bool checked;
+    std::vector<size_t> over_length_lines;
+    std::vector<size_t> broken_lines;
 
 }; // Rule2aCheck
 } // namespace eastwood

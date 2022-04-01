@@ -36,19 +36,19 @@ namespace eastwood {
 
 class Rule11bCheck : public ClangTidyCheck, public EastwoodTidyCheckBase {
 private:
-  std::map<std::string, std::vector<SourceLocation>> embeddedConstants;
-  std::vector<SourceRange> declarationRanges;
-  std::string dump;
-  bool checked;
-  std::string debug_enabled;
+    std::map<std::string, std::vector<SourceLocation>> embeddedConstants;
+    std::vector<SourceRange> declarationRanges;
+    std::string dump;
+
+    std::string debug_enabled;
 
 public:
-  /* Constructors */
-  Rule11bCheck(StringRef Name, ClangTidyContext *Context);
+    /* Constructors */
+    Rule11bCheck(StringRef Name, ClangTidyContext *Context);
 
-  /* Overrides */
-  void registerMatchers(ast_matchers::MatchFinder *Finder) override;
-  void check(const ast_matchers::MatchFinder::MatchResult &Result) override;
+    /* Overrides */
+    void registerMatchers(ast_matchers::MatchFinder *Finder) override;
+    void check(const ast_matchers::MatchFinder::MatchResult &Result) override;
 }; // Rule11bCheck
 } // namespace eastwood
 } // namespace tidy

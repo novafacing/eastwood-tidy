@@ -23,18 +23,20 @@ namespace tidy {
 namespace eastwood {
 
 class Rule8gCheck : public ClangTidyCheck, public EastwoodTidyCheckBase {
+    friend class Rule8gPPCallBack;
+
 private:
-  std::string debug_enabled;
+    std::string debug_enabled;
 
 public:
-  /* Constructors */
-  Rule8gCheck(StringRef Name, ClangTidyContext *Context);
+    /* Constructors */
+    Rule8gCheck(StringRef Name, ClangTidyContext *Context);
 
-  /* Overrides */
-  void registerPPCallbacks(const SourceManager &SM, Preprocessor *PP,
-                           Preprocessor *ModuleExpanderPP) override;
-  void registerMatchers(ast_matchers::MatchFinder *Finder) override;
-  void check(const ast_matchers::MatchFinder::MatchResult &Result) override;
+    /* Overrides */
+    void registerPPCallbacks(const SourceManager &SM, Preprocessor *PP,
+                             Preprocessor *ModuleExpanderPP) override;
+    void registerMatchers(ast_matchers::MatchFinder *Finder) override;
+    void check(const ast_matchers::MatchFinder::MatchResult &Result) override;
 }; // Rule8gCheck
 } // namespace eastwood
 } // namespace tidy

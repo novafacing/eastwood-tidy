@@ -30,52 +30,56 @@ namespace tidy {
 namespace eastwood {
 Rule11aCheck::Rule11aCheck(StringRef Name, ClangTidyContext *Context)
     : ClangTidyCheck(Name, Context), EastwoodTidyCheckBase(Name),
-      checked(false), debug_enabled(Options.get("debug", "false")) {
-  if (this->debug_enabled == "true") {
-    this->debug = true;
-  }
+      debug_enabled(Options.get("debug", "false")) {
+    if (this->debug_enabled == "true") {
+        this->debug = true;
+    }
 }
 
 void Rule11aCheck::registerMatchers(MatchFinder *Finder) {
-  Finder->addMatcher(stmt().bind("relex"), this);
-  Finder->addMatcher(decl().bind("relex"), this);
-  Finder->addMatcher(functionDecl().bind("function"), this);
+    Finder->addMatcher(stmt().bind("relex"), this);
+    Finder->addMatcher(decl().bind("relex"), this);
+    Finder->addMatcher(functionDecl().bind("function"), this);
 }
 
 void Rule11aCheck::check(const MatchFinder::MatchResult &Result) {
-  RELEX();
+    RELEX();
 
-  const SourceManager &SM = *Result.SourceManager;
-  const ASTContext *Context = Result.Context;
+    const SourceManager &SM = *Result.SourceManager;
+    const ASTContext *Context = Result.Context;
 
-  if (auto MatchedDecl = Result.Nodes.getNodeAs<FunctionDecl>("function")) {
-    if (not this->checked) {
-      SourceLocation Location = MatchedDecl->getSourceRange().getBegin();
+    if (auto MatchedDecl = Result.Nodes.getNodeAs<FunctionDecl>("function")) {
+        if (not this->checked) {
+            SourceLocation Location = MatchedDecl->getSourceRange().getBegin();
 
-      for (size_t i = 0; i < this->tokens.size(); i++) {
-        std::string raw_tok_data = *this->tok_string(SM, this->tokens.at(i));
-        if (this->tokens.at(i).isAtStartOfLine() && i > 0) {
-          std::string prec_tok_data =
-              *this->tok_string(SM, this->tokens.at(i - 1));
+            for (size_t i = 0; i < this->tokens.size(); i++) {
+                std::string raw_tok_data = *this->tok_string(SM, this->tokens.at(i));
+                if (this->tokens.at(i).isAtStartOfLine() && i > 0) {
+                    std::string prec_tok_data =
+                        *this->tok_string(SM, this->tokens.at(i - 1));
 
-          if (prec_tok_data.rfind('\n') == prec_tok_data.npos) {
-            continue;
-          }
+                    if (prec_tok_data.rfind('\n') == prec_tok_data.npos ||
+                        prec_tok_data == "\n") {
+                        continue;
+                    }
 
-          std::string indentation =
-              prec_tok_data.substr(prec_tok_data.rfind('\n'));
+                    std::string indentation =
+                        prec_tok_data.substr(prec_tok_data.rfind('\n'));
 
-          for (auto c : indentation) {
-            if (c != ' ') {
-              diag(this->tokens.at(i).getLocation(),
-                   "Indentation must consist of spaces only.");
+                    this->dout()
+                        << "Checking indentation string: '" << indentation << "'\n";
+
+                    for (auto c : indentation) {
+                        if (c != ' ') {
+                            diag(this->tokens.at(i).getLocation(),
+                                 "Indentation must consist of spaces only.");
+                        }
+                    }
+                }
             }
-          }
         }
-      }
+        this->checked = true;
     }
-    this->checked = true;
-  }
 }
 } // namespace eastwood
 } // namespace tidy

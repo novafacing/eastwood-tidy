@@ -30,21 +30,21 @@ namespace eastwood {
 class Rule1bCheck : public ClangTidyCheck, public EastwoodTidyCheckBase {
 
 private:
-  std::string dump;
-  std::map<std::string, std::vector<std::string>> declarations;
-  std::string debug_enabled;
+    std::string dump;
+    std::map<std::string, std::vector<std::string>> declarations;
+    std::string debug_enabled;
 
 public:
-  /* Constructors */
-  Rule1bCheck(StringRef Name, ClangTidyContext *Context);
+    /* Constructors */
+    Rule1bCheck(StringRef Name, ClangTidyContext *Context);
 
-  /* Overrides */
-  void registerMatchers(ast_matchers::MatchFinder *Finder) override;
-  void check(const ast_matchers::MatchFinder::MatchResult &Result) override;
-  void storeOptions(ClangTidyOptions::OptionMap &Opts) override;
-  void onEndOfTranslationUnit() override;
+    /* Overrides */
+    void registerMatchers(ast_matchers::MatchFinder *Finder) override;
+    void check(const ast_matchers::MatchFinder::MatchResult &Result) override;
+    void storeOptions(ClangTidyOptions::OptionMap &Opts) override;
+    void onEndOfTranslationUnit() override;
 
-  void saveVar(std::string name, std::string type);
+    void saveVar(std::string name, std::string type);
 
 }; // Rule1bCheck
 

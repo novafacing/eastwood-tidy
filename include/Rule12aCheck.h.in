@@ -23,17 +23,17 @@ namespace eastwood {
 
 class Rule12aCheck : public ClangTidyCheck, public EastwoodTidyCheckBase {
 private:
-  std::string debug_enabled;
+    std::string debug_enabled;
 
 public:
-  /* Constructors */
-  Rule12aCheck(StringRef Name, ClangTidyContext *Context);
+    /* Constructors */
+    Rule12aCheck(StringRef Name, ClangTidyContext *Context);
 
-  /* Overrides */
-  void registerMatchers(ast_matchers::MatchFinder *Finder) override;
-  void check(const ast_matchers::MatchFinder::MatchResult &Result) override;
-  unsigned last_line;
-  bool first;
+    /* Overrides */
+    void registerMatchers(ast_matchers::MatchFinder *Finder) override;
+    void check(const ast_matchers::MatchFinder::MatchResult &Result) override;
+    unsigned last_line;
+    bool first;
 }; // Rule12aCheck
 } // namespace eastwood
 } // namespace tidy

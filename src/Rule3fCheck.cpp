@@ -18,64 +18,62 @@ namespace eastwood {
 Rule3fCheck::Rule3fCheck(StringRef Name, ClangTidyContext *Context)
     : ClangTidyCheck(Name, Context), EastwoodTidyCheckBase(Name),
       debug_enabled(Options.get("debug", "false")) {
-  if (this->debug_enabled == "true") {
-    this->debug = true;
-  }
+    if (this->debug_enabled == "true") {
+        this->debug = true;
+    }
 }
 void Rule3fCheck::registerMatchers(MatchFinder *Finder) {
-  Finder->addMatcher(stmt().bind("relex"), this);
-  Finder->addMatcher(decl().bind("relex"), this);
-  Finder->addMatcher(functionDecl().bind("function_decl"), this);
+    Finder->addMatcher(stmt().bind("relex"), this);
+    Finder->addMatcher(decl().bind("relex"), this);
+    Finder->addMatcher(functionDecl().bind("function_decl"), this);
 }
 void Rule3fCheck::check(const MatchFinder::MatchResult &Result) {
-  RELEX();
-  const SourceManager &SM = *Result.SourceManager;
-  const ASTContext *Context = Result.Context;
+    RELEX();
+    const SourceManager &SM = *Result.SourceManager;
+    const ASTContext *Context = Result.Context;
 
-  if (auto MatchedDecl =
-          Result.Nodes.getNodeAs<FunctionDecl>("function_decl")) {
-    DeclarationNameInfo NameInfo = MatchedDecl->getNameInfo();
-    SourceLocation NameEnd(NameInfo.getEndLoc());
-    SourceRange ParamsRange = MatchedDecl->getParametersSourceRange();
-    std::pair<FileID, unsigned> LocInfo = SM.getDecomposedLoc(NameEnd);
-    SourceLocation StartOfFile = SM.getLocForStartOfFile(SM.getFileID(NameEnd));
-    StringRef File = SM.getBufferData(SM.getFileID(StartOfFile));
-    const char *TokenBegin = File.data() + LocInfo.second;
+    if (auto MatchedDecl = Result.Nodes.getNodeAs<FunctionDecl>("function_decl")) {
+        DeclarationNameInfo NameInfo = MatchedDecl->getNameInfo();
+        SourceLocation NameEnd(NameInfo.getEndLoc());
+        SourceRange ParamsRange = MatchedDecl->getParametersSourceRange();
+        std::pair<FileID, unsigned> LocInfo = SM.getDecomposedLoc(NameEnd);
+        SourceLocation StartOfFile = SM.getLocForStartOfFile(SM.getFileID(NameEnd));
+        StringRef File = SM.getBufferData(SM.getFileID(StartOfFile));
+        const char *TokenBegin = File.data() + LocInfo.second;
 
-    Lexer RawLexer(SM.getLocForStartOfFile(LocInfo.first),
-                   Context->getLangOpts(), File.begin(), TokenBegin,
-                   File.end());
+        Lexer RawLexer(SM.getLocForStartOfFile(LocInfo.first), Context->getLangOpts(),
+                       File.begin(), TokenBegin, File.end());
 
-    RawLexer.SetKeepWhitespaceMode(true);
+        RawLexer.SetKeepWhitespaceMode(true);
 
-    Token tok;
-    while (not RawLexer.LexFromRawLexer(tok)) {
-      if (tok.getLocation() == NameInfo.getEndLoc()) {
-        if (RawLexer.LexFromRawLexer(tok)) {
-          return;
+        Token tok;
+        while (not RawLexer.LexFromRawLexer(tok)) {
+            if (tok.getLocation() == NameInfo.getEndLoc()) {
+                if (RawLexer.LexFromRawLexer(tok)) {
+                    return;
+                }
+                if (std::string(SM.getCharacterData(tok.getLocation()),
+                                SM.getCharacterData(tok.getEndLoc())) != "(") {
+                    std::string match(SM.getCharacterData(tok.getLocation()),
+                                      SM.getCharacterData(tok.getEndLoc()));
+                    // std::cout << "Matched offender: |" << match << "|" <<
+                    // std::endl;
+                    if (SM.isWrittenInMainFile(tok.getLocation())) {
+                        diag(tok.getLocation(),
+                             "No space permitted between function name and "
+                             "parameter list.");
+                    }
+
+                } else {
+                    std::string match(SM.getCharacterData(tok.getLocation()),
+                                      SM.getCharacterData(tok.getEndLoc()));
+                    // std::cout << "Matched offender: |" << match << "|" <<
+                    // std::endl;
+                }
+                return;
+            }
         }
-        if (std::string(SM.getCharacterData(tok.getLocation()),
-                        SM.getCharacterData(tok.getEndLoc())) != "(") {
-          std::string match(SM.getCharacterData(tok.getLocation()),
-                            SM.getCharacterData(tok.getEndLoc()));
-          // std::cout << "Matched offender: |" << match << "|" <<
-          // std::endl;
-          if (SM.isWrittenInMainFile(tok.getLocation())) {
-            diag(tok.getLocation(),
-                 "No space permitted between function name and "
-                 "parameter list.");
-          }
-
-        } else {
-          std::string match(SM.getCharacterData(tok.getLocation()),
-                            SM.getCharacterData(tok.getEndLoc()));
-          // std::cout << "Matched offender: |" << match << "|" <<
-          // std::endl;
-        }
-        return;
-      }
     }
-  }
 }
 } // namespace eastwood
 } // namespace tidy

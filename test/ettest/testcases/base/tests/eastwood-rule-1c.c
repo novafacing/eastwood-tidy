@@ -8,22 +8,26 @@
 #include "eastwood-rule-1c.h"
 #include <stdio.h>
 
+// Bad: No parens
 #define ROOM_TEMPERATURE 10
-// CHECK-MESSAGES: :[[@LINE-1]]:9: warning: 'ROOM_TEMPERATURE' initializer is non-string constant and not surrounded by parentheses. [eastwood-Rule1C]
-//
-#define room_temperature (10)
-// CHECK-MESSAGES: :[[@LINE-1]]:9: warning: 'room_temperature' is not all uppercase, separated by underscores, and >= 2 characters in length. [eastwood-Rule1C]
 
-// OK: Reason
-// Some code that doesn't fail here
+// Bad: Not uppercase
+#define room_temperature (10)
+
+// Good: Uppercase and has parens
 #define ROOM_TEMPERATURE_AVG (10)
+
+// Bad: Do not use parens for string constants
+#define ROOM_TEMPERATURE_STRING ("10")
+
+// Good: String constant placed in quotes
 #define ROOM_TEMP "ten"
 
 int main() {
-    // No embedded constant, this is overwhelmingly likely to be okay.
-    int some_thing = 10;
-    // Embedded constant
-    printf("%d\n", some_thing + 5);
-    // Embedded constant
-    return 1;
-}
+  // Good: should print out when dumping embedded constants
+  int some_thing = 10;
+  // Good: should print out when dumping embedded constants
+  printf("%d\n", some_thing + 5);
+  // Good: should print out when dumping embedded constants
+  return 1;
+} /* main() */
