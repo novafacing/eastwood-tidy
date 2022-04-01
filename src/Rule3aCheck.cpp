@@ -67,17 +67,27 @@ void Rule3aCheck::check(const MatchFinder::MatchResult &Result) {
             !isa<IfStmt>(MatchedDecl->getElse())) {
             size_t idx = this->token_index(els->getBeginLoc());
             std::vector<Token> else_space_tokens;
-            for (size_t i = idx + 1; i < this->tokens.size(); i++) {
-                if (this->tokens.at(i).getKind() == tok::r_brace) {
-                    if (else_space_tokens.size() != 1 ||
-                        *this->tok_string(*this->source_manager,
-                                          else_space_tokens.at(0)) != " ") {
+            for (size_t i = idx; i < this->tokens.size(); i++) {
+                if (this->tokens.at(i).getKind() == tok::l_brace) {
+                    std::string got = "";
+                    for (auto t : else_space_tokens) {
+                        got += *this->tok_string(*this->source_manager, t);
+                    }
+                    this->dout() << "Text between else and l_brace: '" << got << "'"
+                                 << std::endl;
+                    if (else_space_tokens.size() != 1) {
+                        this->diag(els->getBeginLoc(),
+                                   "There must be exactly one token between 'else' and "
+                                   "open brace");
+                    } else if (*this->tok_string(*this->source_manager,
+                                                 else_space_tokens.at(0)) != " ") {
                         this->diag(els->getBeginLoc(),
                                    "There must be exactly one space between 'else' and "
                                    "open brace");
                     }
                     break;
                 }
+                else_space_tokens.push_back(this->tokens.at(i));
             }
         }
 

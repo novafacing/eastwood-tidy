@@ -53,8 +53,9 @@ void EastwoodTidyCheckBase::register_relex_matchers(MatchFinder *Finder,
 ssize_t EastwoodTidyCheckBase::token_index(const Token &t) {
     ssize_t idx = -1;
     for (size_t i = 0; i < this->tokens.size(); i++) {
-        if (this->tokens.at(i).getLocation() == t.getLocation()) {
-            idx = i;
+        if (!this->source_manager->isBeforeInTranslationUnit(
+                this->tokens.at(i).getLocation(), t.getLocation())) {
+            idx = i - 1;
             break;
         }
     }
@@ -64,8 +65,9 @@ ssize_t EastwoodTidyCheckBase::token_index(const Token &t) {
 ssize_t EastwoodTidyCheckBase::token_index(const SourceLocation &loc) {
     ssize_t idx = -1;
     for (size_t i = 0; i < this->tokens.size(); i++) {
-        if (this->tokens.at(i).getLocation() == loc) {
-            idx = i;
+        if (!this->source_manager->isBeforeInTranslationUnit(
+                this->tokens.at(i).getLocation(), loc)) {
+            idx = i - 1;
             break;
         }
     }

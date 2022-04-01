@@ -86,6 +86,9 @@ int bar(void) {
   // Good: One space
   if (10 == 10) {
   }
+  else {
+    int a = 10;
+  }
 
 // Good: One space
   for (int i = 0; i < 10; i++) {

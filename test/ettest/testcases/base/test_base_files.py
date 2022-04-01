@@ -309,6 +309,10 @@ def test_rule_4_a_file(manager) -> None:
                 # There are a few things in this file that trigger 3a errors due to
                 # not just 1 space between paren and brace, but we want it to also
                 # flag for 4a since they are on the next line - we expect these
+                Error(Rule.III_A, 26, 10),
+                Error(Rule.III_A, 28, 17),
+                Error(Rule.III_A, 36, 17),
+                Error(Rule.III_A, 40, 5),
                 # Rule 4a tests
                 Error(Rule.IV_A, 14, 1),
                 Error(Rule.IV_A, 15, 5),
@@ -317,7 +321,6 @@ def test_rule_4_a_file(manager) -> None:
                 Error(Rule.IV_A, 18, 3),
                 Error(Rule.IV_A, 25, 1),
                 Error(Rule.IV_A, 26, 5),
-                Error(Rule.IV_A, 26, 10),
                 Error(Rule.IV_A, 27, 5),
                 Error(Rule.IV_A, 28, 9),
                 Error(Rule.IV_A, 29, 9),
@@ -328,6 +331,7 @@ def test_rule_4_a_file(manager) -> None:
                 Error(Rule.IV_A, 34, 13),
                 Error(Rule.IV_A, 35, 9),
                 Error(Rule.IV_A, 36, 5),
+                Error(Rule.IV_A, 36, 11),
                 Error(Rule.IV_A, 37, 5),
                 Error(Rule.IV_A, 38, 9),
                 Error(Rule.IV_A, 39, 5),
