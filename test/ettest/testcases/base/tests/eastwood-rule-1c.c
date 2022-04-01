@@ -23,6 +23,11 @@
 // Good: String constant placed in quotes
 #define ROOM_TEMP "ten"
 
+/*
+ * main
+ * @returns 0
+ */
+
 int main() {
   // Good: should print out when dumping embedded constants
   int some_thing = 10;

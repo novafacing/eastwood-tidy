@@ -44,6 +44,11 @@ EastwoodTidyCheckBase::sourcerange_string(const SourceManager &SM,
                                          SM.getCharacterData(range.getEnd()));
 }
 
+void EastwoodTidyCheckBase::register_relex_matchers(MatchFinder *Finder) {
+    Finder->addMatcher(stmt().bind("relex"), this);
+    Finder->addMatcher(decl().bind("relex"), this);
+}
+
 void EastwoodTidyCheckBase::relex_file(const MatchFinder::MatchResult &Result,
                                        const std::string &match_name,
                                        const Optional<SourceLocation> &loc_override,

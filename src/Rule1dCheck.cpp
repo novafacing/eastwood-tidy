@@ -27,22 +27,45 @@ Rule1dCheck::Rule1dCheck(StringRef Name, ClangTidyContext *Context)
 }
 
 void Rule1dCheck::registerMatchers(MatchFinder *Finder) {
+    Finder->addMatcher(functionDecl().bind("function"), this);
     Finder->addMatcher(varDecl(hasGlobalStorage()).bind("variable"), this);
 }
 
 void Rule1dCheck::check(const MatchFinder::MatchResult &Result) {
-    const auto *MatchedDecl = Result.Nodes.getNodeAs<VarDecl>("variable");
-    if (!(Result.SourceManager)->isWrittenInMainFile(MatchedDecl->getLocation())) {
-        return;
-    }
+    if (auto MatchedDecl = Result.Nodes.getNodeAs<VarDecl>("variable")) {
+        if (!(Result.SourceManager)->isWrittenInMainFile(MatchedDecl->getLocation())) {
+            return;
+        }
 
-    if (MatchedDecl->getName().startswith("g_")) {
-        return;
-    } else {
-        diag(MatchedDecl->getLocation(),
-             "Global variable %0 doesn't conform to global naming scheme.")
-            << MatchedDecl
-            << FixItHint::CreateInsertion(MatchedDecl->getLocation(), "g_");
+        if (!MatchedDecl->getName().startswith("g_")) {
+            diag(MatchedDecl->getLocation(),
+                 "Global variable %0 doesn't conform to global naming scheme.")
+                << MatchedDecl
+                << FixItHint::CreateInsertion(MatchedDecl->getLocation(), "g_");
+        }
+
+        if (this->first_function_line != -1 &&
+            (Result.SourceManager)->getSpellingLineNumber(MatchedDecl->getLocation()) >
+                this->first_function_line) {
+            diag(MatchedDecl->getLocation(), "Global variable %0 must be declared at "
+                                             "the top of the file before any function.")
+                << MatchedDecl->getName()
+                << FixItHint::CreateRemoval(MatchedDecl->getSourceRange());
+        }
+    } else if (auto MatchedDecl = Result.Nodes.getNodeAs<FunctionDecl>("function")) {
+        if (!(Result.SourceManager)->isWrittenInMainFile(MatchedDecl->getLocation())) {
+            return;
+        }
+
+        if (this->first_function_line == -1) {
+            this->dout() << "Setting first_function_line to "
+                         << (Result.SourceManager)
+                                ->getSpellingLineNumber(MatchedDecl->getLocation())
+                         << "\n";
+            this->first_function_line =
+                (Result.SourceManager)
+                    ->getSpellingLineNumber(MatchedDecl->getBeginLoc());
+        }
     }
 }
 

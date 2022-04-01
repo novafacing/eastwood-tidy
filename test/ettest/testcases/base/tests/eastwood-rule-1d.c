@@ -1,8 +1,8 @@
 // RUN: %%check_clang_tidy %%s eastwood-rule-1d %%t
 /* --------------------- Test Code Style Section I.D 
- * All global variables must be started with prefix 'g_'.Declarations/definition
- * s should be at the top of the file.
- * --------------------------------------------------------------------------------------------------- */
+ * All global variables must be started with prefix 'g_'.Declarations/
+ * definitions should be at the top of the file.
+ * ------------------------------------------------------------------------- */
 #include "eastwood-rule-1d.h"
 
 
@@ -12,6 +12,9 @@ int bad_global = 0;
 // Good: started with g_
 int g_good_global = 0;
 
+/*
+ * main
+ */
 
 int main() {
     return 0;

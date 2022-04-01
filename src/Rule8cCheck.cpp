@@ -29,39 +29,9 @@ public:
         : Check(Check), PP(PP), SM(SM){};
 
     void Ifndef(SourceLocation Loc, const Token &MacroNameTok,
-                const MacroDefinition &MD) override {
-        /*
-            std::string
-           macro_name(this->SM.getCharacterData(MacroNameTok.getLocation()),
-                    this->SM.getCharacterData(MacroNameTok.getEndLoc()));
-            std::string basename(macro_name);
-            if (basename.find_last_of("/") != std::string::npos) {
-                basename = basename.substr(basename.find_last_of("/") + 1);
-            }
-            std::transform(basename.begin(),
-           basename.end(),basename.begin(), ::toupper);
-            std::replace(basename.begin(), basename.end(), '.', '_');
-            std::replace(basename.begin(), basename.end(), '-', '_');
-            this->Check->found_ifndef_checks.push_back(basename);
-            */
-    }
+                const MacroDefinition &MD) override {}
 
-    void MacroDefined(const Token &MacroNameTok, const MacroDirective *MD) override {
-        /*
-            std::string
-           macro_name(this->SM.getCharacterData(MacroNameTok.getLocation()),
-                    this->SM.getCharacterData(MacroNameTok.getEndLoc()));
-            std::string basename(macro_name);
-            if (basename.find_last_of("/") != std::string::npos) {
-                basename = basename.substr(basename.find_last_of("/") + 1);
-            }
-            std::transform(basename.begin(),
-           basename.end(),basename.begin(), ::toupper);
-            std::replace(basename.begin(), basename.end(), '.', '_');
-            std::replace(basename.begin(), basename.end(), '-', '_');
-            this->Check->found_defined_macro_guards.push_back(basename);
-            */
-    }
+    void MacroDefined(const Token &MacroNameTok, const MacroDirective *MD) override {}
 
     void InclusionDirective(SourceLocation HashLoc, const Token &IncludeTok,
                             StringRef FileName, bool isAngled,
@@ -84,24 +54,17 @@ public:
                                ::toupper);
                 std::replace(basename.begin(), basename.end(), '.', '_');
                 std::replace(basename.begin(), basename.end(), '-', '_');
-                // basename += "_H";
                 auto filename = File->tryGetRealPathName().str();
                 std::ifstream headerfs(filename);
                 std::vector<std::string> lines;
                 std::string line;
                 while (std::getline(headerfs, line)) {
-                    // std::cout << "read line from file: " << line <<
-                    // std::endl;
                     lines.push_back(line);
                 }
                 std::regex firstline("^#ifndef " + basename + "$");
                 std::regex secondline("^#define " + basename + "$");
                 std::regex lastline("^#endif // " + basename + "$");
                 std::smatch results;
-                for (auto s : lines) {
-                    // std::cout << "Line in include file: " << s <<
-                    // std::endl;
-                }
                 if (lines.size() < 1) {
                     this->Check->diag(HashLoc,
                                       "Header file missing ifndef component of "
@@ -163,34 +126,7 @@ void Rule8cCheck::registerMatchers(MatchFinder *Finder) {
 
 void Rule8cCheck::check(const MatchFinder::MatchResult &Result) { return; }
 
-void Rule8cCheck::onEndOfTranslationUnit() {
-    /*
-    std::cout << "Have " << this->required_guards.size() << " required
-    guards" << std::endl; for (auto r : this->required_guards) { std::cout
-    << "Guard required: " << r.first << std::endl;
-    }
-    std::cout << "Have " << this->found_ifndef_checks.size() << " ifdef
-    checks:" << std::endl; for (auto r : this->found_ifndef_checks) {
-        std::cout << "Ifdef check: " << r << std::endl;
-    }
-
-    for (auto req : this->required_guards) {
-        std::cout << "Required guard: " << req.first << std::endl;
-        if (std::find(this->found_ifndef_checks.begin(),
-    this->found_ifndef_checks.end(), req.first)
-                == this->found_ifndef_checks.end()) {
-            diag(req.second, "Expected ifndef define guard check in included
-    header file");
-        }
-        if (std::find(this->found_defined_macro_guards.begin(),
-    this->found_defined_macro_guards.end(), req.first)
-                == this->found_defined_macro_guards.end()) {
-            diag(req.second, "Expected define guard in included header
-    file");
-        }
-    }
-    */
-}
+void Rule8cCheck::onEndOfTranslationUnit() {}
 } // namespace eastwood
 } // namespace tidy
 } // namespace clang

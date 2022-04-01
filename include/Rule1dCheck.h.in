@@ -24,6 +24,9 @@ namespace eastwood {
 class Rule1dCheck : public ClangTidyCheck, public EastwoodTidyCheckBase {
 private:
     std::string debug_enabled;
+    /* The first line we see a function on -- any global variables must be
+     * declared prior to this line or it is an error. */
+    ssize_t first_function_line = -1;
 
 public:
     /* Constructors */

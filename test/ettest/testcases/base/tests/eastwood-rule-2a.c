@@ -15,11 +15,15 @@ struct list_node {
   int value;
 };
 
+/*
+ * foo
+ */
+
 int foo(void) { 
   // Bad: line length
   int aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa = 10; 
 
-  struct list_node * node;
+  struct list_node * node = NULL;
 
   // Bad: The expression does not fit on one line and should be indented by 2
   // on subsequent lines

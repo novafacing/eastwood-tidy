@@ -20,14 +20,18 @@ def test_rule_1_a_file(manager) -> None:
                 Error(Rule.I_A, 12, 5),
                 Error(Rule.I_A, 15, 5),
                 Error(Rule.I_A, 21, 8),
-                Error(Rule.I_A, 31, 5),
+                Error(Rule.I_A, 37, 5),
             ],
         )
     ]
     for test in tests:
         res = manager.test_file(test)
-        assert not res.unexpected_errors
-        assert not res.unseen_errors
+        assert (
+            not res.unexpected_errors
+        ), f"Received UNEXPECTED error(s): {res.unexpected_errors}"
+        assert (
+            not res.unseen_errors
+        ), f"Did not receive EXPECTED error(s): {res.unseen_errors}"
 
 
 # File tests for Rule1b:
@@ -43,8 +47,12 @@ def test_rule_1_b_file(manager) -> None:
     tests = [FileTest("eastwood-rule-1b.c", [])]
     for test in tests:
         res = manager.test_file(test)
-        assert not res.unexpected_errors
-        assert not res.unseen_errors
+        assert (
+            not res.unexpected_errors
+        ), f"Received UNEXPECTED error(s): {res.unexpected_errors}"
+        assert (
+            not res.unseen_errors
+        ), f"Did not receive EXPECTED error(s): {res.unseen_errors}"
 
 
 # File tests for Rule1c:
@@ -66,8 +74,12 @@ def test_rule_1_c_file(manager) -> None:
     ]
     for test in tests:
         res = manager.test_file(test)
-        assert not res.unexpected_errors
-        assert not res.unseen_errors
+        assert (
+            not res.unexpected_errors
+        ), f"Received UNEXPECTED error(s): {res.unexpected_errors}"
+        assert (
+            not res.unseen_errors
+        ), f"Did not receive EXPECTED error(s): {res.unseen_errors}"
 
 
 # File tests for Rule1d:
@@ -80,12 +92,16 @@ def test_rule_1_d_file(manager) -> None:
     File test cases for rule 1d
     """
     tests = [
-        FileTest("eastwood-rule-1d.c", [Error(Rule.I_D, 10, 5), Error(Rule.I_D, 21, 5)])
+        FileTest("eastwood-rule-1d.c", [Error(Rule.I_D, 10, 5), Error(Rule.I_D, 24, 5)])
     ]
     for test in tests:
         res = manager.test_file(test)
-        assert not res.unexpected_errors
-        assert not res.unseen_errors
+        assert (
+            not res.unexpected_errors
+        ), f"Received UNEXPECTED error(s): {res.unexpected_errors}"
+        assert (
+            not res.unseen_errors
+        ), f"Did not receive EXPECTED error(s): {res.unseen_errors}"
 
 
 # File tests for Rule2a:
@@ -108,8 +124,12 @@ def test_rule_2_a_file(manager) -> None:
     ]
     for test in tests:
         res = manager.test_file(test)
-        assert not res.unexpected_errors
-        assert not res.unseen_errors
+        assert (
+            not res.unexpected_errors
+        ), f"Received UNEXPECTED error(s): {res.unexpected_errors}"
+        assert (
+            not res.unseen_errors
+        ), f"Did not receive EXPECTED error(s): {res.unseen_errors}"
 
 
 # File tests for Rule2b:
@@ -124,8 +144,12 @@ def test_rule_2_b_file(manager) -> None:
     tests = [FileTest("eastwood-rule-2b.c", [Error(Rule.II_B, 271, 0)])]
     for test in tests:
         res = manager.test_file(test)
-        assert not res.unexpected_errors
-        assert not res.unseen_errors
+        assert (
+            not res.unexpected_errors
+        ), f"Received UNEXPECTED error(s): {res.unexpected_errors}"
+        assert (
+            not res.unseen_errors
+        ), f"Did not receive EXPECTED error(s): {res.unseen_errors}"
 
 
 # File tests for Rule3a:
@@ -140,8 +164,12 @@ def test_rule_3_a_file(manager) -> None:
     tests = [FileTest("eastwood-rule-3a.c", [])]
     for test in tests:
         res = manager.test_file(test)
-        assert not res.unexpected_errors
-        assert not res.unseen_errors
+        assert (
+            not res.unexpected_errors
+        ), f"Received UNEXPECTED error(s): {res.unexpected_errors}"
+        assert (
+            not res.unseen_errors
+        ), f"Did not receive EXPECTED error(s): {res.unseen_errors}"
 
 
 # File tests for Rule3b:
@@ -156,8 +184,12 @@ def test_rule_3_b_file(manager) -> None:
     tests = [FileTest("eastwood-rule-3b.c", [])]
     for test in tests:
         res = manager.test_file(test)
-        assert not res.unexpected_errors
-        assert not res.unseen_errors
+        assert (
+            not res.unexpected_errors
+        ), f"Received UNEXPECTED error(s): {res.unexpected_errors}"
+        assert (
+            not res.unseen_errors
+        ), f"Did not receive EXPECTED error(s): {res.unseen_errors}"
 
 
 # File tests for Rule3c:
@@ -172,8 +204,12 @@ def test_rule_3_c_file(manager) -> None:
     tests = [FileTest("eastwood-rule-3c.c", [])]
     for test in tests:
         res = manager.test_file(test)
-        assert not res.unexpected_errors
-        assert not res.unseen_errors
+        assert (
+            not res.unexpected_errors
+        ), f"Received UNEXPECTED error(s): {res.unexpected_errors}"
+        assert (
+            not res.unseen_errors
+        ), f"Did not receive EXPECTED error(s): {res.unseen_errors}"
 
 
 # File tests for Rule3d:
@@ -188,8 +224,12 @@ def test_rule_3_d_file(manager) -> None:
     tests = [FileTest("eastwood-rule-3d.c", [])]
     for test in tests:
         res = manager.test_file(test)
-        assert not res.unexpected_errors
-        assert not res.unseen_errors
+        assert (
+            not res.unexpected_errors
+        ), f"Received UNEXPECTED error(s): {res.unexpected_errors}"
+        assert (
+            not res.unseen_errors
+        ), f"Did not receive EXPECTED error(s): {res.unseen_errors}"
 
 
 # File tests for Rule4a:
@@ -204,8 +244,12 @@ def test_rule_4_a_file(manager) -> None:
     tests = [FileTest("eastwood-rule-4a.c", [])]
     for test in tests:
         res = manager.test_file(test)
-        assert not res.unexpected_errors
-        assert not res.unseen_errors
+        assert (
+            not res.unexpected_errors
+        ), f"Received UNEXPECTED error(s): {res.unexpected_errors}"
+        assert (
+            not res.unseen_errors
+        ), f"Did not receive EXPECTED error(s): {res.unseen_errors}"
 
 
 # File tests for Rule4b:
@@ -220,8 +264,12 @@ def test_rule_4_b_file(manager) -> None:
     tests = [FileTest("eastwood-rule-4b.c", [])]
     for test in tests:
         res = manager.test_file(test)
-        assert not res.unexpected_errors
-        assert not res.unseen_errors
+        assert (
+            not res.unexpected_errors
+        ), f"Received UNEXPECTED error(s): {res.unexpected_errors}"
+        assert (
+            not res.unseen_errors
+        ), f"Did not receive EXPECTED error(s): {res.unseen_errors}"
 
 
 # File tests for Rule4c:
@@ -236,8 +284,12 @@ def test_rule_4_c_file(manager) -> None:
     tests = [FileTest("eastwood-rule-4c.c", [])]
     for test in tests:
         res = manager.test_file(test)
-        assert not res.unexpected_errors
-        assert not res.unseen_errors
+        assert (
+            not res.unexpected_errors
+        ), f"Received UNEXPECTED error(s): {res.unexpected_errors}"
+        assert (
+            not res.unseen_errors
+        ), f"Did not receive EXPECTED error(s): {res.unseen_errors}"
 
 
 # File tests for Rule5a:
@@ -252,8 +304,12 @@ def test_rule_5_a_file(manager) -> None:
     tests = [FileTest("eastwood-rule-5a.c", [])]
     for test in tests:
         res = manager.test_file(test)
-        assert not res.unexpected_errors
-        assert not res.unseen_errors
+        assert (
+            not res.unexpected_errors
+        ), f"Received UNEXPECTED error(s): {res.unexpected_errors}"
+        assert (
+            not res.unseen_errors
+        ), f"Did not receive EXPECTED error(s): {res.unseen_errors}"
 
 
 # File tests for Rule5b:
@@ -268,8 +324,12 @@ def test_rule_5_b_file(manager) -> None:
     tests = [FileTest("eastwood-rule-5b.c", [])]
     for test in tests:
         res = manager.test_file(test)
-        assert not res.unexpected_errors
-        assert not res.unseen_errors
+        assert (
+            not res.unexpected_errors
+        ), f"Received UNEXPECTED error(s): {res.unexpected_errors}"
+        assert (
+            not res.unseen_errors
+        ), f"Did not receive EXPECTED error(s): {res.unseen_errors}"
 
 
 # File tests for Rule5c:
@@ -284,8 +344,12 @@ def test_rule_5_c_file(manager) -> None:
     tests = [FileTest("eastwood-rule-5c.c", [])]
     for test in tests:
         res = manager.test_file(test)
-        assert not res.unexpected_errors
-        assert not res.unseen_errors
+        assert (
+            not res.unexpected_errors
+        ), f"Received UNEXPECTED error(s): {res.unexpected_errors}"
+        assert (
+            not res.unseen_errors
+        ), f"Did not receive EXPECTED error(s): {res.unseen_errors}"
 
 
 # File tests for Rule5d:
@@ -300,8 +364,12 @@ def test_rule_5_d_file(manager) -> None:
     tests = [FileTest("eastwood-rule-5d.c", [])]
     for test in tests:
         res = manager.test_file(test)
-        assert not res.unexpected_errors
-        assert not res.unseen_errors
+        assert (
+            not res.unexpected_errors
+        ), f"Received UNEXPECTED error(s): {res.unexpected_errors}"
+        assert (
+            not res.unseen_errors
+        ), f"Did not receive EXPECTED error(s): {res.unseen_errors}"
 
 
 # File tests for Rule5e:
@@ -316,8 +384,12 @@ def test_rule_5_e_file(manager) -> None:
     tests = [FileTest("eastwood-rule-5e.c", [])]
     for test in tests:
         res = manager.test_file(test)
-        assert not res.unexpected_errors
-        assert not res.unseen_errors
+        assert (
+            not res.unexpected_errors
+        ), f"Received UNEXPECTED error(s): {res.unexpected_errors}"
+        assert (
+            not res.unseen_errors
+        ), f"Did not receive EXPECTED error(s): {res.unseen_errors}"
 
 
 # File tests for Rule6a:
@@ -332,8 +404,12 @@ def test_rule_6_a_file(manager) -> None:
     tests = [FileTest("eastwood-rule-6a.c", [])]
     for test in tests:
         res = manager.test_file(test)
-        assert not res.unexpected_errors
-        assert not res.unseen_errors
+        assert (
+            not res.unexpected_errors
+        ), f"Received UNEXPECTED error(s): {res.unexpected_errors}"
+        assert (
+            not res.unseen_errors
+        ), f"Did not receive EXPECTED error(s): {res.unseen_errors}"
 
 
 # File tests for Rule7a:
@@ -348,8 +424,12 @@ def test_rule_7_a_file(manager) -> None:
     tests = [FileTest("eastwood-rule-7a.c", [])]
     for test in tests:
         res = manager.test_file(test)
-        assert not res.unexpected_errors
-        assert not res.unseen_errors
+        assert (
+            not res.unexpected_errors
+        ), f"Received UNEXPECTED error(s): {res.unexpected_errors}"
+        assert (
+            not res.unseen_errors
+        ), f"Did not receive EXPECTED error(s): {res.unseen_errors}"
 
 
 # File tests for Rule8a:
@@ -364,8 +444,12 @@ def test_rule_8_a_file(manager) -> None:
     tests = [FileTest("eastwood-rule-8a.c", [])]
     for test in tests:
         res = manager.test_file(test)
-        assert not res.unexpected_errors
-        assert not res.unseen_errors
+        assert (
+            not res.unexpected_errors
+        ), f"Received UNEXPECTED error(s): {res.unexpected_errors}"
+        assert (
+            not res.unseen_errors
+        ), f"Did not receive EXPECTED error(s): {res.unseen_errors}"
 
 
 # File tests for Rule8b:
@@ -380,8 +464,12 @@ def test_rule_8_b_file(manager) -> None:
     tests = [FileTest("eastwood-rule-8b.c", [])]
     for test in tests:
         res = manager.test_file(test)
-        assert not res.unexpected_errors
-        assert not res.unseen_errors
+        assert (
+            not res.unexpected_errors
+        ), f"Received UNEXPECTED error(s): {res.unexpected_errors}"
+        assert (
+            not res.unseen_errors
+        ), f"Did not receive EXPECTED error(s): {res.unseen_errors}"
 
 
 # File tests for Rule8c:
@@ -396,8 +484,12 @@ def test_rule_8_c_file(manager) -> None:
     tests = [FileTest("eastwood-rule-8c.c", [])]
     for test in tests:
         res = manager.test_file(test)
-        assert not res.unexpected_errors
-        assert not res.unseen_errors
+        assert (
+            not res.unexpected_errors
+        ), f"Received UNEXPECTED error(s): {res.unexpected_errors}"
+        assert (
+            not res.unseen_errors
+        ), f"Did not receive EXPECTED error(s): {res.unseen_errors}"
 
 
 # File tests for Rule8d:
@@ -412,8 +504,12 @@ def test_rule_8_d_file(manager) -> None:
     tests = [FileTest("eastwood-rule-8d.c", [])]
     for test in tests:
         res = manager.test_file(test)
-        assert not res.unexpected_errors
-        assert not res.unseen_errors
+        assert (
+            not res.unexpected_errors
+        ), f"Received UNEXPECTED error(s): {res.unexpected_errors}"
+        assert (
+            not res.unseen_errors
+        ), f"Did not receive EXPECTED error(s): {res.unseen_errors}"
 
 
 # File tests for Rule8e:
@@ -428,8 +524,12 @@ def test_rule_8_e_file(manager) -> None:
     tests = [FileTest("eastwood-rule-8e.c", [])]
     for test in tests:
         res = manager.test_file(test)
-        assert not res.unexpected_errors
-        assert not res.unseen_errors
+        assert (
+            not res.unexpected_errors
+        ), f"Received UNEXPECTED error(s): {res.unexpected_errors}"
+        assert (
+            not res.unseen_errors
+        ), f"Did not receive EXPECTED error(s): {res.unseen_errors}"
 
 
 # File tests for Rule8f:
@@ -444,8 +544,12 @@ def test_rule_8_f_file(manager) -> None:
     tests = [FileTest("eastwood-rule-8f.c", [])]
     for test in tests:
         res = manager.test_file(test)
-        assert not res.unexpected_errors
-        assert not res.unseen_errors
+        assert (
+            not res.unexpected_errors
+        ), f"Received UNEXPECTED error(s): {res.unexpected_errors}"
+        assert (
+            not res.unseen_errors
+        ), f"Did not receive EXPECTED error(s): {res.unseen_errors}"
 
 
 # File tests for Rule8g:
@@ -460,8 +564,12 @@ def test_rule_8_g_file(manager) -> None:
     tests = [FileTest("eastwood-rule-8g.c", [])]
     for test in tests:
         res = manager.test_file(test)
-        assert not res.unexpected_errors
-        assert not res.unseen_errors
+        assert (
+            not res.unexpected_errors
+        ), f"Received UNEXPECTED error(s): {res.unexpected_errors}"
+        assert (
+            not res.unseen_errors
+        ), f"Did not receive EXPECTED error(s): {res.unseen_errors}"
 
 
 # File tests for Rule9a:
@@ -476,8 +584,12 @@ def test_rule_9_a_file(manager) -> None:
     tests = [FileTest("eastwood-rule-9a.c", [])]
     for test in tests:
         res = manager.test_file(test)
-        assert not res.unexpected_errors
-        assert not res.unseen_errors
+        assert (
+            not res.unexpected_errors
+        ), f"Received UNEXPECTED error(s): {res.unexpected_errors}"
+        assert (
+            not res.unseen_errors
+        ), f"Did not receive EXPECTED error(s): {res.unseen_errors}"
 
 
 # File tests for Rule9b:
@@ -492,8 +604,12 @@ def test_rule_9_b_file(manager) -> None:
     tests = [FileTest("eastwood-rule-9b.c", [])]
     for test in tests:
         res = manager.test_file(test)
-        assert not res.unexpected_errors
-        assert not res.unseen_errors
+        assert (
+            not res.unexpected_errors
+        ), f"Received UNEXPECTED error(s): {res.unexpected_errors}"
+        assert (
+            not res.unseen_errors
+        ), f"Did not receive EXPECTED error(s): {res.unseen_errors}"
 
 
 # File tests for Rule9c:
@@ -508,8 +624,12 @@ def test_rule_9_c_file(manager) -> None:
     tests = [FileTest("eastwood-rule-9c.c", [])]
     for test in tests:
         res = manager.test_file(test)
-        assert not res.unexpected_errors
-        assert not res.unseen_errors
+        assert (
+            not res.unexpected_errors
+        ), f"Received UNEXPECTED error(s): {res.unexpected_errors}"
+        assert (
+            not res.unseen_errors
+        ), f"Did not receive EXPECTED error(s): {res.unseen_errors}"
 
 
 # File tests for Rule9d:
@@ -524,8 +644,12 @@ def test_rule_9_d_file(manager) -> None:
     tests = [FileTest("eastwood-rule-9d.c", [])]
     for test in tests:
         res = manager.test_file(test)
-        assert not res.unexpected_errors
-        assert not res.unseen_errors
+        assert (
+            not res.unexpected_errors
+        ), f"Received UNEXPECTED error(s): {res.unexpected_errors}"
+        assert (
+            not res.unseen_errors
+        ), f"Did not receive EXPECTED error(s): {res.unseen_errors}"
 
 
 # File tests for Rule9e:
@@ -540,8 +664,12 @@ def test_rule_9_e_file(manager) -> None:
     tests = [FileTest("eastwood-rule-9e.c", [])]
     for test in tests:
         res = manager.test_file(test)
-        assert not res.unexpected_errors
-        assert not res.unseen_errors
+        assert (
+            not res.unexpected_errors
+        ), f"Received UNEXPECTED error(s): {res.unexpected_errors}"
+        assert (
+            not res.unseen_errors
+        ), f"Did not receive EXPECTED error(s): {res.unseen_errors}"
 
 
 # File tests for Rule10a:
@@ -556,8 +684,12 @@ def test_rule_10_a_file(manager) -> None:
     tests = [FileTest("eastwood-rule-10a.c", [])]
     for test in tests:
         res = manager.test_file(test)
-        assert not res.unexpected_errors
-        assert not res.unseen_errors
+        assert (
+            not res.unexpected_errors
+        ), f"Received UNEXPECTED error(s): {res.unexpected_errors}"
+        assert (
+            not res.unseen_errors
+        ), f"Did not receive EXPECTED error(s): {res.unseen_errors}"
 
 
 # File tests for Rule11a:
@@ -572,8 +704,12 @@ def test_rule_11_a_file(manager) -> None:
     tests = [FileTest("eastwood-rule-11a.c", [])]
     for test in tests:
         res = manager.test_file(test)
-        assert not res.unexpected_errors
-        assert not res.unseen_errors
+        assert (
+            not res.unexpected_errors
+        ), f"Received UNEXPECTED error(s): {res.unexpected_errors}"
+        assert (
+            not res.unseen_errors
+        ), f"Did not receive EXPECTED error(s): {res.unseen_errors}"
 
 
 # File tests for Rule11b:
@@ -588,8 +724,12 @@ def test_rule_11_b_file(manager) -> None:
     tests = [FileTest("eastwood-rule-11b.c", [])]
     for test in tests:
         res = manager.test_file(test)
-        assert not res.unexpected_errors
-        assert not res.unseen_errors
+        assert (
+            not res.unexpected_errors
+        ), f"Received UNEXPECTED error(s): {res.unexpected_errors}"
+        assert (
+            not res.unseen_errors
+        ), f"Did not receive EXPECTED error(s): {res.unseen_errors}"
 
 
 # File tests for Rule11c:
@@ -604,8 +744,12 @@ def test_rule_11_c_file(manager) -> None:
     tests = [FileTest("eastwood-rule-11c.c", [])]
     for test in tests:
         res = manager.test_file(test)
-        assert not res.unexpected_errors
-        assert not res.unseen_errors
+        assert (
+            not res.unexpected_errors
+        ), f"Received UNEXPECTED error(s): {res.unexpected_errors}"
+        assert (
+            not res.unseen_errors
+        ), f"Did not receive EXPECTED error(s): {res.unseen_errors}"
 
 
 # File tests for Rule11d:
@@ -620,8 +764,12 @@ def test_rule_11_d_file(manager) -> None:
     tests = [FileTest("eastwood-rule-11d.c", [])]
     for test in tests:
         res = manager.test_file(test)
-        assert not res.unexpected_errors
-        assert not res.unseen_errors
+        assert (
+            not res.unexpected_errors
+        ), f"Received UNEXPECTED error(s): {res.unexpected_errors}"
+        assert (
+            not res.unseen_errors
+        ), f"Did not receive EXPECTED error(s): {res.unseen_errors}"
 
 
 # File tests for Rule11e:
@@ -636,8 +784,12 @@ def test_rule_11_e_file(manager) -> None:
     tests = [FileTest("eastwood-rule-11e.c", [])]
     for test in tests:
         res = manager.test_file(test)
-        assert not res.unexpected_errors
-        assert not res.unseen_errors
+        assert (
+            not res.unexpected_errors
+        ), f"Received UNEXPECTED error(s): {res.unexpected_errors}"
+        assert (
+            not res.unseen_errors
+        ), f"Did not receive EXPECTED error(s): {res.unseen_errors}"
 
 
 # File tests for Rule12a:
@@ -652,8 +804,12 @@ def test_rule_12_a_file(manager) -> None:
     tests = [FileTest("eastwood-rule-12a.c", [])]
     for test in tests:
         res = manager.test_file(test)
-        assert not res.unexpected_errors
-        assert not res.unseen_errors
+        assert (
+            not res.unexpected_errors
+        ), f"Received UNEXPECTED error(s): {res.unexpected_errors}"
+        assert (
+            not res.unseen_errors
+        ), f"Did not receive EXPECTED error(s): {res.unseen_errors}"
 
 
 # File tests for Rule12b:
@@ -668,8 +824,12 @@ def test_rule_12_b_file(manager) -> None:
     tests = [FileTest("eastwood-rule-12b.c", [])]
     for test in tests:
         res = manager.test_file(test)
-        assert not res.unexpected_errors
-        assert not res.unseen_errors
+        assert (
+            not res.unexpected_errors
+        ), f"Received UNEXPECTED error(s): {res.unexpected_errors}"
+        assert (
+            not res.unseen_errors
+        ), f"Did not receive EXPECTED error(s): {res.unseen_errors}"
 
 
 # File tests for Rule12c:
@@ -684,5 +844,9 @@ def test_rule_12_c_file(manager) -> None:
     tests = [FileTest("eastwood-rule-12c.c", [])]
     for test in tests:
         res = manager.test_file(test)
-        assert not res.unexpected_errors
-        assert not res.unseen_errors
+        assert (
+            not res.unexpected_errors
+        ), f"Received UNEXPECTED error(s): {res.unexpected_errors}"
+        assert (
+            not res.unseen_errors
+        ), f"Did not receive EXPECTED error(s): {res.unseen_errors}"

@@ -53,24 +53,11 @@ void Rule11aCheck::check(const MatchFinder::MatchResult &Result) {
             SourceLocation Location = MatchedDecl->getSourceRange().getBegin();
 
             for (size_t i = 0; i < this->tokens.size(); i++) {
-                std::string raw_tok_data = *this->tok_string(SM, this->tokens.at(i));
                 if (this->tokens.at(i).isAtStartOfLine() && i > 0) {
-                    std::string prec_tok_data =
-                        *this->tok_string(SM, this->tokens.at(i - 1));
+                    std::string ws(*this->tok_string(SM, this->tokens.at(i - 1)));
 
-                    if (prec_tok_data.rfind('\n') == prec_tok_data.npos ||
-                        prec_tok_data == "\n") {
-                        continue;
-                    }
-
-                    std::string indentation =
-                        prec_tok_data.substr(prec_tok_data.rfind('\n'));
-
-                    this->dout()
-                        << "Checking indentation string: '" << indentation << "'\n";
-
-                    for (auto c : indentation) {
-                        if (c != ' ') {
+                    for (auto c : ws) {
+                        if (c != ' ' && c != '\n') {
                             diag(this->tokens.at(i).getLocation(),
                                  "Indentation must consist of spaces only.");
                         }

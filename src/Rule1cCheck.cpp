@@ -14,13 +14,13 @@
 using namespace clang::ast_matchers;
 
 /* This may be overly permissive */
-static bool isSurroundedLeft(const clang::Token &T) {
+static bool isLeftSurround(const clang::Token &T) {
     return T.isOneOf(clang::tok::l_paren, clang::tok::l_brace, clang::tok::l_square,
                      clang::tok::comma, clang::tok::semi);
 }
 
 /* This may be overly permissive */
-static bool isSurroundedRight(const clang::Token &T) {
+static bool isRightSurround(const clang::Token &T) {
     return T.isOneOf(clang::tok::r_paren, clang::tok::r_brace, clang::tok::r_square,
                      clang::tok::comma, clang::tok::semi);
 }
@@ -37,13 +37,6 @@ private:
 public:
     Rule1cPPCallBack(Rule1cCheck *Check, Preprocessor *PP) : Check(Check), PP(PP) {}
 
-    /* Can also implement:
-     *  - MacroExpands (whenever macro is expanded)
-     *  - MacroUndefined (whenever #undef <x>
-     *  - Defined (whenever `defined` token
-     *  - Ifdef
-     *  - Ifndef
-     */
     void MacroDefined(const Token &MacroNameTok, const MacroDirective *MD) override {
         if (this->PP->getSourceManager().isWrittenInBuiltinFile(MD->getLocation()) ||
             !this->PP->getSourceManager().isWrittenInMainFile(MD->getLocation()) ||
@@ -62,33 +55,35 @@ public:
             Diag << name;
         }
 
-        /* A constant declaration with #define will either be "string" or
-         * (val) (1 / 3 toks) */
-        // TODO: Still failing the correct case....not sure why. TODO!!!!
-        if (MD->getMacroInfo()->getNumTokens() == 1 ||
-            MD->getMacroInfo()->getNumTokens() == 3) {
+        if (MD->getMacroInfo()->getNumTokens() == 1) {
+            const Token &start = *(MD->getMacroInfo()->tokens_begin());
+
+            if (tok::isLiteral(start.getKind()) &&
+                !tok::isStringLiteral(start.getKind())) {
+                this->Check->diag(MD->getLocation(),
+                                  "'%0' initializer is non-string constant and not "
+                                  "surrounded by parentheses.")
+                    << name;
+            }
+        } else if (MD->getMacroInfo()->getNumTokens() == 3) {
             const Token &start = *(MD->getMacroInfo()->tokens_begin());
             const Token &primary = *(MD->getMacroInfo()->tokens_begin() + 1);
             const Token &end = *(MD->getMacroInfo()->tokens_begin() + 2);
-            if (tok::isLiteral(primary.getKind()) &&
-                !tok::isStringLiteral(primary.getKind())) {
-                if (isSurroundedLeft(start) && isSurroundedRight(end)) {
-                    return;
-                } else {
-                    DiagnosticBuilder Diag = this->Check->diag(
-                        MD->getLocation(),
-                        "'%0' initializer is non-string constant and not "
-                        "surrounded by parentheses.");
-                    Diag << name << primary.getLiteralData();
-                }
-            } else if (tok::isLiteral(start.getKind()) &&
-                       !tok::isStringLiteral(start.getKind()) &&
-                       MD->getMacroInfo()->getNumTokens() == 1) {
-                DiagnosticBuilder Diag =
+
+            if (tok::isLiteral(primary.getKind())) {
+                if (tok::isStringLiteral(primary.getKind()) && isLeftSurround(start) &&
+                    isRightSurround(end)) {
+                    this->Check->diag(MD->getLocation(),
+                                      "'%0' initializer is string constant and "
+                                      "surrounded by parentheses.")
+                        << name;
+                } else if (!tok::isStringLiteral(primary.getKind()) &&
+                           (!isLeftSurround(start) || !isRightSurround(end))) {
                     this->Check->diag(MD->getLocation(),
                                       "'%0' initializer is non-string constant and not "
-                                      "surrounded by parentheses.");
-                Diag << name;
+                                      "surrounded by parentheses.")
+                        << name;
+                }
             }
         }
     }
