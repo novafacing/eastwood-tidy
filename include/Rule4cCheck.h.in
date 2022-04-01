@@ -10,35 +10,33 @@
 #define LLVM_CLANG_TOOLS_EXTRA_CLANG_TIDY_EASTWOOD_RULE4CCHECK_H
 #include "EastwoodTidyUtil.h"
 
-
 #include "@CLANG_TIDY_TOPLEVEL@/ClangTidyCheck.h"
 
 namespace clang {
-    namespace tidy {
-        namespace eastwood {
+namespace tidy {
+namespace eastwood {
 
-            /// Checks that bodies of `if` statements and loops (`for`, `range-for`,
-            /// `do-while`, and `while`) are inside braces
-            ///
-            class Rule4cCheck : public ClangTidyCheck, public EastwoodTidyCheckBase {
-            public:
-                Rule4cCheck(StringRef Name, ClangTidyContext *Context);
-                void registerMatchers(ast_matchers::MatchFinder *Finder) override;
-                void check(const ast_matchers::MatchFinder::MatchResult &Result) override;
+/// Checks that bodies of `if` statements and loops (`for`, `range-for`,
+/// `do-while`, and `while`) are inside braces
+///
+class Rule4cCheck : public ClangTidyCheck, public EastwoodTidyCheckBase {
+public:
+  Rule4cCheck(StringRef Name, ClangTidyContext *Context);
+  void registerMatchers(ast_matchers::MatchFinder *Finder) override;
+  void check(const ast_matchers::MatchFinder::MatchResult &Result) override;
 
-            private:
-                bool checkStmt(const ast_matchers::MatchFinder::MatchResult &Result,
-                               const Stmt *S, SourceLocation StartLoc,
-                               SourceLocation EndLocHint = SourceLocation());
-                template <typename IfOrWhileStmt>
-                SourceLocation findRParenLoc(const IfOrWhileStmt *S, const SourceManager &SM,
-                                             const ASTContext *Context);
-                std::string debug_enabled;
+private:
+  bool checkStmt(const ast_matchers::MatchFinder::MatchResult &Result,
+                 const Stmt *S, SourceLocation StartLoc,
+                 SourceLocation EndLocHint = SourceLocation());
+  template <typename IfOrWhileStmt>
+  SourceLocation findRParenLoc(const IfOrWhileStmt *S, const SourceManager &SM,
+                               const ASTContext *Context);
+  std::string debug_enabled;
+};
 
-            };
-
-        } // namespace eastwood
-    }     // namespace tidy
+} // namespace eastwood
+} // namespace tidy
 } // namespace clang
 
 #endif // LLVM_CLANG_TOOLS_EXTRA_CLANG_TIDY_EASTWOOD_RULE4CCHECK_H

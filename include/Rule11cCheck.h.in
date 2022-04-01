@@ -1,5 +1,6 @@
 
-//===--- Rule11cCheck.h - clang-tidy -----------------------------*- C++ -*-===//
+//===--- Rule11cCheck.h - clang-tidy -----------------------------*- C++
+//-*-===//
 //
 // Part of the LLVM Project, under the Apache License v2.0 with LLVM Exceptions.
 // See https://llvm.org/LICENSE.txt for license information.
@@ -10,7 +11,6 @@
 #ifndef LLVM_CLANG_TOOLS_EXTRA_CLANG_TIDY_EASTWOOD_RULE11CCHECK_H
 #define LLVM_CLANG_TOOLS_EXTRA_CLANG_TIDY_EASTWOOD_RULE11CCHECK_H
 #include "EastwoodTidyUtil.h"
-
 
 #include "@CLANG_TIDY_TOPLEVEL@/ClangTidyCheck.h"
 
@@ -26,26 +26,24 @@
 #include <map>
 
 namespace clang {
-    namespace tidy {
-        namespace eastwood {
+namespace tidy {
+namespace eastwood {
 
-            class Rule11cCheck : public ClangTidyCheck, public EastwoodTidyCheckBase {
-            private:
-                std::string debug_enabled;
+class Rule11cCheck : public ClangTidyCheck, public EastwoodTidyCheckBase {
+private:
+  std::string debug_enabled;
 
+public:
+  /* Constructors */
+  Rule11cCheck(StringRef Name, ClangTidyContext *Context);
 
-            public:
-                /* Constructors */
-                Rule11cCheck(StringRef Name, ClangTidyContext *Context);
-
-                /* Overrides */
-                void registerMatchers(ast_matchers::MatchFinder *Finder) override;
-                void
-                check(const ast_matchers::MatchFinder::MatchResult &Result) override;
-                std::vector<DynTypedNode> paren_nodes;
-            }; // Rule11cCheck
-        }      // namespace eastwood
-    }          // namespace tidy
+  /* Overrides */
+  void registerMatchers(ast_matchers::MatchFinder *Finder) override;
+  void check(const ast_matchers::MatchFinder::MatchResult &Result) override;
+  std::vector<DynTypedNode> paren_nodes;
+}; // Rule11cCheck
+} // namespace eastwood
+} // namespace tidy
 } // namespace clang
 
 #endif // LLVM_CLANG_TOOLS_EXTRA_CLANG_TIDY_EASTWOOD_RULE11CCHECK_H

@@ -20,41 +20,40 @@
 #include <deque>
 
 /* Make sure the location is checkable. */
-#define CHECK_LOC(MatchedDecl)                                                         \
-    if (not SM.isWrittenInMainFile(MatchedDecl->getBeginLoc()) or                      \
-        not MatchedDecl->getBeginLoc().isValid() or                                    \
-        SM.isMacroArgExpansion(MatchedDecl->getBeginLoc()) or                          \
-        SM.isMacroBodyExpansion(MatchedDecl->getBeginLoc())) {                         \
-        return;                                                                        \
-    }
+#define CHECK_LOC(MatchedDecl)                                                 \
+  if (not SM.isWrittenInMainFile(MatchedDecl->getBeginLoc()) or                \
+      not MatchedDecl->getBeginLoc().isValid() or                              \
+      SM.isMacroArgExpansion(MatchedDecl->getBeginLoc()) or                    \
+      SM.isMacroBodyExpansion(MatchedDecl->getBeginLoc())) {                   \
+    return;                                                                    \
+  }
 
 namespace clang {
-    namespace tidy {
-        namespace eastwood {
+namespace tidy {
+namespace eastwood {
 
-            class Rule4aCheck : public ClangTidyCheck, public EastwoodTidyCheckBase {
-            private:
-                std::string debug_enabled;
+class Rule4aCheck : public ClangTidyCheck, public EastwoodTidyCheckBase {
+private:
+  std::string debug_enabled;
 
-            public:
-                /* Constructors */
-                Rule4aCheck(StringRef Name, ClangTidyContext *Context);
+public:
+  /* Constructors */
+  Rule4aCheck(StringRef Name, ClangTidyContext *Context);
 
-                /* Overrides */
-                void registerMatchers(ast_matchers::MatchFinder *Finder) override;
-                void
-                check(const ast_matchers::MatchFinder::MatchResult &Result) override;
-                void onEndOfTranslationUnit(void) override;
-                size_t indent_level;
-                std::deque<SourceLocation> opens;
-                std::deque<SourceLocation> closes;
-                std::deque<size_t> broken_lines;
-                std::vector<Token> tokens;
-                const SourceManager *SMan;
-                ASTContext *ctx;
-            }; // Rule4bCheck
-        }      // namespace eastwood
-    }          // namespace tidy
+  /* Overrides */
+  void registerMatchers(ast_matchers::MatchFinder *Finder) override;
+  void check(const ast_matchers::MatchFinder::MatchResult &Result) override;
+  void onEndOfTranslationUnit(void) override;
+  size_t indent_level;
+  std::deque<SourceLocation> opens;
+  std::deque<SourceLocation> closes;
+  std::deque<size_t> broken_lines;
+  std::vector<Token> tokens;
+  const SourceManager *SMan;
+  ASTContext *ctx;
+}; // Rule4bCheck
+} // namespace eastwood
+} // namespace tidy
 } // namespace clang
 
 #endif // LLVM_CLANG_TOOLS_EXTRA_CLANG_TIDY_EASTWOOD_RULE4ACHECK_H

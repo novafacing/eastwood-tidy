@@ -11,7 +11,6 @@
 #define LLVM_CLANG_TOOLS_EXTRA_CLANG_TIDY_EASTWOOD_RULE3ACHECK_H
 #include "EastwoodTidyUtil.h"
 
-
 #include "@CLANG_TIDY_TOPLEVEL@/ClangTidyCheck.h"
 
 #include "clang/AST/ASTContext.h"
@@ -21,31 +20,28 @@
 using namespace clang::ast_matchers;
 
 namespace clang {
-    namespace tidy {
-        namespace eastwood {
+namespace tidy {
+namespace eastwood {
 
-            class Rule3aCheck : public ClangTidyCheck, public EastwoodTidyCheckBase {
-            private:
-                std::string debug_enabled;
+class Rule3aCheck : public ClangTidyCheck, public EastwoodTidyCheckBase {
+private:
+  std::string debug_enabled;
 
+public:
+  /* Constructors */
+  Rule3aCheck(StringRef Name, ClangTidyContext *Context);
 
-            public:
-                /* Constructors */
-                Rule3aCheck(StringRef Name, ClangTidyContext *Context);
-
-                /* Overrides */
-                void registerMatchers(ast_matchers::MatchFinder *Finder) override;
-                void
-                check(const ast_matchers::MatchFinder::MatchResult &Result) override;
-                void checkStmt(const MatchFinder::MatchResult &Result, const Stmt *S,
-                               SourceLocation InitialLoc, SourceLocation EndLocHint);
-                template <typename IfOrWhileStmt>
-                SourceLocation findRParenLoc(const IfOrWhileStmt *S,
-                                             const SourceManager &SM,
-                                             const ASTContext *Context);
-            }; // Rule3aCheck
-        }      // namespace eastwood
-    }          // namespace tidy
+  /* Overrides */
+  void registerMatchers(ast_matchers::MatchFinder *Finder) override;
+  void check(const ast_matchers::MatchFinder::MatchResult &Result) override;
+  void checkStmt(const MatchFinder::MatchResult &Result, const Stmt *S,
+                 SourceLocation InitialLoc, SourceLocation EndLocHint);
+  template <typename IfOrWhileStmt>
+  SourceLocation findRParenLoc(const IfOrWhileStmt *S, const SourceManager &SM,
+                               const ASTContext *Context);
+}; // Rule3aCheck
+} // namespace eastwood
+} // namespace tidy
 } // namespace clang
 
 #endif // LLVM_CLANG_TOOLS_EXTRA_CLANG_TIDY_EASTWOOD_RULE3ACHECK_H

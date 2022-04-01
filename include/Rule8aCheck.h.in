@@ -11,7 +11,6 @@
 #define LLVM_CLANG_TOOLS_EXTRA_CLANG_TIDY_EASTWOOD_RULE8ACHECK_H
 #include "EastwoodTidyUtil.h"
 
-
 #include "@CLANG_TIDY_TOPLEVEL@/ClangTidyCheck.h"
 
 #include "clang/AST/ASTContext.h"
@@ -20,27 +19,25 @@
 #include "clang/Lex/Preprocessor.h"
 
 namespace clang {
-    namespace tidy {
-        namespace eastwood {
+namespace tidy {
+namespace eastwood {
 
-            class Rule8aCheck : public ClangTidyCheck, public EastwoodTidyCheckBase {
-            private:
-                std::string debug_enabled;
+class Rule8aCheck : public ClangTidyCheck, public EastwoodTidyCheckBase {
+private:
+  std::string debug_enabled;
 
+public:
+  /* Constructors */
+  Rule8aCheck(StringRef Name, ClangTidyContext *Context);
 
-            public:
-                /* Constructors */
-                Rule8aCheck(StringRef Name, ClangTidyContext *Context);
-
-                /* Overrides */
-                void registerPPCallbacks(const SourceManager &SM, Preprocessor *PP,
-                                         Preprocessor *ModuleExpanderPP) override;
-                void registerMatchers(ast_matchers::MatchFinder *Finder) override;
-                void
-                check(const ast_matchers::MatchFinder::MatchResult &Result) override;
-            }; // Rule8aCheck
-        }      // namespace eastwood
-    }          // namespace tidy
+  /* Overrides */
+  void registerPPCallbacks(const SourceManager &SM, Preprocessor *PP,
+                           Preprocessor *ModuleExpanderPP) override;
+  void registerMatchers(ast_matchers::MatchFinder *Finder) override;
+  void check(const ast_matchers::MatchFinder::MatchResult &Result) override;
+}; // Rule8aCheck
+} // namespace eastwood
+} // namespace tidy
 } // namespace clang
 
 #endif // LLVM_CLANG_TOOLS_EXTRA_CLANG_TIDY_EASTWOOD_RULE8ACHECK_H

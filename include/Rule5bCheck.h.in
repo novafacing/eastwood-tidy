@@ -22,54 +22,51 @@
 #include <vector>
 
 namespace clang {
-    namespace tidy {
-        namespace eastwood {
-            class Rule5bVisitor : public RecursiveASTVisitor<Rule5bVisitor> {
-            public:
-                explicit Rule5bVisitor(ASTContext *Context) : Context(Context){};
-                std::vector<SourceLocation> function_decl_ends;
-                std::vector<SourceLocation> decl_stmt_lines;
-                bool VisitDecl(Decl *d) {
-                    if (d->isFunctionOrFunctionTemplate()) {
-                        FunctionDecl *FD = d->getAsFunction();
-                        if (FD->isDefined()) {
-                            FunctionDecl *FDef = FD->getDefinition();
-                            SourceRange FunctionDefinitionRange =
-                                FDef->getBody()->getSourceRange();
-                            this->function_decl_ends.push_back(
-                                FunctionDefinitionRange.getEnd());
-                        }
-                    }
-                    return true;
-                }
+namespace tidy {
+namespace eastwood {
+class Rule5bVisitor : public RecursiveASTVisitor<Rule5bVisitor> {
+public:
+  explicit Rule5bVisitor(ASTContext *Context) : Context(Context){};
+  std::vector<SourceLocation> function_decl_ends;
+  std::vector<SourceLocation> decl_stmt_lines;
+  bool VisitDecl(Decl *d) {
+    if (d->isFunctionOrFunctionTemplate()) {
+      FunctionDecl *FD = d->getAsFunction();
+      if (FD->isDefined()) {
+        FunctionDecl *FDef = FD->getDefinition();
+        SourceRange FunctionDefinitionRange = FDef->getBody()->getSourceRange();
+        this->function_decl_ends.push_back(FunctionDefinitionRange.getEnd());
+      }
+    }
+    return true;
+  }
 
-                bool VisitDeclStmt(DeclStmt *d) {
-                    this->decl_stmt_lines.push_back(d->getBeginLoc());
-                }
+  bool VisitDeclStmt(DeclStmt *d) {
+    this->decl_stmt_lines.push_back(d->getBeginLoc());
+  }
 
-            private:
-                ASTContext *Context;
-            };
+private:
+  ASTContext *Context;
+};
 
-            class Rule5bCheck : public ClangTidyCheck, public EastwoodTidyCheckBase {
-            private:
-                std::string debug_enabled;
+class Rule5bCheck : public ClangTidyCheck, public EastwoodTidyCheckBase {
+private:
+  std::string debug_enabled;
 
-            public:
-                /* Constructors */
-                Rule5bCheck(StringRef Name, ClangTidyContext *Context);
+public:
+  /* Constructors */
+  Rule5bCheck(StringRef Name, ClangTidyContext *Context);
 
-                /* Overrides */
-                void registerMatchers(ast_matchers::MatchFinder *Finder) override;
-                void
-                check(const ast_matchers::MatchFinder::MatchResult &Result) override;
-                bool visited;
-                bool checked;
-                std::vector<SourceLocation> function_decl_ends;
+  /* Overrides */
+  void registerMatchers(ast_matchers::MatchFinder *Finder) override;
+  void check(const ast_matchers::MatchFinder::MatchResult &Result) override;
+  bool visited;
+  bool checked;
+  std::vector<SourceLocation> function_decl_ends;
 
-            }; // Rule5bCheck
-        }      // namespace eastwood
-    }          // namespace tidy
+}; // Rule5bCheck
+} // namespace eastwood
+} // namespace tidy
 } // namespace clang
 
 #endif // LLVM_CLANG_TOOLS_EXTRA_CLANG_TIDY_EASTWOOD_RULE5BCHECK_H

@@ -10,7 +10,6 @@
 #define LLVM_CLANG_TOOLS_EXTRA_CLANG_TIDY_EASTWOOD_RULE1BCHECK_H
 #include "EastwoodTidyUtil.h"
 
-
 #include "@CLANG_TIDY_TOPLEVEL@/ClangTidyCheck.h"
 
 #include "clang/AST/ASTContext.h"
@@ -25,34 +24,32 @@
 #include <utility>
 
 namespace clang {
-    namespace tidy {
-        namespace eastwood {
+namespace tidy {
+namespace eastwood {
 
-            class Rule1bCheck : public ClangTidyCheck, public EastwoodTidyCheckBase {
+class Rule1bCheck : public ClangTidyCheck, public EastwoodTidyCheckBase {
 
-            private:
-                std::string dump;
-                std::map<std::string, std::vector<std::string>> declarations;
-                std::string debug_enabled;
+private:
+  std::string dump;
+  std::map<std::string, std::vector<std::string>> declarations;
+  std::string debug_enabled;
 
+public:
+  /* Constructors */
+  Rule1bCheck(StringRef Name, ClangTidyContext *Context);
 
-            public:
-                /* Constructors */
-                Rule1bCheck(StringRef Name, ClangTidyContext *Context);
+  /* Overrides */
+  void registerMatchers(ast_matchers::MatchFinder *Finder) override;
+  void check(const ast_matchers::MatchFinder::MatchResult &Result) override;
+  void storeOptions(ClangTidyOptions::OptionMap &Opts) override;
+  void onEndOfTranslationUnit() override;
 
-                /* Overrides */
-                void registerMatchers(ast_matchers::MatchFinder *Finder) override;
-                void
-                check(const ast_matchers::MatchFinder::MatchResult &Result) override;
-                void storeOptions(ClangTidyOptions::OptionMap &Opts) override;
-                void onEndOfTranslationUnit() override;
+  void saveVar(std::string name, std::string type);
 
-                void saveVar(std::string name, std::string type);
+}; // Rule1bCheck
 
-            }; // Rule1bCheck
-
-        } // namespace eastwood
-    }     // namespace tidy
+} // namespace eastwood
+} // namespace tidy
 } // namespace clang
 
 #endif // LLVM_CLANG_TOOLS_EXTRA_CLANG_TIDY_EASTWOOD_RULE1BCHECK_H

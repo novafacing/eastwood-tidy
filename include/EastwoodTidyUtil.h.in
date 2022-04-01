@@ -23,87 +23,92 @@ using namespace clang;
 using namespace clang::ast_matchers;
 using namespace llvm;
 
-/* RELEX Macro for fast relexing of a file. Should be placed at the top of the `check`
- * function in a particular check that needs access to the file's tokens. */
-#define RELEX()                                                                        \
-    {                                                                                  \
-        if (!this->relexed) {                                                          \
-            this->relex_file(Result);                                                  \
-        }                                                                              \
-    }
+/* RELEX Macro for fast relexing of a file. Should be placed at the top of the
+ * `check` function in a particular check that needs access to the file's
+ * tokens. */
+#define RELEX()                                                                \
+  {                                                                            \
+    if (!this->relexed) {                                                      \
+      this->relex_file(Result);                                                \
+    }                                                                          \
+  }
 
 class EastwoodTidyDebugStream {
 private:
-    bool enabled;
+  bool enabled;
 
 public:
-    EastwoodTidyDebugStream(bool enabled) : enabled(enabled) {}
-    template <typename T>
-    friend EastwoodTidyDebugStream &operator<<(EastwoodTidyDebugStream &stream,
-                                               T thing) {
-        if (stream.enabled) {
-            std::cout << thing;
-        }
-        return stream;
+  EastwoodTidyDebugStream(bool enabled) : enabled(enabled) {}
+  template <typename T>
+  friend EastwoodTidyDebugStream &operator<<(EastwoodTidyDebugStream &stream,
+                                             T thing) {
+    if (stream.enabled) {
+      std::cout << thing;
     }
-    friend EastwoodTidyDebugStream &operator<<(EastwoodTidyDebugStream &stream,
-                                               std::ostream &(*pf)(std::ostream &)) {
-        if (stream.enabled) {
-            std::cout << pf;
-        }
-        return stream;
+    return stream;
+  }
+  friend EastwoodTidyDebugStream &
+  operator<<(EastwoodTidyDebugStream &stream,
+             std::ostream &(*pf)(std::ostream &)) {
+    if (stream.enabled) {
+      std::cout << pf;
     }
-    friend EastwoodTidyDebugStream &
-    operator<<(EastwoodTidyDebugStream &stream,
-               std::basic_ios<char> &(*pf)(std::ostream &)) {
-        if (stream.enabled) {
-            std::cout << pf;
-        }
-        return stream;
+    return stream;
+  }
+  friend EastwoodTidyDebugStream &
+  operator<<(EastwoodTidyDebugStream &stream,
+             std::basic_ios<char> &(*pf)(std::ostream &)) {
+    if (stream.enabled) {
+      std::cout << pf;
     }
-    friend EastwoodTidyDebugStream &operator<<(EastwoodTidyDebugStream &stream,
-                                               std::ios_base &(*pf)(std::ostream &)) {
-        if (stream.enabled) {
-            std::cout << pf;
-        }
-        return stream;
+    return stream;
+  }
+  friend EastwoodTidyDebugStream &
+  operator<<(EastwoodTidyDebugStream &stream,
+             std::ios_base &(*pf)(std::ostream &)) {
+    if (stream.enabled) {
+      std::cout << pf;
     }
+    return stream;
+  }
 };
 
 /* Provides base common uility functions for eastwood tidy checks. */
 class EastwoodTidyCheckBase {
 protected:
-    std::string name;
-    bool debug;
-    EastwoodTidyDebugStream *debugStream = nullptr;
-    std::vector<Token> tokens;
-    bool relexed = false;
+  std::string name;
+  bool debug;
+  EastwoodTidyDebugStream *debugStream = nullptr;
+  std::vector<Token> tokens;
+  bool relexed = false;
 
 public:
-    EastwoodTidyCheckBase(StringRef Name);
+  EastwoodTidyCheckBase(StringRef Name);
 
-    /* Debug output - enabled if debug is set. */
-    EastwoodTidyDebugStream &dout(const std::string &s = "");
+  /* Debug output - enabled if debug is set. */
+  EastwoodTidyDebugStream &dout(const std::string &s = "");
 
-    /* Dump an AST structure to the debug stream. */
-    template <typename T> void dbgdump(T dumpable, const ASTContext &Context) {
-        std::string init;
-        raw_string_ostream rso(init);
-        dumpable->dump(rso, Context);
-        this->dout() << rso.str() << std::endl;
-    }
+  /* Dump an AST structure to the debug stream. */
+  template <typename T> void dbgdump(T dumpable, const ASTContext &Context) {
+    std::string init;
+    raw_string_ostream rso(init);
+    dumpable->dump(rso, Context);
+    this->dout() << rso.str() << std::endl;
+  }
 
-    /* Stringify a token using the source manager. */
-    std::shared_ptr<std::string> tok_string(const SourceManager &SM, const Token &tok);
-    /* Stringify a sourcerange using the source manager. */
-    std::shared_ptr<std::string> sourcerange_string(const SourceManager &SM,
-                                                    const SourceRange &range);
+  /* Stringify a token using the source manager. */
+  std::shared_ptr<std::string> tok_string(const SourceManager &SM,
+                                          const Token &tok);
+  /* Stringify a sourcerange using the source manager. */
+  std::shared_ptr<std::string> sourcerange_string(const SourceManager &SM,
+                                                  const SourceRange &range);
 
-    /* Relex a source file containing a match result into a vector of tokens. */
-    void relex_file(
-        const MatchFinder::MatchResult &Result, const std::string &match_name = "relex",
-        const Optional<SourceLocation> &loc_override = Optional<SourceLocation>(),
-        bool keep_whitespace = true);
+  /* Relex a source file containing a match result into a vector of tokens. */
+  void relex_file(
+      const MatchFinder::MatchResult &Result,
+      const std::string &match_name = "relex",
+      const Optional<SourceLocation> &loc_override = Optional<SourceLocation>(),
+      bool keep_whitespace = true);
 };
 
 #endif // LLVM_CLANG_TOOLS_EXTRA_CLANG_TIDY_EASTWOOD_TIDY_UTIL_H

@@ -10,7 +10,6 @@
 #define LLVM_CLANG_TOOLS_EXTRA_CLANG_TIDY_EASTWOOD_RULE1CCHECK_H
 #include "EastwoodTidyUtil.h"
 
-
 #include "@CLANG_TIDY_TOPLEVEL@/ClangTidy.h"
 #include "@CLANG_TIDY_TOPLEVEL@/ClangTidyCheck.h"
 
@@ -30,31 +29,29 @@
 #include <vector>
 
 namespace clang {
-    namespace tidy {
-        namespace eastwood {
+namespace tidy {
+namespace eastwood {
 
-            class Rule1cCheck : public ClangTidyCheck, public EastwoodTidyCheckBase {
-            private:
-                std::map<std::string, std::vector<SourceLocation>> embeddedConstants;
-                std::vector<SourceRange> declarationRanges;
-                std::string dump;
-                std::string debug_enabled;
+class Rule1cCheck : public ClangTidyCheck, public EastwoodTidyCheckBase {
+private:
+  std::map<std::string, std::vector<SourceLocation>> embeddedConstants;
+  std::vector<SourceRange> declarationRanges;
+  std::string dump;
+  std::string debug_enabled;
 
+public:
+  /* Constructors */
+  Rule1cCheck(StringRef Name, ClangTidyContext *Context);
 
-            public:
-                /* Constructors */
-                Rule1cCheck(StringRef Name, ClangTidyContext *Context);
+  /* Overrides */
+  void registerPPCallbacks(const SourceManager &SM, Preprocessor *PP,
+                           Preprocessor *ModuleExpanderPP) override;
+  void registerMatchers(ast_matchers::MatchFinder *Finder) override;
+  void check(const ast_matchers::MatchFinder::MatchResult &Result) override;
+}; // Rule1cCheck
 
-                /* Overrides */
-                void registerPPCallbacks(const SourceManager &SM, Preprocessor *PP,
-                                         Preprocessor *ModuleExpanderPP) override;
-                void registerMatchers(ast_matchers::MatchFinder *Finder) override;
-                void
-                check(const ast_matchers::MatchFinder::MatchResult &Result) override;
-            }; // Rule1cCheck
-
-        } // namespace eastwood
-    }     // namespace tidy
+} // namespace eastwood
+} // namespace tidy
 } // namespace clang
 
 #endif // LLVM_CLANG_TOOLS_EXTRA_CLANG_TIDY_EASTWOOD_RULE1CCHECK_H

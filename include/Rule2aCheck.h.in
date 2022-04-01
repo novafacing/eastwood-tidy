@@ -11,7 +11,6 @@
 #define LLVM_CLANG_TOOLS_EXTRA_CLANG_TIDY_EASTWOOD_RULE2ACHECK_H
 #include "EastwoodTidyUtil.h"
 
-
 #include "@CLANG_TIDY_TOPLEVEL@/ClangTidyCheck.h"
 #include "@CLANG_TIDY_TOPLEVEL@/utils/LexerUtils.h"
 
@@ -21,30 +20,28 @@
 #include <vector>
 
 namespace clang {
-    namespace tidy {
-        namespace eastwood {
+namespace tidy {
+namespace eastwood {
 
-            class Rule2aCheck : public ClangTidyCheck, public EastwoodTidyCheckBase {
-            private:
-                std::string debug_enabled;
+class Rule2aCheck : public ClangTidyCheck, public EastwoodTidyCheckBase {
+private:
+  std::string debug_enabled;
 
+public:
+  /* Constructors */
+  Rule2aCheck(StringRef Name, ClangTidyContext *Context);
 
-            public:
-                /* Constructors */
-                Rule2aCheck(StringRef Name, ClangTidyContext *Context);
+  /* Overrides */
+  void registerMatchers(ast_matchers::MatchFinder *Finder) override;
+  void check(const ast_matchers::MatchFinder::MatchResult &Result) override;
 
-                /* Overrides */
-                void registerMatchers(ast_matchers::MatchFinder *Finder) override;
-                void
-                check(const ast_matchers::MatchFinder::MatchResult &Result) override;
+  std::vector<size_t> over_length_lines;
+  std::vector<size_t> broken_lines;
+  bool checked;
 
-                std::vector<size_t> over_length_lines;
-                std::vector<size_t> broken_lines;
-                bool checked;
-
-            }; // Rule2aCheck
-        }      // namespace eastwood
-    }          // namespace tidy
+}; // Rule2aCheck
+} // namespace eastwood
+} // namespace tidy
 } // namespace clang
 
 #endif // LLVM_CLANG_TOOLS_EXTRA_CLANG_TIDY_EASTWOOD_RULE2ACHECK_H

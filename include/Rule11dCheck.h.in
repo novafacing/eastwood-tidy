@@ -1,5 +1,6 @@
 
-//===--- Rule11dCheck.h - clang-tidy -----------------------------*- C++ -*-===//
+//===--- Rule11dCheck.h - clang-tidy -----------------------------*- C++
+//-*-===//
 //
 // Part of the LLVM Project, under the Apache License v2.0 with LLVM Exceptions.
 // See https://llvm.org/LICENSE.txt for license information.
@@ -10,7 +11,6 @@
 #ifndef LLVM_CLANG_TOOLS_EXTRA_CLANG_TIDY_EASTWOOD_RULE11DCHECK_H
 #define LLVM_CLANG_TOOLS_EXTRA_CLANG_TIDY_EASTWOOD_RULE11DCHECK_H
 #include "EastwoodTidyUtil.h"
-
 
 #include "@CLANG_TIDY_TOPLEVEL@/ClangTidyCheck.h"
 
@@ -30,33 +30,31 @@
 #include <vector>
 
 namespace clang {
-    namespace tidy {
-        namespace eastwood {
+namespace tidy {
+namespace eastwood {
 
-            class Rule11dCheck : public ClangTidyCheck, public EastwoodTidyCheckBase {
-            private:
-                std::map<std::string, std::vector<SourceLocation>> embeddedConstants;
-                std::vector<SourceRange> declarationRanges;
-                std::string dump;
-                std::string debug_enabled;
+class Rule11dCheck : public ClangTidyCheck, public EastwoodTidyCheckBase {
+private:
+  std::map<std::string, std::vector<SourceLocation>> embeddedConstants;
+  std::vector<SourceRange> declarationRanges;
+  std::string dump;
+  std::string debug_enabled;
 
+public:
+  /* Constructors */
+  Rule11dCheck(StringRef Name, ClangTidyContext *Context);
 
-            public:
-                /* Constructors */
-                Rule11dCheck(StringRef Name, ClangTidyContext *Context);
-
-                /* Overrides */
-                void registerMatchers(ast_matchers::MatchFinder *Finder) override;
-                void registerPPCallbacks(const SourceManager &SM, Preprocessor *PP,
-                                         Preprocessor *ModuleExpanderPP) override;
-                void
-                check(const ast_matchers::MatchFinder::MatchResult &Result) override;
-                void onEndOfTranslationUnit(void) override;
-                void storeOptions(ClangTidyOptions::OptionMap &Opts) override;
-                void saveEmbeddedConstant(SourceLocation loc, std::string type);
-            }; // Rule11dCheck
-        }      // namespace eastwood
-    }          // namespace tidy
+  /* Overrides */
+  void registerMatchers(ast_matchers::MatchFinder *Finder) override;
+  void registerPPCallbacks(const SourceManager &SM, Preprocessor *PP,
+                           Preprocessor *ModuleExpanderPP) override;
+  void check(const ast_matchers::MatchFinder::MatchResult &Result) override;
+  void onEndOfTranslationUnit(void) override;
+  void storeOptions(ClangTidyOptions::OptionMap &Opts) override;
+  void saveEmbeddedConstant(SourceLocation loc, std::string type);
+}; // Rule11dCheck
+} // namespace eastwood
+} // namespace tidy
 } // namespace clang
 
 #endif // LLVM_CLANG_TOOLS_EXTRA_CLANG_TIDY_EASTWOOD_RULE11DCHECK_H
