@@ -201,7 +201,26 @@ def test_rule_3_b_file(manager) -> None:
     """
     File test cases for rule 3b
     """
-    tests = [FileTest("eastwood-rule-3b.c", [])]
+    tests = [
+        FileTest(
+            "eastwood-rule-3b.c",
+            [
+                Error(Rule.III_B, 15, 14),
+                Error(Rule.III_B, 15, 15),
+                Error(Rule.III_B, 16, 16),
+                Error(Rule.III_B, 17, 14),
+                Error(Rule.III_B, 20, 9),
+                Error(Rule.III_B, 20, 11),
+                Error(Rule.III_B, 22, 12),
+                Error(Rule.III_B, 22, 14),
+                Error(Rule.III_B, 22, 17),
+                Error(Rule.III_B, 22, 19),
+                Error(Rule.III_B, 22, 22),
+                Error(Rule.III_B, 22, 24),
+                Error(Rule.III_B, 24, 19),
+            ],
+        )
+    ]
     for test in tests:
         res = manager.test_file(test)
         assert (
