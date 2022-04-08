@@ -1,0 +1,35 @@
+--- ClangTidyMain.cpp	2022-02-22 10:40:25.029926314 -1000
++++ ClangTidyMain.cpp.new	2022-02-22 10:41:50.813746493 -1000
+@@ -260,31 +260,7 @@
+ namespace tidy {
+ 
+ static void printStats(const ClangTidyStats &Stats) {
+-  if (Stats.errorsIgnored()) {
+-    llvm::errs() << "Suppressed " << Stats.errorsIgnored() << " warnings (";
+-    StringRef Separator = "";
+-    if (Stats.ErrorsIgnoredNonUserCode) {
+-      llvm::errs() << Stats.ErrorsIgnoredNonUserCode << " in non-user code";
+-      Separator = ", ";
+-    }
+-    if (Stats.ErrorsIgnoredLineFilter) {
+-      llvm::errs() << Separator << Stats.ErrorsIgnoredLineFilter
+-                   << " due to line filter";
+-      Separator = ", ";
+-    }
+-    if (Stats.ErrorsIgnoredNOLINT) {
+-      llvm::errs() << Separator << Stats.ErrorsIgnoredNOLINT << " NOLINT";
+-      Separator = ", ";
+-    }
+-    if (Stats.ErrorsIgnoredCheckFilter)
+-      llvm::errs() << Separator << Stats.ErrorsIgnoredCheckFilter
+-                   << " with check filters";
+-    llvm::errs() << ").\n";
+-    if (Stats.ErrorsIgnoredNonUserCode)
+-      llvm::errs() << "Use -header-filter=.* to display errors from all "
+-                      "non-system headers. Use -system-headers to display "
+-                      "errors from system headers as well.\n";
+-  }
++    return;
+ }
+ 
+ static std::unique_ptr<ClangTidyOptionsProvider> createOptionsProvider(
