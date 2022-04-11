@@ -29,8 +29,6 @@ Rule4aCheck::Rule4aCheck(StringRef Name, ClangTidyContext *Context)
 }
 void Rule4aCheck::registerMatchers(MatchFinder *Finder) {
     this->register_relex_matchers(Finder, this);
-    Finder->addMatcher(stmt().bind("relex"), this);
-    Finder->addMatcher(decl().bind("relex"), this);
     Finder->addMatcher(recordDecl().bind("record"), this);
     Finder->addMatcher(enumDecl().bind("enum"), this);
     Finder->addMatcher(functionDecl().bind("function"), this);
@@ -54,7 +52,10 @@ void Rule4aCheck::check(const MatchFinder::MatchResult &Result) {
         if (MatchedDecl->isCompleteDefinition()) {
             SourceRange BraceRange = MatchedDecl->getBraceRange();
 
+            LOG_OPEN("record", BraceRange.getBegin());
             this->opens.push_back(BraceRange.getBegin());
+
+            LOG_CLOSE("record", BraceRange.getEnd().getLocWithOffset(-1));
             this->closes.push_back(BraceRange.getEnd().getLocWithOffset(-1));
 
             if (this->source_manager->getSpellingLineNumber(this->opens.back()) !=
@@ -70,7 +71,9 @@ void Rule4aCheck::check(const MatchFinder::MatchResult &Result) {
         if (MatchedDecl->isCompleteDefinition()) {
             SourceRange BraceRange = MatchedDecl->getBraceRange();
 
+            LOG_OPEN("enum", BraceRange.getBegin());
             this->opens.push_back(BraceRange.getBegin());
+            LOG_CLOSE("enum", BraceRange.getEnd().getLocWithOffset(-1));
             this->closes.push_back(BraceRange.getEnd().getLocWithOffset(-1));
 
             if (this->source_manager->getSpellingLineNumber(this->opens.back()) !=
@@ -90,7 +93,9 @@ void Rule4aCheck::check(const MatchFinder::MatchResult &Result) {
             size_t start, end;
             SourceLocation StartBrace = MatchedDecl->getBody()->getBeginLoc();
             SourceLocation EndBrace = MatchedDecl->getBodyRBrace();
+            LOG_OPEN("function", StartBrace);
             this->opens.push_back(StartBrace);
+            LOG_CLOSE("function", EndBrace.getLocWithOffset(-1));
             this->closes.push_back(EndBrace.getLocWithOffset(-1));
             if (MatchedDecl->getNumParams() > 1 &&
                 ((start = this->source_manager->getSpellingLineNumber(
@@ -126,7 +131,9 @@ void Rule4aCheck::check(const MatchFinder::MatchResult &Result) {
     } else if (auto MatchedDecl = Result.Nodes.getNodeAs<DoStmt>("do")) {
         CHECK_LOC(MatchedDecl);
 
+        LOG_OPEN("do", MatchedDecl->getBody()->getBeginLoc());
         this->opens.push_back(MatchedDecl->getBody()->getBeginLoc());
+        LOG_CLOSE("do", MatchedDecl->getBody()->getEndLoc().getLocWithOffset(-1));
         this->closes.push_back(
             MatchedDecl->getBody()->getEndLoc().getLocWithOffset(-1));
 
@@ -138,7 +145,9 @@ void Rule4aCheck::check(const MatchFinder::MatchResult &Result) {
         CHECK_LOC(MatchedDecl);
 
         size_t start, end;
+        LOG_OPEN("for", MatchedDecl->getBody()->getBeginLoc());
         this->opens.push_back(MatchedDecl->getBody()->getBeginLoc());
+        LOG_CLOSE("for", MatchedDecl->getBody()->getEndLoc().getLocWithOffset(-1));
         this->closes.push_back(
             MatchedDecl->getBody()->getEndLoc().getLocWithOffset(-1));
 
@@ -165,7 +174,9 @@ void Rule4aCheck::check(const MatchFinder::MatchResult &Result) {
         SourceLocation StartIf = If->getThen()->getBeginLoc();
         SourceLocation EndIf = If->getThen()->getEndLoc();
 
+        LOG_OPEN("if", StartIf);
         this->opens.push_back(StartIf);
+        LOG_CLOSE("if", EndIf.getLocWithOffset(-1));
         this->closes.push_back(EndIf.getLocWithOffset(-1));
 
         if (this->source_manager->getSpellingLineNumber(this->opens.back()) !=
@@ -202,7 +213,9 @@ void Rule4aCheck::check(const MatchFinder::MatchResult &Result) {
                          "else.");
                 }
             } else {
+                LOG_OPEN("else", Else->getBeginLoc());
                 this->opens.push_back(Else->getBeginLoc());
+                LOG_CLOSE("else", Else->getEndLoc().getLocWithOffset(-1));
                 this->closes.push_back(Else->getEndLoc().getLocWithOffset(-1));
             }
         }
@@ -212,6 +225,7 @@ void Rule4aCheck::check(const MatchFinder::MatchResult &Result) {
         this->dbgdump(MatchedDecl, *this->ast_context);
 
         // Add an open/close for the switch itself
+        LOG_OPEN("switch", MatchedDecl->getBeginLoc());
         this->opens.push_back(MatchedDecl->getBody()->getBeginLoc());
         // Don't really need a close because it's a compound anyway
 
@@ -224,8 +238,10 @@ void Rule4aCheck::check(const MatchFinder::MatchResult &Result) {
             auto child = switch_children.front();
             switch_children.pop_front();
             if (auto _case = dyn_cast<SwitchCase>(child)) {
+                LOG_OPEN("case", _case->getColonLoc().getLocWithOffset(-1));
                 this->opens.push_back(_case->getColonLoc().getLocWithOffset(1));
                 if (child != first_child) {
+                    LOG_CLOSE("case", _case->getKeywordLoc().getLocWithOffset(-1));
                     this->closes.push_back(_case->getKeywordLoc().getLocWithOffset(-1));
                 }
                 for (auto case_child : _case->children()) {
@@ -235,12 +251,15 @@ void Rule4aCheck::check(const MatchFinder::MatchResult &Result) {
         }
 
         // Add the close for the last entry in the switch.
+        LOG_CLOSE("switch", switch_children.back()->getEndLoc());
         this->closes.push_back(switch_children.back()->getEndLoc());
     } else if (auto MatchedDecl = Result.Nodes.getNodeAs<WhileStmt>("while")) {
         CHECK_LOC(MatchedDecl);
         size_t start, end;
+        LOG_OPEN("while", MatchedDecl->getBody()->getBeginLoc());
         this->opens.push_back(MatchedDecl->getBody()->getBeginLoc());
 
+        LOG_CLOSE("while", MatchedDecl->getBody()->getEndLoc().getLocWithOffset(-1));
         this->closes.push_back(
             MatchedDecl->getBody()->getEndLoc().getLocWithOffset(-1));
 
@@ -271,9 +290,12 @@ void Rule4aCheck::check(const MatchFinder::MatchResult &Result) {
             }
         }
 
-        if (!is_case) {
-            this->opens.push_back(MatchedDecl->getLBracLoc());
-        } else {
+        LOG_OPEN("compound", MatchedDecl->getLBracLoc());
+        this->opens.push_back(MatchedDecl->getLBracLoc());
+        LOG_CLOSE("compound", MatchedDecl->getRBracLoc().getLocWithOffset(-1));
+        this->closes.push_back(MatchedDecl->getRBracLoc().getLocWithOffset(-1));
+
+        if (is_case) {
             // Little trick to allow this:
             /*
                case 1: {
@@ -282,10 +304,9 @@ void Rule4aCheck::check(const MatchFinder::MatchResult &Result) {
                  break;
                case 2: ...
              */
+            LOG_OPEN("compound-case", MatchedDecl->getRBracLoc().getLocWithOffset(1));
             this->opens.push_back(MatchedDecl->getRBracLoc().getLocWithOffset(1));
         }
-
-        this->closes.push_back(MatchedDecl->getRBracLoc().getLocWithOffset(-1));
     }
 }
 
@@ -337,10 +358,7 @@ void Rule4aCheck::onEndOfTranslationUnit(void) {
             opens.pop_front();
             indent_amount += 2;
             this->dout() << "++ (" + std::to_string(indent_amount) + ") |"
-                         << std::string(
-                                this->source_manager->getCharacterData(
-                                    eol_tokens.back().getLocation()),
-                                this->source_manager->getCharacterData(tok.getEndLoc()))
+                         << *this->tok_string(*this->source_manager, eol_tokens.back())
                          << "|"
                          << tok.getLocation().printToString(*this->source_manager)
                          << std::endl;
@@ -351,10 +369,7 @@ void Rule4aCheck::onEndOfTranslationUnit(void) {
             closes.pop_front();
             indent_amount -= 2;
             this->dout() << "-- (" + std::to_string(indent_amount) + ") |"
-                         << std::string(
-                                this->source_manager->getCharacterData(
-                                    eol_tokens.back().getLocation()),
-                                this->source_manager->getCharacterData(tok.getEndLoc()))
+                         << *this->tok_string(*this->source_manager, eol_tokens.back())
                          << "|"
                          << tok.getLocation().printToString(*this->source_manager)
                          << std::endl;

@@ -21,13 +21,20 @@
 
 /* Make sure the location is checkable. */
 #define CHECK_LOC(MatchedDecl)                                                         \
-    if (not this->source_manager->isWrittenInMainFile(MatchedDecl->getBeginLoc()) or                      \
+    if (not this->source_manager->isWrittenInMainFile(MatchedDecl->getBeginLoc()) or   \
         not MatchedDecl->getBeginLoc().isValid() or                                    \
-        this->source_manager->isMacroArgExpansion(MatchedDecl->getBeginLoc()) or                          \
-        this->source_manager->isMacroBodyExpansion(MatchedDecl->getBeginLoc())) {                         \
+        this->source_manager->isMacroArgExpansion(MatchedDecl->getBeginLoc()) or       \
+        this->source_manager->isMacroBodyExpansion(MatchedDecl->getBeginLoc())) {      \
         return;                                                                        \
     }
 
+#define LOG_OPEN(Reason, Location)                                                     \
+    this->dout() << "Adding OPEN for " << Reason << " at "                             \
+                 << Location.printToString(*this->source_manager) << "\n";
+
+#define LOG_CLOSE(Reason, Location)                                                    \
+    this->dout() << "Adding CLOSE for " << Reason << " at "                            \
+                 << Location.printToString(*this->source_manager) << "\n";
 namespace clang {
 namespace tidy {
 namespace eastwood {
