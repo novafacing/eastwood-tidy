@@ -21,10 +21,10 @@
 
 /* Make sure the location is checkable. */
 #define CHECK_LOC(MatchedDecl)                                                         \
-    if (not SM.isWrittenInMainFile(MatchedDecl->getBeginLoc()) or                      \
+    if (not this->source_manager->isWrittenInMainFile(MatchedDecl->getBeginLoc()) or                      \
         not MatchedDecl->getBeginLoc().isValid() or                                    \
-        SM.isMacroArgExpansion(MatchedDecl->getBeginLoc()) or                          \
-        SM.isMacroBodyExpansion(MatchedDecl->getBeginLoc())) {                         \
+        this->source_manager->isMacroArgExpansion(MatchedDecl->getBeginLoc()) or                          \
+        this->source_manager->isMacroBodyExpansion(MatchedDecl->getBeginLoc())) {                         \
         return;                                                                        \
     }
 
@@ -48,9 +48,6 @@ public:
     std::deque<SourceLocation> opens;
     std::deque<SourceLocation> closes;
     std::deque<size_t> broken_lines;
-    std::vector<Token> tokens;
-    const SourceManager *SMan;
-    ASTContext *ctx;
 }; // Rule4bCheck
 } // namespace eastwood
 } // namespace tidy

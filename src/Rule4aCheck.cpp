@@ -47,10 +47,7 @@ void Rule4aCheck::registerMatchers(MatchFinder *Finder) {
 void Rule4aCheck::check(const MatchFinder::MatchResult &Result) {
     this->acquire_common(Result);
     RELEX();
-    const SourceManager &SM = *Result.SourceManager;
-    this->SMan = Result.SourceManager;
-    ASTContext *Context = Result.Context;
-    this->ctx = Context;
+
     if (auto MatchedDecl = Result.Nodes.getNodeAs<RecordDecl>("record")) {
         CHECK_LOC(MatchedDecl);
 
@@ -60,8 +57,9 @@ void Rule4aCheck::check(const MatchFinder::MatchResult &Result) {
             this->opens.push_back(BraceRange.getBegin());
             this->closes.push_back(BraceRange.getEnd().getLocWithOffset(-1));
 
-            if (SM.getSpellingLineNumber(this->opens.back()) !=
-                SM.getSpellingLineNumber(MatchedDecl->getLocation())) {
+            if (this->source_manager->getSpellingLineNumber(this->opens.back()) !=
+                this->source_manager->getSpellingLineNumber(
+                    MatchedDecl->getLocation())) {
                 diag(this->opens.back(), "Open brace must be located "
                                          "on same line as record.");
             }
@@ -75,8 +73,9 @@ void Rule4aCheck::check(const MatchFinder::MatchResult &Result) {
             this->opens.push_back(BraceRange.getBegin());
             this->closes.push_back(BraceRange.getEnd().getLocWithOffset(-1));
 
-            if (SM.getSpellingLineNumber(this->opens.back()) !=
-                SM.getSpellingLineNumber(MatchedDecl->getLocation())) {
+            if (this->source_manager->getSpellingLineNumber(this->opens.back()) !=
+                this->source_manager->getSpellingLineNumber(
+                    MatchedDecl->getLocation())) {
                 diag(this->opens.back(), "Open brace must be located "
                                          "on same line as record.");
             }
@@ -94,8 +93,9 @@ void Rule4aCheck::check(const MatchFinder::MatchResult &Result) {
             this->opens.push_back(StartBrace);
             this->closes.push_back(EndBrace.getLocWithOffset(-1));
             if (MatchedDecl->getNumParams() > 1 &&
-                ((start = SM.getSpellingLineNumber(MatchedDecl->getLocation()))) !=
-                    (end = SM.getSpellingLineNumber(
+                ((start = this->source_manager->getSpellingLineNumber(
+                      MatchedDecl->getLocation()))) !=
+                    (end = this->source_manager->getSpellingLineNumber(
                          MatchedDecl->getParamDecl(MatchedDecl->getNumParams() - 1)
                              ->getEndLoc()))) {
                 for (size_t i = start + 1; i <= end; i++) {
@@ -104,21 +104,22 @@ void Rule4aCheck::check(const MatchFinder::MatchResult &Result) {
             }
 
             if ((MatchedDecl->getNumParams() == 0 &&
-                 SM.getSpellingLineNumber(this->opens.back()) !=
-                     SM.getSpellingLineNumber(MatchedDecl->getLocation())) ||
+                 this->source_manager->getSpellingLineNumber(this->opens.back()) !=
+                     this->source_manager->getSpellingLineNumber(
+                         MatchedDecl->getLocation())) ||
                 (MatchedDecl->getNumParams() > 0 &&
-                 SM.getSpellingLineNumber(
+                 this->source_manager->getSpellingLineNumber(
                      MatchedDecl->getParamDecl(MatchedDecl->getNumParams() - 1)
                          ->getEndLoc()) !=
-                     SM.getSpellingLineNumber(this->opens.back()))) {
+                     this->source_manager->getSpellingLineNumber(this->opens.back()))) {
 
                 diag(this->opens.back(),
                      "Open brace on line %0 must be located on same "
                      "line "
                      "as function "
                      "declaration or after parameters on line %1.")
-                    << SM.getSpellingLineNumber(this->opens.back())
-                    << SM.getSpellingLineNumber(
+                    << this->source_manager->getSpellingLineNumber(this->opens.back())
+                    << this->source_manager->getSpellingLineNumber(
                            MatchedDecl->getParametersSourceRange().getEnd());
             }
         }
@@ -129,8 +130,8 @@ void Rule4aCheck::check(const MatchFinder::MatchResult &Result) {
         this->closes.push_back(
             MatchedDecl->getBody()->getEndLoc().getLocWithOffset(-1));
 
-        if (SM.getSpellingLineNumber(this->opens.back()) !=
-            SM.getSpellingLineNumber(MatchedDecl->getBeginLoc())) {
+        if (this->source_manager->getSpellingLineNumber(this->opens.back()) !=
+            this->source_manager->getSpellingLineNumber(MatchedDecl->getBeginLoc())) {
             diag(this->opens.back(), "Open brace must be located on same line as do.");
         }
     } else if (auto MatchedDecl = Result.Nodes.getNodeAs<ForStmt>("for")) {
@@ -141,14 +142,16 @@ void Rule4aCheck::check(const MatchFinder::MatchResult &Result) {
         this->closes.push_back(
             MatchedDecl->getBody()->getEndLoc().getLocWithOffset(-1));
 
-        if ((start = SM.getSpellingLineNumber(MatchedDecl->getLParenLoc())) !=
-            (end = SM.getSpellingLineNumber(MatchedDecl->getRParenLoc()))) {
+        if ((start = this->source_manager->getSpellingLineNumber(
+                 MatchedDecl->getLParenLoc())) !=
+            (end = this->source_manager->getSpellingLineNumber(
+                 MatchedDecl->getRParenLoc()))) {
             for (size_t i = start + 1; i <= end; i++) {
                 this->broken_lines.push_back(i);
             }
         }
-        if (SM.getSpellingLineNumber(MatchedDecl->getRParenLoc()) !=
-            SM.getSpellingLineNumber(this->opens.back())) {
+        if (this->source_manager->getSpellingLineNumber(MatchedDecl->getRParenLoc()) !=
+            this->source_manager->getSpellingLineNumber(this->opens.back())) {
             diag(this->opens.back(), "Open brace must be located on "
                                      "same line as for or after "
                                      "split contents.");
@@ -165,21 +168,24 @@ void Rule4aCheck::check(const MatchFinder::MatchResult &Result) {
         this->opens.push_back(StartIf);
         this->closes.push_back(EndIf.getLocWithOffset(-1));
 
-        if (SM.getSpellingLineNumber(this->opens.back()) !=
-            SM.getSpellingLineNumber(MatchedDecl->getRParenLoc())) {
+        if (this->source_manager->getSpellingLineNumber(this->opens.back()) !=
+            this->source_manager->getSpellingLineNumber(MatchedDecl->getRParenLoc())) {
             diag(this->opens.back(), "Open brace must be located on same line as if.");
         }
 
-        if ((start = SM.getSpellingLineNumber(MatchedDecl->getLParenLoc())) !=
-            (end = SM.getSpellingLineNumber(MatchedDecl->getRParenLoc()))) {
+        if ((start = this->source_manager->getSpellingLineNumber(
+                 MatchedDecl->getLParenLoc())) !=
+            (end = this->source_manager->getSpellingLineNumber(
+                 MatchedDecl->getRParenLoc()))) {
             for (size_t i = start + 1; i <= end; i++) {
                 this->broken_lines.push_back(i);
             }
         }
 
         if (Else) {
-            if (SM.getSpellingLineNumber(If->getThen()->getEndLoc()) !=
-                SM.getSpellingLineNumber(Else->getBeginLoc()) - 1) {
+            if (this->source_manager->getSpellingLineNumber(
+                    If->getThen()->getEndLoc()) !=
+                this->source_manager->getSpellingLineNumber(Else->getBeginLoc()) - 1) {
                 diag(Else->getBeginLoc().getLocWithOffset(-1),
                      "Else must be on the line after the associated "
                      "'if' "
@@ -188,8 +194,9 @@ void Rule4aCheck::check(const MatchFinder::MatchResult &Result) {
             if (const auto *ChildIf = dyn_cast<IfStmt>(Else)) {
                 SourceLocation StartElse = ChildIf->getThen()->getBeginLoc();
 
-                if (SM.getSpellingLineNumber(StartElse) !=
-                    SM.getSpellingLineNumber(ChildIf->getRParenLoc())) {
+                if (this->source_manager->getSpellingLineNumber(StartElse) !=
+                    this->source_manager->getSpellingLineNumber(
+                        ChildIf->getRParenLoc())) {
                     diag(this->opens.back(),
                          "Open brace must be located on same line as "
                          "else.");
@@ -202,22 +209,27 @@ void Rule4aCheck::check(const MatchFinder::MatchResult &Result) {
     } else if (auto MatchedDecl = Result.Nodes.getNodeAs<SwitchStmt>("switch")) {
         CHECK_LOC(MatchedDecl);
 
+        this->dbgdump(MatchedDecl, *this->ast_context);
+
         // Add an open/close for the switch itself
         this->opens.push_back(MatchedDecl->getBody()->getBeginLoc());
         // Don't really need a close because it's a compound anyway
 
-        this->dbgdump(MatchedDecl, *Context);
-
         // Add an open/close for each case
-        std::vector<const Stmt *> switch_children(MatchedDecl->getBody()->child_begin(),
-                                                  MatchedDecl->getBody()->child_end());
+        std::deque<const Stmt *> switch_children(MatchedDecl->getBody()->child_begin(),
+                                                 MatchedDecl->getBody()->child_end());
+        const Stmt *first_child = switch_children.front();
 
-        for (auto child = switch_children.begin(); child != switch_children.end();
-             child++) {
-            if (auto Case = dyn_cast<SwitchCase>(*child)) {
-                this->opens.push_back(Case->getColonLoc().getLocWithOffset(1));
-                if (child != switch_children.begin()) {
-                    this->closes.push_back(Case->getKeywordLoc().getLocWithOffset(-1));
+        while (!switch_children.empty()) {
+            auto child = switch_children.front();
+            switch_children.pop_front();
+            if (auto _case = dyn_cast<SwitchCase>(child)) {
+                this->opens.push_back(_case->getColonLoc().getLocWithOffset(1));
+                if (child != first_child) {
+                    this->closes.push_back(_case->getKeywordLoc().getLocWithOffset(-1));
+                }
+                for (auto case_child : _case->children()) {
+                    switch_children.push_back(case_child);
                 }
             }
         }
@@ -232,20 +244,23 @@ void Rule4aCheck::check(const MatchFinder::MatchResult &Result) {
         this->closes.push_back(
             MatchedDecl->getBody()->getEndLoc().getLocWithOffset(-1));
 
-        if (SM.getSpellingLineNumber(MatchedDecl->getRParenLoc()) !=
-            SM.getSpellingLineNumber(this->opens.back())) {
+        if (this->source_manager->getSpellingLineNumber(MatchedDecl->getRParenLoc()) !=
+            this->source_manager->getSpellingLineNumber(this->opens.back())) {
             diag(this->opens.back(),
                  "Open brace must be located on same line as while.");
         }
-        if ((start = SM.getSpellingLineNumber(MatchedDecl->getLParenLoc())) !=
-            (end = SM.getSpellingLineNumber(MatchedDecl->getRParenLoc()))) {
+        if ((start = this->source_manager->getSpellingLineNumber(
+                 MatchedDecl->getLParenLoc())) !=
+            (end = this->source_manager->getSpellingLineNumber(
+                 MatchedDecl->getRParenLoc()))) {
             for (size_t i = start + 1; i <= end; i++) {
                 this->broken_lines.push_back(i);
             }
         }
     } else if (auto MatchedDecl = Result.Nodes.getNodeAs<CompoundStmt>("compound")) {
         CHECK_LOC(MatchedDecl);
-        ParentMapContext &PMC = Context->getParentMapContext();
+        ParentMapContext &PMC =
+            const_cast<ASTContext *>(this->ast_context)->getParentMapContext();
         DynTypedNode node = DynTypedNode::create<CompoundStmt>(*MatchedDecl);
         DynTypedNodeList Parents = PMC.getParents(node);
         bool is_case = false;
@@ -274,7 +289,7 @@ void Rule4aCheck::check(const MatchFinder::MatchResult &Result) {
     }
 }
 
-size_t spc_ct(std::string s) {
+static size_t spc_ct(std::string s) {
     size_t ct = 0;
     for (auto c : s) {
         if (c == ' ') {
@@ -293,16 +308,18 @@ void Rule4aCheck::onEndOfTranslationUnit(void) {
     opens.erase(std::unique(opens.begin(), opens.end()), opens.end());
     std::sort(closes.begin(), closes.end());
     closes.erase(std::unique(closes.begin(), closes.end()), closes.end());
+
+    this->dout() << "Checking indentation over " << this->tokens.size() << " tokens"
+                 << std::endl;
+
     for (auto tok : this->tokens) {
-        this->dout() << "Token: " << *this->tok_string(*this->SMan, tok) << " "
-                     << tok.getLocation().printToString(*this->SMan) << "\n";
-        if (not this->SMan->isWrittenInMainFile(tok.getLocation()) ||
-            not this->SMan->isWrittenInMainFile(tok.getEndLoc())) {
+        if (not this->source_manager->isWrittenInMainFile(tok.getLocation()) ||
+            not this->source_manager->isWrittenInMainFile(tok.getEndLoc())) {
             continue;
         }
 
-        std::string raw_tok_data =
-            Lexer::getSpelling(tok, *this->SMan, this->ctx->getLangOpts());
+        std::string raw_tok_data = Lexer::getSpelling(tok, *this->source_manager,
+                                                      this->ast_context->getLangOpts());
 
         // This is a line break, so we push the last token into the
         // vector of EOL tokens
@@ -314,39 +331,44 @@ void Rule4aCheck::onEndOfTranslationUnit(void) {
         checked_tokens.push_back(tok);
         SourceRange TokenSourceRange(tok.getLocation(), tok.getEndLoc());
 
-        while (not opens.empty() && this->SMan->isBeforeInTranslationUnit(
+        while (not opens.empty() && this->source_manager->isBeforeInTranslationUnit(
                                         opens.front(), tok.getLocation())) {
 
             opens.pop_front();
             indent_amount += 2;
             this->dout() << "++ (" + std::to_string(indent_amount) + ") |"
-                         << std::string(this->SMan->getCharacterData(
-                                            eol_tokens.back().getLocation()),
-                                        this->SMan->getCharacterData(tok.getEndLoc()))
-                         << "|" << tok.getLocation().printToString(*this->SMan)
+                         << std::string(
+                                this->source_manager->getCharacterData(
+                                    eol_tokens.back().getLocation()),
+                                this->source_manager->getCharacterData(tok.getEndLoc()))
+                         << "|"
+                         << tok.getLocation().printToString(*this->source_manager)
                          << std::endl;
         }
 
-        while (not closes.empty() && this->SMan->isBeforeInTranslationUnit(
+        while (not closes.empty() && this->source_manager->isBeforeInTranslationUnit(
                                          closes.front(), tok.getLocation())) {
             closes.pop_front();
             indent_amount -= 2;
             this->dout() << "-- (" + std::to_string(indent_amount) + ") |"
-                         << std::string(this->SMan->getCharacterData(
-                                            eol_tokens.back().getLocation()),
-                                        this->SMan->getCharacterData(tok.getEndLoc()))
-                         << "|" << tok.getLocation().printToString(*this->SMan)
+                         << std::string(
+                                this->source_manager->getCharacterData(
+                                    eol_tokens.back().getLocation()),
+                                this->source_manager->getCharacterData(tok.getEndLoc()))
+                         << "|"
+                         << tok.getLocation().printToString(*this->source_manager)
                          << std::endl;
         }
         if (tok.isAtStartOfLine() && checked_tokens.size() > 1) {
             std::string ws(*this->tok_string(
-                *this->SMan, checked_tokens.at(checked_tokens.size() - 2)));
+                *this->source_manager, checked_tokens.at(checked_tokens.size() - 2)));
             bool breakable = false;
             for (auto t : eol_tokens) {
                 // This EOL token is the one for the line before the
                 // current line
-                if (this->SMan->getSpellingLineNumber(t.getLocation()) ==
-                    this->SMan->getSpellingLineNumber(tok.getLocation()) - 1) {
+                if (this->source_manager->getSpellingLineNumber(t.getLocation()) ==
+                    this->source_manager->getSpellingLineNumber(tok.getLocation()) -
+                        1) {
                     if (t.getKind() != tok::l_brace && t.getKind() != tok::semi &&
                         t.getKind() != tok::comment && t.getKind() != tok::colon) {
                         breakable = true;
@@ -356,7 +378,7 @@ void Rule4aCheck::onEndOfTranslationUnit(void) {
                 }
             }
 
-            if (this->tok_string(*this->SMan, tok)->rfind("#", 0) == 0) {
+            if (this->tok_string(*this->source_manager, tok)->rfind("#", 0) == 0) {
                 // This is a preprocessor directive, so it must be on
                 // the left edge.
                 if (spc_ct(ws) != 0) {
@@ -368,8 +390,8 @@ void Rule4aCheck::onEndOfTranslationUnit(void) {
                 }
             } else if (spc_ct(ws) != indent_amount) {
                 if (std::find(this->broken_lines.begin(), this->broken_lines.end(),
-                              this->SMan->getSpellingLineNumber(tok.getLocation())) !=
-                    this->broken_lines.end()) {
+                              this->source_manager->getSpellingLineNumber(
+                                  tok.getLocation())) != this->broken_lines.end()) {
                     if (spc_ct(ws) < indent_amount + 2) {
                         diag(tok.getLocation(),
                              "Incorrect indentation level. Expected at "
