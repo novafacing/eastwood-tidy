@@ -3,22 +3,120 @@
 
 ## Table Of Contents
 1. [About This Project](#about)
-2. [Building](#building)
-3. [Installation](#installation)
-4. [Usage](#installation)
-5. [Testing](#testing)
-6. [Notes](#notes)
-7. [Wiki](https://github.com/novafacing/eastwood-tidy/wiki)
-8. [Code Standard Support](#code-standard)
-9. [Original Code Standard](#original-code-standard)
+2. [Users](#users)
+  * [Installation](#installation)
+  * [Usage](#usage)
+3. [Developers](#developers)
+  * [Building](#building)
+  * [Linting](#linting)
+  * [Testing](#testing)
+4. [Notes](#notes)
+7. [Code Standard Reference](#code-standard-reference)
 
-## About <a name="about" />
+## About
 
 `eastwood-tidy` is a port of the Eastwood C language linter to the clang-tidy check system.
 
-Initial work was done by Connor McMillin. The project is now maintained by Rowan Hart <rowanbhart@gmail.com>.
+Initial work was done by Connor McMillin. The project is now maintained by Rowan Hart
+<rowanbhart@gmail.com>.
 
-## Building <a name="building" />
+## Users
+
+Users of eastwood-tidy do *not* need to follow the [developer](#developers) documentation
+to download and install LLVM, and should instead prefer to obtain a binary distribution
+of the linter.
+
+### Installation
+
+#### Dependencies
+
+Note that you will need to have `llvm-dev` installed on your system if you want
+to avoid spurious errors for missing header files. Otherwise, there are no other
+dependencies and the distributed binary is statically linked.
+
+#### Downloading and Installing
+
+You can obtain the latest release of `eastwood-tidy` by downloading the latest binary
+from the [releases](https://github.com/novafacing/eastwood-tidy/releases) page on
+GitHub. `eastwood-tidy` currently only supports Linux, and there are no plans to create
+releases for other platforms. You are, of course, welcome to create these yourself.
+
+
+The binary can be installed by simply copying it to a `$PATH` location, or with a full
+path. 
+### Usage
+
+#### Recommended Running
+
+The recommended way to run `eastwood-tidy` is through the [linter](scripts/linter) script
+to avoid needing to pass large numbers of arguments to the program. You may also choose
+to write your own wrapper script, or you may modify the path given in ours and use it.
+
+#### Manual Running
+
+The program can be run in several modes:
+
+1. With no compile database:
+
+`clang-tidy` will attempt to guess compile options. This isn't ideal but will probably 
+work in most cases.
+
+`clang-tidy -checks "-*,eastwood*" path-to-file.c`
+
+2. With a compile database:
+
+`clang-tidy` will use compile options from a compilation database. This can be made by 
+hand or output by cmake.
+
+To generate the database with cmake, call cmake with `-DCMAKE_EXPORT_COMPILE_COMMANDS=ON`
+
+To generate the database by hand, simply follow the below format and create
+`compile_commands.json` in the same directory (or a parent directory) of your `.c`
+files.
+
+```
+[
+    {
+        "directory": "/absolute/path/to/the/output/directory/of/cmake/or/other/build/system/",
+        "command": "gcc -g -ggdb -O0 -any -other -compile -options -here -o relative/or/absolute/path/to/outputfile.o -c /absolute/path/to/the/c/file.c",
+        "file": "/absolute/path/to/the/c/file.c"
+    },
+    {
+        ...
+    },
+    ...
+]
+
+```
+
+If that's unparseable, basically it's a dict containing the directory of the output
+(ie directory to build from), the compile command (gcc -whatever -o thing thing.c), and
+the file to compile.
+
+The compile database can be manually specified with `clang-tidy -p <database>.json`, but
+it is probably easier to just put it in the same place as your source (or 1 directory
+above).
+
+The command `clang-tidy -checks "-*,eastwood*" path-to-file.c` is the same.
+
+3. Options:
+
+The clang-tidy linter has a few command line options, outlined below. Unfortunately,
+they are taken in a rather nasty format. To pass options you can do:
+
+```
+$ clang-tidy -checks "-*,eastwood*" -config="{CheckOptions: [{key: a, value: b}, {key: x, value: y}]}" path-to-file.c
+```
+
+The options we provide (and an example usage) are below:
+
+| Option                     | Default | Type | Example                                                                      | Description             |
+| -------------------------- | ------- | ---- | ---------------------------------------------------------------------------- | ----------------------- |
+| eastwood-Rule1bCheck.dump  | false   | bool | `-config="{CheckOptions: [{key: eastwood-Rule1bCheck.dump, value: true}]}"`  | Dump Names              |
+| eastwood-Rule11dCheck.dump | false   | bool | `-config="{CheckOptions: [{key: eastwood-Rule11dCheck.dump, value: true}]}"` | Dump Embedded Constants |
+
+## Developers
+### Building
 
 1. Get the llvm github repo:
 
@@ -41,7 +139,8 @@ $ ln -s $(pwd)/eastwood-tidy/setup/ClangTidyForceLinker.h $(pwd)/llvm-project/cl
 $ ln -s $(pwd)/eastwood-tidy/ $(pwd)/llvm-project/clang-tools-extra/clang-tidy/
 ```
 
-4. Run patches to remove extraneous un-toggleable error reports from clang-tidy about missing compilation databases.
+4. Run patches to remove extraneous un-toggleable error reports from clang-tidy about 
+   missing compilation databases.
 
 ```bash
 $ ./patch/patch.sh /path/to/llvm-project
@@ -59,105 +158,52 @@ cmake --build . -j NN # where NN is the number of cores in your machine + 1
 
 6. Binary will be located at `llvm-project/llvm/build/bin/clang-tidy`
 
-## Installation <a name="installation" />
+7. If developing for use at Purdue University, the binary can be updated
+   by using the [update script](scripts/update.sh) which will upload both
+   the new binary and the necessary include directories to avoid spurious errors.
 
-The binary can be installed by simply copying it to a `$PATH` location.
+### Linting
 
-## Usage <a name="usage" />
+There is a `.clang-format` file provided in the root directory. Ensure that your
+`clang-format` utility uses this format file.
 
-The program can be run in several modes:
+To facilitate linting, a `pre-commit` configuration is provided. You can run
+`pre-commit install` in the root of the repository to install the hook to format
+the `src` and `include` directories on commit.
 
-1. With no compile database:
+Note that improperly formatted code in Pull Requests will not be accepted, and you
+will be gently asked to run the formatter and update your request. I recognize that
+everyone has their preferred style and this may not be yours, but this is the source
+code for a linter, after all! Let's keep it consistent.
 
-`clang-tidy` will attempt to guess compile options. This isn't ideal but will probably work in most cases.
+### Testing
 
-`clang-tidy -checks "-*,eastwood*" path-to-file.c`
+Tests have been updated once again to use a bespoke pytest-based testing framework.
 
-2. With a compile database:
+#### Install Test Framework
 
-`clang-tidy` will use compile options from a compilation database. This can be made by hand or output by cmake. 
+To run tests, you will need to install the virtual environment for the tests:
 
-To generate the database with cmake, call cmake with `-DCMAKE_EXPORT_COMPILE_COMMANDS=ON`
-
-To generate the database by hand, simply follow the below format and create `compile_commands.json` in the same directory (or a parent directory) of your `.c` files.
-
-```
-[
-    {
-        "directory": "/absolute/path/to/the/output/directory/of/cmake/or/other/build/system/",
-        "command": "gcc -g -ggdb -O0 -any -other -compile -options -here -o relative/or/absolute/path/to/outputfile.o -c /absolute/path/to/the/c/file.c",
-        "file": "/absolute/path/to/the/c/file.c"
-    },
-    {
-        ...
-    },
-    ...
-]
-
+```sh
+cd test
+poetry install
 ```
 
-If that's unparseable, basically it's a dict containing the directory of the output (ie directory to build from), the compile command (gcc -whatever -o thing thing.c), and the file to compile.
+If you do not have `poetry`, you can get it
+[here](https://python-poetry.org/blog/announcing-poetry-1.2.0a1/).
 
-The compile database can be manually specified with `clang-tidy -p <database>.json`, but it is probably easier to just put it in the same place as your source (or 1 directory above).
+#### Running Tests
 
-The command `clang-tidy -checks "-*,eastwood*" path-to-file.c` is the same.
+To run the tests, first make sure you are in the virtual environment. You can either run
+`poetry shell` (recommended) to work on the environment in your shell, or you can
+prepend `poetry run` to any test commands you run.
 
-3. Options:
+Specific instructions on writing and running tests in various forms can be found
+in the [testing readme](test/README.md), but in general you can run all of the tests
+by running `pytest`. There are currently a large number of failing and non-implemented
+tests due to the in-progress overhaul of the codebase for the project.
 
-The clang-tidy linter has a few command line options, outlined below. Unfortunately, they are taken in a rather nasty format. To pass options you can do:
-
-```
-$ clang-tidy -checks "-*,eastwood*" -config="{CheckOptions: [{key: a, value: b}, {key: x, value: y}]}" path-to-file.c
-```
-
-The options we provide (and an example usage) are below:
-
-| Option                     | Default | Type | Example                                                                       | Description             |
-| ------                     | ------- | ---- | ----------------------------------------------------------------------------- | ------------------------|
-| eastwood-Rule1bCheck.dump  | false   | bool | `-config="{CheckOptions: [{key: eastwood-Rule1bCheck.dump, value: true}]}"`   | Dump Names              |
-| eastwood-Rule11dCheck.dump | false   | bool | `-config="{CheckOptions: [{key: eastwood-Rule11dCheck.dump, value: true}]}"`  | Dump Embedded Constants |
-
-## Testing <a name="testing" />
-
-#### The new test procedure is to do the following:
-
-1. Install the dependencies for LLVM however is appropriate for your system. You need at minimum the `FileCheck` utility.
-
-2. Copy the script `scripts/check_clang_tidy.py` into your LLVM repo: `llvm-project/clang-tools-extra/test/clang-tidy/check_clang_tidy.py`.
-
-3. Set the `CLANG_TIDY` variable at the top of the script to your `clang-tidy` location. Probably this is `llvm-project/llvm/build/bin/clang-tidy`.
-
-4. `cp -av eastwood/test/*.c llvm-project/clang-tools-extra/test/clang-tidy/checkers/`
-
-5. `cp -av eastwood/test/*.h llvm-project/clang-tools-extra/test/clang-tidy/checkers/`
-
-The above 2 points just mean: move all the .c and .h test files into the checkers directory from wherever `eastwood` is lcoated.
-
-6. Run the checker: `python3 check_clang_tidy.py checkers/eastwood-rule-1a.c eastwood-Rule1A ./checkers/`
-
-Where eastwood-rule-1a.c and eastwood-Rule1A are the name of a source file and a code standard point, respectively.
-
-
-#### The below is deprecated guidance, use at your own risk.
-
-`eastwood-tidy` can be tested against the test cases in the `test` directory by building the tests and compilation database with a provided path to the built `clang-tidy` binary.
-
-```
-$ cd test
-$ mkdir build
-$ cd build
-$ cmake -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -DCLANG_TIDY_LOCATION=/absolute/path/to/clang-tidy ..
-$ make -j NN
-$ make test
-```
-
-Alternatively, you can just run `ctest` in the `build` directory.
-
-The tests are demarcated in `test/test-spec.json` and run using python's `unittest` framework. I know, I know, this is a C project. Python is easier. Sue me.
-
-*Note*: currently there is a variable `EXTRA_ARGS` in test.py. This is because I use NixOS. Just make that an empty array for your own testing...until I fix it :)
-
-## Notes <a name="notes" />
+## Notes
 
 ### Note for NixOS users:
 
@@ -170,90 +216,14 @@ You can just do `clang-tidy <args> -- $(nix eval nixpkgs.glibc.dev.outPath | tr 
 
 ### Note for include directories
 
-Note for include directories and files: using `clang-tidy <regular args> -- <clang args>` can be done to specify include directories. For example: `./clang-tidy -checks "-*,eastwood*" /home/novafacing/hub/llvm-project/clang-tools-extra/clang-tidy/eastwood/test/I/test_I_D_fail.c -- -I/nix/store/lqn6r231ifgs2z66vvaav5zmrywlllzf-glibc-2.31-dev/include/`
+Note for include directories and files: using `clang-tidy <regular args> -- <clang args>` 
+can be done to specify include directories. For example: 
 
-## Code Standard <a name="code-standard" />
+```
+./clang-tidy -checks "-*,eastwood*" /home/novafacing/hub/llvm-project/clang-tools-extra/clang-tidy/eastwood/test/I/test_I_D_fail.c -- -I/nix/store/lqn6r231ifgs2z66vvaav5zmrywlllzf-glibc-2.31-dev/include/
+```
 
-Below is the list of supported checks for the Eastwood-Tidy Linter. Checkboxes are only checked for full implementations.
-
-### 1. Naming Convention
-
-- [x] A. Variable names should be all in lowercase, optionally separated by underscores.
-- [x] B. Variable names should be descriptive and meaningful.
-- [x] C. Constants must be uppercase, contain >= 2 characters, be declared using ###define, have () for numbers and "" for strings.
-- [x] D. Global variables must begin with the prefix "g_" and be located at the top of the file.
-
-### 2. Line and Function Length
-
-- [x] A. Lines must be under 80 columns. If it is too long, following lines must be indented at least 2 spaces.
-- [x] B. Functions should fit on 2 pages (240 lines).
-
-### 3. Spacing
-
-- [x] One space after all structure/flow keywords (if, else, while, do, switch). One space before all open braces.
-- [x] One space before and after all logical and arithmetic operators (+, -, *, /, ==, >, etc).
-- [x] One space after all internal commas and semicolons.
-- [ ] Define expressions should be grouped, and have a blank line above and below.
-
-### 4. Indentation
-
-- [x] Two space indentation must be applied to the entire program. Opening brace must be on the same line as keyword. Else must be on its own line.
-- [x] Parameters should be on one line unless 80 columns is exceeded, in which case they should be aligned.
-- [x] The while statement of a do-while loop must be on the same line as the closing brace.
-
-### 5. Comments
-
-- [ ] Comments should be meaningful and not repeat the obvious.
-- [x] Comments must be placed above code except to annotate an if, else, or case statement.
-- [x] Comments must be preceded by either a blank line or an open brace.
-- [x] Function names must be commented at the end of each function in the format /* foo() */.
-- [x] Function header comments should have a blank line preceding and following.
-
-### 6. Multiple Logical expressions
-
-- [x] If multiple logical expressions are used, sub-expressions must be parenthesized.
-
-### 7. Headers
-
-- [x] Header comments must be present for all functions, aligned to left edge.
-
-### 8. Header Files.
-
-- [x] Every .c file should have an associated .h file.
-- [x] Header files should end in .h.
-- [x] All header files should have define guards to prevent multiple inclusion.
-- [x] All local header files should be descendants of the project; no `.`/`..` permitted.
-- [x] Includes should be ordered by corresponding header, global includes, then local includes with each section in lexicographic order.
-- [ ] All relevant files should be explicitly included.
-- [x] Only non-local includes should used <...>, and local includes must use "...".
-
-### 9. Defensive Coding
-
-- [ ] Return values of library functions must be checked.
-- [ ] File pointers from `fopen` must be closed with `fclose`.
-- [ ] Pointers deallocated with `free` must be set to `NULL`.
-- [ ] Range checking should be performed on return values.
-- [ ] The appropriate zero should be used for `NULL` (0, 0.0, NULL, '\0').
-
-### 10. Output Handling
-
-- [ ] All errors should be directed to stderr.
-
-### 11. Forbidden Statements
-
-- [x] Never use tabs.
-- [x] DOS newlines are prohibited.
-- [x] Do not make multiple assignments in a single expression.
-- [x] Do not use embedded constants.
-- [x] Do not use goto.
-
-### 12. Variable declarations
-
-- [x] Do not define more than one variable on a single line.
-- [x] All variables must be initialized when they are defined.
-- [ ] Variables should be placed as locally as possible.
-
-## Original Code Standard <a href="original-code-standard">
+## Code Standard Reference
 
 ### I. NAMING CONVENTION
 
