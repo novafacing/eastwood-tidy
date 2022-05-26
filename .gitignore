@@ -187,3 +187,5 @@ cython_debug/
 *.exe
 *.out
 *.app
+
+compile_commands.json

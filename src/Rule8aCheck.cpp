@@ -37,7 +37,7 @@ public:
         : Check(Check), SM(SM){};
     void InclusionDirective(SourceLocation HashLoc, const Token &IncludeTok,
                             StringRef FileName, bool isAngled,
-                            CharSourceRange FilenameRange, const FileEntry *File,
+                            CharSourceRange FilenameRange, Optional<FileEntryRef> File,
                             StringRef SearchPath, StringRef RelativePath,
                             const Module *Imported,
                             SrcMgr::CharacteristicKind FileType) override {
@@ -47,8 +47,8 @@ public:
                 this->SM.getFileEntryForID(this->SM.getFileID(HashLoc))
                     ->tryGetRealPathName()
                     .str());
-            if (File && File->isValid()) {
-                std::string file_path(File->tryGetRealPathName().str());
+            if (File) {
+                std::string file_path(File->getFileEntry().tryGetRealPathName().str());
                 /* std::filesystem won't link for SOME reason */
                 std::string header_file_name(getFileName(file_path));
                 header_file_name =
@@ -101,9 +101,9 @@ void Rule8aCheck::check(const MatchFinder::MatchResult &Result) {
     if (auto MatchedDecl = Result.Nodes.getNodeAs<FunctionDecl>("function_decl")) {
         const SourceManager &SM = *Result.SourceManager;
         if (SM.isInMainFile(MatchedDecl->getLocation())) {
-            const FileEntry *MainFile =
+            const clang::FileEntry *MainFile =
                 SM.getFileEntryForID(SM.getFileID(MatchedDecl->getLocation()));
-            if (MainFile && MainFile->isValid()) {
+            if (MainFile) {
                 std::string file_path(MainFile->tryGetRealPathName().str());
             }
         }

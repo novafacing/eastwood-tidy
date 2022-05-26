@@ -42,7 +42,7 @@ public:
 
     void InclusionDirective(SourceLocation HashLoc, const Token &IncludeTok,
                             StringRef FileName, bool isAngled,
-                            CharSourceRange FilenameRange, const FileEntry *File,
+                            CharSourceRange FilenameRange, Optional<FileEntryRef> File,
                             StringRef SearchPath, StringRef RelativePath,
                             const Module *Imported,
                             SrcMgr::CharacteristicKind FileType) override {
@@ -58,11 +58,11 @@ public:
             ftw(main_file_dir.c_str(), AddFile, 0x10);
             this->Check->checked = true;
         }
-        if (not File || not File->isValid()) {
+        if (not File) {
             return;
         }
 
-        std::string header_file_path(File->tryGetRealPathName().str());
+        std::string header_file_path(File->getFileEntry().tryGetRealPathName());
         std::string header_file_name(
             header_file_path.substr(header_file_path.find_last_of("/") + 1));
         for (auto fn : *files) {
