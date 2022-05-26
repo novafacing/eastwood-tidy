@@ -212,7 +212,7 @@ poetry install
 ```
 
 If you do not have `poetry`, you can get it
-[here](https://python-poetry.org/blog/announcing-poetry-1.2.0a1/).
+[here](https://python-poetry.org/docs/master/#installing-with-the-official-installer).
 
 #### Running Tests
 
