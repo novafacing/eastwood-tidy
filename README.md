@@ -7,6 +7,7 @@
   * [Installation](#installation)
   * [Usage](#usage)
 3. [Developers](#developers)
+  * [Development Environment](#development-environment)
   * [Building](#building)
   * [Linting](#linting)
   * [Testing](#testing)
@@ -118,7 +119,9 @@ The options we provide (and an example usage) are below:
 ## Developers
 
 
-### Notes about developing
+### Development Environment
+
+#### IDE
 
 The recommended IDE for developing `eastwood-tidy` is VSCode. You can
 develop it in VIM or Eclipse or anything you want, but rest assured it
@@ -135,6 +138,18 @@ Below during the initial build there are instructions to add a
 `compile_commands.json` symlink to provide `clangd`. Do this!
 It will detect all the header information needed to view methods,
 get autocompletion, and get error detection.
+
+#### Install Pre-Commit
+
+Before contributing by opening a PR or pushing code, install the pre-commit hook for
+`clang-format` by installing `pre-commit` and the hook:
+
+```sh
+$ python3 -m pip install pre-commit # Skip this if you have already installed pre-commit
+$ pre-commit install
+```
+
+You should now have a check/lint pass before every commit.
 
 ### Building
 
