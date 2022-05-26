@@ -116,6 +116,26 @@ The options we provide (and an example usage) are below:
 | eastwood-Rule11dCheck.dump | false   | bool | `-config="{CheckOptions: [{key: eastwood-Rule11dCheck.dump, value: true}]}"` | Dump Embedded Constants |
 
 ## Developers
+
+
+### Notes about developing
+
+The recommended IDE for developing `eastwood-tidy` is VSCode. You can
+develop it in VIM or Eclipse or anything you want, but rest assured it
+will be a less user friendly experience.
+
+Recommended plugin configuration for this project:
+
+* Install `llvm-vs-code-extensions.vscode-clangd`
+* Install `ms-vscode.cpptools`
+* Use the repo `.vscode` settings which will *disable* `C_Cpp`
+  intellisense and use `clangd` instead.
+
+Below during the initial build there are instructions to add a
+`compile_commands.json` symlink to provide `clangd`. Do this!
+It will detect all the header information needed to view methods,
+get autocompletion, and get error detection.
+
 ### Building
 
 1. Get the llvm github repo:
@@ -152,13 +172,15 @@ $ ./patch/patch.sh /path/to/llvm-project
 cd llvm-project/llvm
 mkdir build
 cd build
-cmake -GNinja -DLLVM_TARGETS_TO_BUILD=X86 -DLLVM_ENABLE_PROJECTS="clang;clang-tools-extra" -DCMAKE_CXX_COMPILER="clang++" -DCMAKE_C_COMPILER="clang" -DLLVM_USE_LINKER="lld" -DLLVM_BUILD_TESTS="OFF" -DCMAKE_BUILD_TYPE="Debug" -DBUILD_SHARED_LIBS="OFF" ..
+cmake -GNinja -DLLVM_TARGETS_TO_BUILD=X86 -DLLVM_ENABLE_PROJECTS="clang;clang-tools-extra" -DCMAKE_CXX_COMPILER="clang++" -DCMAKE_C_COMPILER="clang" -DLLVM_USE_LINKER="lld" -DLLVM_BUILD_TESTS="OFF" -DCMAKE_BUILD_TYPE="Debug" -DBUILD_SHARED_LIBS="OFF" -DCMAKE_COMPILE_COMMANDS=1 ..
 cmake --build . -j NN # where NN is the number of cores in your machine + 1
 ```
 
-6. Binary will be located at `llvm-project/llvm/build/bin/clang-tidy`
+6. If you are using vscode, you will want to symlink the `compile_commands.json` into your development directory `ln -s $(pwd)/compile_commands.json /path/to/eastwood-tidy/compile_commands.json` to allow `clangd` to work.
 
-7. If developing for use at Purdue University, the binary can be updated
+7. Binary will be located at `llvm-project/llvm/build/bin/clang-tidy`
+
+8. If developing for use at Purdue University, the binary can be updated
    by using the [update script](scripts/update.sh) which will upload both
    the new binary and the necessary include directories to avoid spurious errors.
 
