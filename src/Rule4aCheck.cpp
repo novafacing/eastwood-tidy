@@ -9,6 +9,7 @@
 #include "Rule4aCheck.h"
 #include "clang/AST/ASTContext.h"
 #include "clang/ASTMatchers/ASTMatchers.h"
+#include "clang/Basic/SourceLocation.h"
 #include "clang/Lex/Lexer.h"
 
 #include <iomanip>
@@ -128,6 +129,12 @@ void Rule4aCheck::check(const MatchFinder::MatchResult &Result) {
                            MatchedDecl->getParametersSourceRange().getEnd());
             }
         }
+
+        SourceRange param_range = MatchedDecl->getParametersSourceRange();
+        if (this->source_manager->getSpellingLineNumber(param_range.getBegin()) !=
+            this->source_manager->getSpellingLineNumber(param_range.getEnd())) {
+            this->broken_ranges.push_back(param_range);
+        }
     } else if (auto MatchedDecl = Result.Nodes.getNodeAs<DoStmt>("do")) {
         CHECK_LOC(MatchedDecl);
 
@@ -141,6 +148,13 @@ void Rule4aCheck::check(const MatchFinder::MatchResult &Result) {
             this->source_manager->getSpellingLineNumber(MatchedDecl->getBeginLoc())) {
             diag(this->opens.back(), "Open brace must be located on same line as do.");
         }
+        SourceRange condition_range = SourceRange(MatchedDecl->getCond()->getBeginLoc(),
+                                                  MatchedDecl->getCond()->getEndLoc());
+        if (this->source_manager->getSpellingLineNumber(condition_range.getBegin()) !=
+            this->source_manager->getSpellingLineNumber(condition_range.getEnd())) {
+            this->broken_ranges.push_back(condition_range);
+        }
+
     } else if (auto MatchedDecl = Result.Nodes.getNodeAs<ForStmt>("for")) {
         CHECK_LOC(MatchedDecl);
 
@@ -164,6 +178,12 @@ void Rule4aCheck::check(const MatchFinder::MatchResult &Result) {
             diag(this->opens.back(), "Open brace must be located on "
                                      "same line as for or after "
                                      "split contents.");
+        }
+        SourceRange condition_range =
+            SourceRange(MatchedDecl->getLParenLoc(), MatchedDecl->getRParenLoc());
+        if (this->source_manager->getSpellingLineNumber(condition_range.getBegin()) !=
+            this->source_manager->getSpellingLineNumber(condition_range.getEnd())) {
+            this->broken_ranges.push_back(condition_range);
         }
     } else if (auto MatchedDecl = Result.Nodes.getNodeAs<IfStmt>("if")) {
         CHECK_LOC(MatchedDecl)
@@ -219,6 +239,7 @@ void Rule4aCheck::check(const MatchFinder::MatchResult &Result) {
                 this->closes.push_back(Else->getEndLoc().getLocWithOffset(-1));
             }
         }
+
     } else if (auto MatchedDecl = Result.Nodes.getNodeAs<SwitchStmt>("switch")) {
         CHECK_LOC(MatchedDecl);
 
@@ -324,16 +345,33 @@ void Rule4aCheck::onEndOfTranslationUnit(void) {
     size_t indent_amount = 0;
     std::vector<Token> checked_tokens;
     std::vector<Token> eol_tokens;
+
+    std::deque<size_t> open_lines;
+    std::deque<size_t> close_lines;
+
+    for (SourceLocation loc : this->opens) {
+        size_t line = this->source_manager->getSpellingLineNumber(loc);
+        open_lines.push_back(line);
+    }
+    for (SourceLocation loc : this->closes) {
+        size_t line = this->source_manager->getSpellingLineNumber(loc);
+        close_lines.push_back(line);
+    }
+
     // Sort open and close locations and remove duplicates
     std::sort(opens.begin(), opens.end());
+    std::sort(open_lines.begin(), open_lines.end());
     opens.erase(std::unique(opens.begin(), opens.end()), opens.end());
     std::sort(closes.begin(), closes.end());
+    std::sort(close_lines.begin(), close_lines.end());
     closes.erase(std::unique(closes.begin(), closes.end()), closes.end());
 
     this->dout() << "Checking indentation over " << this->tokens.size() << " tokens"
                  << std::endl;
 
-    for (auto tok : this->tokens) {
+    for (size_t i = 0; i < this->tokens.size(); i++) {
+        auto tok = this->tokens.at(i);
+
         if (not this->source_manager->isWrittenInMainFile(tok.getLocation()) ||
             not this->source_manager->isWrittenInMainFile(tok.getEndLoc())) {
             continue;
@@ -341,58 +379,35 @@ void Rule4aCheck::onEndOfTranslationUnit(void) {
 
         std::string raw_tok_data = Lexer::getSpelling(tok, *this->source_manager,
                                                       this->ast_context->getLangOpts());
+        size_t tok_line_number =
+            this->source_manager->getSpellingLineNumber(tok.getLocation());
 
-        // This is a line break, so we push the last token into the
-        // vector of EOL tokens
+        while (open_lines.front() < tok_line_number) {
+            open_lines.pop_front();
+            indent_amount += INDENT_AMOUNT;
+        }
+
+        while (close_lines.front() < tok_line_number) {
+            close_lines.pop_front();
+            indent_amount -= INDENT_AMOUNT;
+        }
+
+        std::string ws("");
+        if (i > 0) {
+            ws = *this->sourcerange_string(
+                *this->source_manager,
+                SourceRange(this->tokens.at(i - 1).getLocation(), tok.getLocation()));
+        }
+
         if (raw_tok_data.find('\n') != std::string::npos) {
-            if (checked_tokens.size() > 0) {
-                eol_tokens.push_back(checked_tokens.back());
+            if (i > 0) {
+                eol_tokens.push_back(this->tokens.at(i - 1));
             }
         }
-        checked_tokens.push_back(tok);
-        SourceRange TokenSourceRange(tok.getLocation(), tok.getEndLoc());
 
-        while (not opens.empty() && this->source_manager->isBeforeInTranslationUnit(
-                                        opens.front(), tok.getLocation())) {
+        bool breakable = false;
 
-            opens.pop_front();
-            indent_amount += 2;
-            this->dout() << "++ (" + std::to_string(indent_amount) + ") |"
-                         << *this->tok_string(*this->source_manager, eol_tokens.back())
-                         << "|"
-                         << tok.getLocation().printToString(*this->source_manager)
-                         << std::endl;
-        }
-
-        while (not closes.empty() && this->source_manager->isBeforeInTranslationUnit(
-                                         closes.front(), tok.getLocation())) {
-            closes.pop_front();
-            indent_amount -= 2;
-            this->dout() << "-- (" + std::to_string(indent_amount) + ") |"
-                         << *this->tok_string(*this->source_manager, eol_tokens.back())
-                         << "|"
-                         << tok.getLocation().printToString(*this->source_manager)
-                         << std::endl;
-        }
-        if (tok.isAtStartOfLine() && checked_tokens.size() > 1) {
-            std::string ws(*this->tok_string(
-                *this->source_manager, checked_tokens.at(checked_tokens.size() - 2)));
-            bool breakable = false;
-            for (auto t : eol_tokens) {
-                // This EOL token is the one for the line before the
-                // current line
-                if (this->source_manager->getSpellingLineNumber(t.getLocation()) ==
-                    this->source_manager->getSpellingLineNumber(tok.getLocation()) -
-                        1) {
-                    if (t.getKind() != tok::l_brace && t.getKind() != tok::semi &&
-                        t.getKind() != tok::comment && t.getKind() != tok::colon) {
-                        breakable = true;
-                    }
-
-                    break;
-                }
-            }
-
+        if (tok.isAtStartOfLine()) {
             if (this->tok_string(*this->source_manager, tok)->rfind("#", 0) == 0) {
                 // This is a preprocessor directive, so it must be on
                 // the left edge.

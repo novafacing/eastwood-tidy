@@ -18,6 +18,7 @@
 #include "clang/Lex/Lexer.h"
 #include "clang/Lex/Token.h"
 #include <deque>
+#include <unordered_map>
 
 /* Make sure the location is checkable. */
 #define CHECK_LOC(MatchedDecl)                                                         \
@@ -35,6 +36,10 @@
 #define LOG_CLOSE(Reason, Location)                                                    \
     this->dout() << "Adding CLOSE for " << Reason << " at "                            \
                  << Location.printToString(*this->source_manager) << "\n";
+
+/* The number of spaces an indent should be wide */
+#define INDENT_AMOUNT (2)
+
 namespace clang {
 namespace tidy {
 namespace eastwood {
@@ -42,6 +47,12 @@ namespace eastwood {
 class Rule4aCheck : public ClangTidyCheck, public EastwoodTidyCheckBase {
 private:
     std::string debug_enabled;
+    std::unordered_map<size_t, size_t> indent_map;
+    size_t indent_level;
+    std::deque<SourceLocation> opens;
+    std::deque<SourceLocation> closes;
+    std::deque<size_t> broken_lines;
+    std::deque<SourceRange> broken_ranges;
 
 public:
     /* Constructors */
@@ -51,10 +62,6 @@ public:
     void registerMatchers(ast_matchers::MatchFinder *Finder) override;
     void check(const ast_matchers::MatchFinder::MatchResult &Result) override;
     void onEndOfTranslationUnit(void) override;
-    size_t indent_level;
-    std::deque<SourceLocation> opens;
-    std::deque<SourceLocation> closes;
-    std::deque<size_t> broken_lines;
 }; // Rule4bCheck
 } // namespace eastwood
 } // namespace tidy

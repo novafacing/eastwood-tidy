@@ -151,6 +151,24 @@ $ pre-commit install
 
 You should now have a check/lint pass before every commit.
 
+
+#### Install Build Dependencies
+
+The only build dependencies are LLVM, LLVM tools, a compiler, and cmake. On Linux:
+
+```sh
+$ sudo apt install build-essential cmake git
+$ "$(wget -O - https://apt.llvm.org/llvm.sh)" | bash -s -- 15
+$ sudo apt install clangd-15 clang-15 llvm-15-dev llvm-15-tools \
+  clang-tools-15 clang-format-15 clang-tidy-15 lld-15
+$ sudo update-alternatives --install /usr/bin/clang clang $(which clang-15) 100
+$ sudo update-alternatives --install /usr/bin/clang++ clang++ $(which clang++-15) 100
+$ sudo update-alternatives --install /usr/bin/clang-tidy clang-tidy $(which clang-tidy-15) 100
+$ sudo update-alternatives --install /usr/bin/clang-format clang-format $(which clang-format-15) 100
+$ sudo update-alternatives --install /usr/bin/lld lld $(which lld-15) 100
+```
+
+
 ### Building
 
 1. Get the llvm github repo:

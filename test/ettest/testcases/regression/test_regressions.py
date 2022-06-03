@@ -90,3 +90,15 @@ def test_max_funcsize_74(manager) -> None:
         res = manager.test_file(test)
         assert not res.unexpected_errors
         assert not res.unseen_errors
+
+
+def test_switch_indentation(manager) -> None:
+    """
+    Test that switch indentation doesn't throw off indentation checker
+    """
+    tests = [FileTest("switch_indentation.c")]
+
+    for test in tests:
+        res = manager.test_file(test)
+        assert not res.unexpected_errors
+        assert not res.unseen_errors
