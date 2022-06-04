@@ -362,9 +362,20 @@ void Rule4aCheck::onEndOfTranslationUnit(void) {
     std::sort(opens.begin(), opens.end());
     std::sort(open_lines.begin(), open_lines.end());
     opens.erase(std::unique(opens.begin(), opens.end()), opens.end());
+    open_lines.erase(std::unique(open_lines.begin(), open_lines.end()),
+                     open_lines.end());
     std::sort(closes.begin(), closes.end());
     std::sort(close_lines.begin(), close_lines.end());
     closes.erase(std::unique(closes.begin(), closes.end()), closes.end());
+    close_lines.erase(std::unique(close_lines.begin(), close_lines.end()),
+                      close_lines.end());
+
+    for (auto o : open_lines) {
+        this->dout() << "Open after line " << o << std::endl;
+    }
+    for (auto o : close_lines) {
+        this->dout() << "Close after line " << o << std::endl;
+    }
 
     this->dout() << "Checking indentation over " << this->tokens.size() << " tokens"
                  << std::endl;

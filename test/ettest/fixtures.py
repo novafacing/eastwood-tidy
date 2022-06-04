@@ -4,9 +4,9 @@ from contextlib import contextmanager
 from dataclasses import dataclass, field
 from json import load
 from pathlib import Path
-from subprocess import CalledProcessError, run
+from subprocess import CalledProcessError, CompletedProcess, run
 from tempfile import NamedTemporaryFile
-from typing import Generator, List, Optional, Union
+from typing import Generator, List, Optional, Union, Tuple, cast
 from re import search
 
 from pytest import fixture
@@ -36,6 +36,7 @@ class TestResult:
     unexpected_errors: ErrorCollection = field(default_factory=ErrorCollection)
     unseen_errors: ErrorCollection = field(default_factory=ErrorCollection)
     raw_output: Optional[str] = None
+    debug_result: Optional[CompletedProcess] = None
 
 
 class TestManager:
@@ -60,6 +61,52 @@ class TestManager:
         "int main(int argc, char ** argv) {{\n"
         "{code}"
         "}} /* main() */\n"
+    )
+    DBG_OPT = (
+        "--config='{CheckOptions: ["
+        "{key: eastwood-Rule10aCheck.debug, value: true},"
+        "{key: eastwood-Rule11aCheck.debug, value: true},"
+        "{key: eastwood-Rule11bCheck.debug, value: true},"
+        "{key: eastwood-Rule11cCheck.debug, value: true},"
+        "{key: eastwood-Rule11dCheck.debug, value: true},"
+        "{key: eastwood-Rule11eCheck.debug, value: true},"
+        "{key: eastwood-Rule12aCheck.debug, value: true},"
+        "{key: eastwood-Rule12bCheck.debug, value: true},"
+        "{key: eastwood-Rule12cCheck.debug, value: true},"
+        "{key: eastwood-Rule1aCheck.debug, value: true},"
+        "{key: eastwood-Rule1bCheck.debug, value: true},"
+        "{key: eastwood-Rule1cCheck.debug, value: true},"
+        "{key: eastwood-Rule1dCheck.debug, value: true},"
+        "{key: eastwood-Rule2aCheck.debug, value: true},"
+        "{key: eastwood-Rule2bCheck.debug, value: true},"
+        "{key: eastwood-Rule3aCheck.debug, value: true},"
+        "{key: eastwood-Rule3bCheck.debug, value: true},"
+        "{key: eastwood-Rule3cCheck.debug, value: true},"
+        "{key: eastwood-Rule3dCheck.debug, value: true},"
+        "{key: eastwood-Rule3eCheck.debug, value: true},"
+        "{key: eastwood-Rule3fCheck.debug, value: true},"
+        "{key: eastwood-Rule4aCheck.debug, value: true},"
+        "{key: eastwood-Rule4bCheck.debug, value: true},"
+        "{key: eastwood-Rule4cCheck.debug, value: true},"
+        "{key: eastwood-Rule5aCheck.debug, value: true},"
+        "{key: eastwood-Rule5bCheck.debug, value: true},"
+        "{key: eastwood-Rule5cCheck.debug, value: true},"
+        "{key: eastwood-Rule5dCheck.debug, value: true},"
+        "{key: eastwood-Rule5eCheck.debug, value: true},"
+        "{key: eastwood-Rule6aCheck.debug, value: true},"
+        "{key: eastwood-Rule7aCheck.debug, value: true},"
+        "{key: eastwood-Rule8aCheck.debug, value: true},"
+        "{key: eastwood-Rule8bCheck.debug, value: true},"
+        "{key: eastwood-Rule8cCheck.debug, value: true},"
+        "{key: eastwood-Rule8dCheck.debug, value: true},"
+        "{key: eastwood-Rule8eCheck.debug, value: true},"
+        "{key: eastwood-Rule8fCheck.debug, value: true},"
+        "{key: eastwood-Rule8gCheck.debug, value: true},"
+        "{key: eastwood-Rule9aCheck.debug, value: true},"
+        "{key: eastwood-Rule9bCheck.debug, value: true},"
+        "{key: eastwood-Rule9cCheck.debug, value: true},"
+        "{key: eastwood-Rule9dCheck.debug, value: true},"
+        "{key: eastwood-Rule9eCheck.debug, value: true}]}'"
     )
 
     def __init__(self) -> None:
@@ -116,7 +163,7 @@ class TestManager:
         opts: Optional[List[str]] = None,
         copts: Optional[List[str]] = None,
         debug: bool = False,
-    ) -> str:
+    ) -> Tuple[str, CompletedProcess]:
         """
         Run clang-tidy on source file.
 
@@ -150,10 +197,16 @@ class TestManager:
         try:
             # Don't check, we return 1 if there are errors :facepalm:
             res = run(cmd, cwd=str(cwd.resolve()), capture_output=True, check=False)
+            dres = run(
+                cmd + [self.DBG_OPT],
+                cwd=str(cwd.resolve()),
+                capture_output=True,
+                check=False,
+            )
         except CalledProcessError as e:
             raise Exception(f"Failed to run '{' '.join(cmd)}'") from e
 
-        return res.stdout.decode("utf-8")
+        return res.stdout.decode("utf-8"), dres
 
     @classmethod
     def make_c(
@@ -224,7 +277,9 @@ class TestManager:
                 tfp.unlink()
                 th.unlink()
 
-    def run_snippet(self, snippet: Snippet, dump: bool = False) -> str:
+    def run_snippet(
+        self, snippet: Snippet, dump: bool = False
+    ) -> Tuple[str, CompletedProcess]:
         """
         Run clang-tidy on a snippet.
 
@@ -232,8 +287,8 @@ class TestManager:
         """
         with self.make_code(snippet) as tf:
             self.last_file = tf
-            res = self.run(tf, opts=self.DUMP_OPTS if dump else None)
-            return res
+            res, dres = self.run(tf, opts=self.DUMP_OPTS if dump else None)
+            return res, dres
 
     @classmethod
     def output_to_rule(cls, output: str) -> Rule:
@@ -306,7 +361,7 @@ class TestManager:
 
         :param snippet: The snippet to test.
         """
-        res = self.run_snippet(snippet, dump)
+        res, dres = self.run_snippet(snippet, dump)
         errors = self.collect_output(res, "error", snippets=True)
         warnings = self.collect_output(res, "warning", snippets=True)
         notes = self.collect_output(res, "note", snippets=True)
@@ -317,6 +372,7 @@ class TestManager:
             ErrorCollection(sorted(list(all_msgs - expected_msgs))),
             ErrorCollection(sorted(list(expected_msgs - all_msgs))),
             res,
+            dres,
         )
 
     def test_file(self, file_test: FileTest) -> TestResult:
@@ -328,7 +384,7 @@ class TestManager:
         tf = self.get_test(file_test.testfile)
         self.last_file = tf
         assert tf.exists(), f"File does not exist: {tf}"
-        res = self.run(tf)
+        res, dres = self.run(cast(Path, tf))
         errors = self.collect_output(res, "error", snippets=False)
         warnings = self.collect_output(res, "warning", snippets=False)
         notes = self.collect_output(res, "note", snippets=False)
@@ -339,6 +395,7 @@ class TestManager:
             ErrorCollection(sorted(list(all_msgs - expected_msgs))),
             ErrorCollection(sorted(list(expected_msgs - all_msgs))),
             res,
+            dres,
         )
 
 
