@@ -53,6 +53,7 @@ private:
     std::deque<SourceLocation> closes;
     std::deque<size_t> broken_lines;
     std::deque<SourceRange> broken_ranges;
+    const SwitchCase *last_switch_case(const SwitchStmt *switch_stmt);
 
 public:
     /* Constructors */

@@ -63,7 +63,7 @@ class TestManager:
         "}} /* main() */\n"
     )
     DBG_OPT = (
-        "--config='{CheckOptions: ["
+        "--config={CheckOptions: ["
         "{key: eastwood-Rule10aCheck.debug, value: true},"
         "{key: eastwood-Rule11aCheck.debug, value: true},"
         "{key: eastwood-Rule11bCheck.debug, value: true},"
@@ -106,7 +106,7 @@ class TestManager:
         "{key: eastwood-Rule9bCheck.debug, value: true},"
         "{key: eastwood-Rule9cCheck.debug, value: true},"
         "{key: eastwood-Rule9dCheck.debug, value: true},"
-        "{key: eastwood-Rule9eCheck.debug, value: true}]}'"
+        "{key: eastwood-Rule9eCheck.debug, value: true}]}"
     )
 
     def __init__(self) -> None:
@@ -193,12 +193,15 @@ class TestManager:
             cmd.extend(copts)
 
         cmd += [str(sourcefile)]
+        dcmd = cmd[:]
+        dcmd.insert(3, self.DBG_OPT)
 
         try:
             # Don't check, we return 1 if there are errors :facepalm:
             res = run(cmd, cwd=str(cwd.resolve()), capture_output=True, check=False)
+
             dres = run(
-                cmd + [self.DBG_OPT],
+                dcmd,
                 cwd=str(cwd.resolve()),
                 capture_output=True,
                 check=False,

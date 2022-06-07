@@ -100,5 +100,5 @@ def test_switch_indentation(manager) -> None:
 
     for test in tests:
         res = manager.test_file(test)
-        assert not res.unexpected_errors, res.raw_output
-        assert not res.unseen_errors, res.raw_output
+        assert not res.unexpected_errors, " ".join(res.debug_result.args)
+        assert not res.unseen_errors, " ".join(res.debug_result.args)

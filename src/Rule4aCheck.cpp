@@ -28,6 +28,7 @@ Rule4aCheck::Rule4aCheck(StringRef Name, ClangTidyContext *Context)
         this->debug = true;
     }
 }
+
 void Rule4aCheck::registerMatchers(MatchFinder *Finder) {
     this->register_relex_matchers(Finder, this);
     Finder->addMatcher(recordDecl().bind("record"), this);
@@ -243,37 +244,26 @@ void Rule4aCheck::check(const MatchFinder::MatchResult &Result) {
     } else if (auto MatchedDecl = Result.Nodes.getNodeAs<SwitchStmt>("switch")) {
         CHECK_LOC(MatchedDecl);
 
-        this->dbgdump(MatchedDecl, *this->ast_context);
-
         // Add an open/close for the switch itself
-        LOG_OPEN("switch", MatchedDecl->getBeginLoc());
+        LOG_OPEN("switch", MatchedDecl->getBody()->getBeginLoc());
         this->opens.push_back(MatchedDecl->getBody()->getBeginLoc());
         // Don't really need a close because it's a compound anyway
+        LOG_CLOSE("switch", MatchedDecl->getBody()->getEndLoc());
+        this->closes.push_back(MatchedDecl->getBody()->getEndLoc());
 
         // Add an open/close for each case
-        std::deque<const Stmt *> switch_children(MatchedDecl->getBody()->child_begin(),
-                                                 MatchedDecl->getBody()->child_end());
-        const Stmt *first_child = switch_children.front();
+        auto switch_children = MatchedDecl->getSwitchCaseList();
+        while (switch_children) {
+            auto child = switch_children;
+            LOG_OPEN("case", child->getColonLoc().getLocWithOffset(1));
+            this->opens.push_back(child->getColonLoc().getLocWithOffset(1));
 
-        while (!switch_children.empty()) {
-            auto child = switch_children.front();
-            switch_children.pop_front();
-            if (auto _case = dyn_cast<SwitchCase>(child)) {
-                LOG_OPEN("case", _case->getColonLoc().getLocWithOffset(-1));
-                this->opens.push_back(_case->getColonLoc().getLocWithOffset(1));
-                if (child != first_child) {
-                    LOG_CLOSE("case", _case->getKeywordLoc().getLocWithOffset(-1));
-                    this->closes.push_back(_case->getKeywordLoc().getLocWithOffset(-1));
-                }
-                for (auto case_child : _case->children()) {
-                    switch_children.push_back(case_child);
-                }
+            switch_children = switch_children->getNextSwitchCase();
+            if (switch_children) {
+                LOG_CLOSE("case", child->getKeywordLoc().getLocWithOffset(-1));
+                this->closes.push_back(child->getKeywordLoc().getLocWithOffset(-1));
             }
         }
-
-        // Add the close for the last entry in the switch.
-        LOG_CLOSE("switch", switch_children.back()->getEndLoc());
-        this->closes.push_back(switch_children.back()->getEndLoc());
     } else if (auto MatchedDecl = Result.Nodes.getNodeAs<WhileStmt>("while")) {
         CHECK_LOC(MatchedDecl);
         size_t start, end;
@@ -304,19 +294,49 @@ void Rule4aCheck::check(const MatchFinder::MatchResult &Result) {
         DynTypedNode node = DynTypedNode::create<CompoundStmt>(*MatchedDecl);
         DynTypedNodeList Parents = PMC.getParents(node);
         bool is_case = false;
+        bool is_last = false;
+        const CaseStmt *case_stmt = nullptr;
+        const SwitchStmt *switch_stmt = nullptr;
         for (auto it = Parents.begin(); it != Parents.end(); it++) {
             // If the parent is a case, this is handled there...
             if (it->getNodeKind().asStringRef().str() == "CaseStmt") {
                 is_case = true;
+                case_stmt = it->get<CaseStmt>();
+                this->dout() << "Got node as case_stmt: " << case_stmt << std::endl;
+            }
+        }
+        if (case_stmt) {
+            DynTypedNode parents_node = DynTypedNode::create<CaseStmt>(*case_stmt);
+            while (!switch_stmt) {
+                DynTypedNodeList parents = PMC.getParents(parents_node);
+                for (auto it = parents.begin(); it != parents.end(); it++) {
+                    if (it->getNodeKind().asStringRef().str() == "SwitchStmt") {
+                        switch_stmt = it->get<SwitchStmt>();
+                        const SwitchCase *last_case = switch_stmt->getSwitchCaseList();
+                        if (last_case) {
+                            this->dout() << "This source range: "
+                                         << *this->sourcerange_string(
+                                                *this->source_manager,
+                                                case_stmt->getSourceRange())
+                                         << std::endl;
+                            this->dout() << "Last source range: "
+                                         << *this->sourcerange_string(
+                                                *this->source_manager,
+                                                last_case->getSourceRange())
+                                         << std::endl;
+                            is_last = case_stmt->getSourceRange() ==
+                                      last_case->getSourceRange();
+                            this->dout() << "Got switch stmt. This casestmt is last?: "
+                                         << is_last << std::endl;
+                        }
+                    } else {
+                        parents_node = *it;
+                    }
+                }
             }
         }
 
-        LOG_OPEN("compound", MatchedDecl->getLBracLoc());
-        this->opens.push_back(MatchedDecl->getLBracLoc());
-        LOG_CLOSE("compound", MatchedDecl->getRBracLoc().getLocWithOffset(-1));
-        this->closes.push_back(MatchedDecl->getRBracLoc().getLocWithOffset(-1));
-
-        if (is_case) {
+        if (is_case && !is_last) {
             // Little trick to allow this:
             /*
                case 1: {
@@ -325,8 +345,23 @@ void Rule4aCheck::check(const MatchFinder::MatchResult &Result) {
                  break;
                case 2: ...
              */
+            // However we need to avoid adding the open for the last case statement, so
+            // if this does not have any children after the compoundstmt, we don't add
+            // it...
+
+            LOG_CLOSE("compound-case", MatchedDecl->getRBracLoc().getLocWithOffset(-1));
+            this->closes.push_back(MatchedDecl->getRBracLoc().getLocWithOffset(-1));
             LOG_OPEN("compound-case", MatchedDecl->getRBracLoc().getLocWithOffset(1));
             this->opens.push_back(MatchedDecl->getRBracLoc().getLocWithOffset(1));
+        } else if (is_case) {
+            LOG_CLOSE("compound-case", MatchedDecl->getRBracLoc().getLocWithOffset(-1));
+            this->closes.push_back(MatchedDecl->getRBracLoc().getLocWithOffset(-1));
+
+        } else {
+            LOG_OPEN("compound", MatchedDecl->getLBracLoc());
+            this->opens.push_back(MatchedDecl->getLBracLoc());
+            LOG_CLOSE("compound", MatchedDecl->getRBracLoc().getLocWithOffset(-1));
+            this->closes.push_back(MatchedDecl->getRBracLoc().getLocWithOffset(-1));
         }
     }
 }
@@ -346,8 +381,8 @@ void Rule4aCheck::onEndOfTranslationUnit(void) {
     std::vector<Token> checked_tokens;
     std::vector<Token> eol_tokens;
 
-    std::deque<size_t> open_lines;
-    std::deque<size_t> close_lines;
+    std::vector<size_t> open_lines;
+    std::vector<size_t> close_lines;
 
     for (SourceLocation loc : this->opens) {
         size_t line = this->source_manager->getSpellingLineNumber(loc);
@@ -364,6 +399,7 @@ void Rule4aCheck::onEndOfTranslationUnit(void) {
     opens.erase(std::unique(opens.begin(), opens.end()), opens.end());
     open_lines.erase(std::unique(open_lines.begin(), open_lines.end()),
                      open_lines.end());
+
     std::sort(closes.begin(), closes.end());
     std::sort(close_lines.begin(), close_lines.end());
     closes.erase(std::unique(closes.begin(), closes.end()), closes.end());
@@ -374,7 +410,7 @@ void Rule4aCheck::onEndOfTranslationUnit(void) {
         this->dout() << "Open after line " << o << std::endl;
     }
     for (auto o : close_lines) {
-        this->dout() << "Close after line " << o << std::endl;
+        this->dout() << "Close before line " << o << std::endl;
     }
 
     this->dout() << "Checking indentation over " << this->tokens.size() << " tokens"
@@ -393,14 +429,23 @@ void Rule4aCheck::onEndOfTranslationUnit(void) {
         size_t tok_line_number =
             this->source_manager->getSpellingLineNumber(tok.getLocation());
 
-        while (open_lines.front() < tok_line_number) {
-            open_lines.pop_front();
+        this->dout() << "Token: " << raw_tok_data << " at line " << tok_line_number
+                     << std::endl;
+
+        while (open_lines.front() < tok_line_number && !open_lines.empty()) {
+            size_t open_line = open_lines.front();
+            open_lines.erase(open_lines.begin());
             indent_amount += INDENT_AMOUNT;
+            this->dout() << "Opening at line " << open_line << " with indent "
+                         << indent_amount << std::endl;
         }
 
-        while (close_lines.front() < tok_line_number) {
-            close_lines.pop_front();
+        while (close_lines.front() <= tok_line_number && !close_lines.empty()) {
+            size_t close_line = close_lines.front();
+            close_lines.erase(close_lines.begin());
             indent_amount -= INDENT_AMOUNT;
+            this->dout() << "Closing at line " << close_line << " with indent "
+                         << indent_amount << std::endl;
         }
 
         std::string ws("");
