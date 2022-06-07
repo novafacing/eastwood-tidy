@@ -335,7 +335,6 @@ def test_rule_4_a_file(manager) -> None:
                 Error(Rule.IV_A, 37, 5),
                 Error(Rule.IV_A, 38, 9),
                 Error(Rule.IV_A, 39, 5),
-                Error(Rule.IV_A, 39, 7),
                 Error(Rule.IV_A, 40, 5),
                 Error(Rule.IV_A, 41, 9),
                 Error(Rule.IV_A, 42, 5),
@@ -346,12 +345,13 @@ def test_rule_4_a_file(manager) -> None:
                 Error(Rule.IV_A, 47, 9),
                 Error(Rule.IV_A, 48, 11),
                 Error(Rule.IV_A, 49, 7),
+                Error(Rule.IV_A, 50, 7),
                 Error(Rule.IV_A, 54, 7),
-                Error(Rule.IV_A, 55, 7),
                 Error(Rule.IV_A, 56, 7),
-                Error(Rule.IV_A, 57, 9),
+                Error(Rule.IV_A, 57, 7),
                 Error(Rule.IV_A, 58, 9),
                 Error(Rule.IV_A, 59, 7),
+                Error(Rule.IV_A, 60, 5),
             ],
         )
     ]

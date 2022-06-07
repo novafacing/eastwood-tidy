@@ -97,8 +97,8 @@ void Rule4aCheck::check(const MatchFinder::MatchResult &Result) {
             SourceLocation EndBrace = MatchedDecl->getBodyRBrace();
             LOG_OPEN("function", StartBrace);
             this->opens.push_back(StartBrace);
-            LOG_CLOSE("function", EndBrace.getLocWithOffset(-1));
-            this->closes.push_back(EndBrace.getLocWithOffset(-1));
+            LOG_CLOSE("function", EndBrace);
+            this->closes.push_back(EndBrace);
             if (MatchedDecl->getNumParams() > 1 &&
                 ((start = this->source_manager->getSpellingLineNumber(
                       MatchedDecl->getLocation()))) !=
