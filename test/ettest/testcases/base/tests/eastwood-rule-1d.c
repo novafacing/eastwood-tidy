@@ -17,7 +17,7 @@ int g_good_global = 0;
  */
 
 int main() {
-    return 0;
+  return 0;
 } /* main() */
 
 // Bad: not at top of file

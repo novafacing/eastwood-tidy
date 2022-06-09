@@ -8,6 +8,7 @@
 
 #include "Rule4aCheck.h"
 #include "clang/AST/ASTContext.h"
+#include "clang/AST/ASTTypeTraits.h"
 #include "clang/ASTMatchers/ASTMatchers.h"
 #include "clang/Basic/SourceLocation.h"
 #include "clang/Lex/Lexer.h"
@@ -57,8 +58,8 @@ void Rule4aCheck::check(const MatchFinder::MatchResult &Result) {
             LOG_OPEN("record", BraceRange.getBegin());
             this->opens.push_back(BraceRange.getBegin());
 
-            LOG_CLOSE("record", BraceRange.getEnd().getLocWithOffset(-1));
-            this->closes.push_back(BraceRange.getEnd().getLocWithOffset(-1));
+            LOG_CLOSE("record", BraceRange.getEnd());
+            this->closes.push_back(BraceRange.getEnd());
 
             if (this->source_manager->getSpellingLineNumber(this->opens.back()) !=
                 this->source_manager->getSpellingLineNumber(
@@ -111,21 +112,20 @@ void Rule4aCheck::check(const MatchFinder::MatchResult &Result) {
             }
 
             if ((MatchedDecl->getNumParams() == 0 &&
-                 this->source_manager->getSpellingLineNumber(this->opens.back()) !=
+                 this->source_manager->getSpellingLineNumber(StartBrace) !=
                      this->source_manager->getSpellingLineNumber(
                          MatchedDecl->getLocation())) ||
                 (MatchedDecl->getNumParams() > 0 &&
                  this->source_manager->getSpellingLineNumber(
                      MatchedDecl->getParamDecl(MatchedDecl->getNumParams() - 1)
                          ->getEndLoc()) !=
-                     this->source_manager->getSpellingLineNumber(this->opens.back()))) {
+                     this->source_manager->getSpellingLineNumber(StartBrace))) {
 
-                diag(this->opens.back(),
-                     "Open brace on line %0 must be located on same "
-                     "line "
-                     "as function "
-                     "declaration or after parameters on line %1.")
-                    << this->source_manager->getSpellingLineNumber(this->opens.back())
+                diag(StartBrace, "Open brace on line %0 must be located on same "
+                                 "line "
+                                 "as function "
+                                 "declaration or after parameters on line %1.")
+                    << this->source_manager->getSpellingLineNumber(StartBrace)
                     << this->source_manager->getSpellingLineNumber(
                            MatchedDecl->getParametersSourceRange().getEnd());
             }
@@ -295,6 +295,7 @@ void Rule4aCheck::check(const MatchFinder::MatchResult &Result) {
         DynTypedNodeList Parents = PMC.getParents(node);
         bool is_case = false;
         bool is_last = false;
+        bool is_ignore = false;
         const CaseStmt *case_stmt = nullptr;
         const SwitchStmt *switch_stmt = nullptr;
         for (auto it = Parents.begin(); it != Parents.end(); it++) {
@@ -303,7 +304,18 @@ void Rule4aCheck::check(const MatchFinder::MatchResult &Result) {
                 is_case = true;
                 case_stmt = it->get<CaseStmt>();
                 this->dout() << "Got node as case_stmt: " << case_stmt << std::endl;
+
+            } else {
+                auto ptype = it->getNodeKind().asStringRef().str();
+                if (ptype == "FunctionDecl" || ptype == "RecordDecl" ||
+                    ptype == "EnumDecl" || ptype == "IfStmt" || ptype == "ForStmt" ||
+                    ptype == "DoStmt" || ptype == "WhileStmt") {
+                    is_ignore = true;
+                }
             }
+        }
+        if (is_ignore) {
+            return;
         }
         if (case_stmt) {
             DynTypedNode parents_node = DynTypedNode::create<CaseStmt>(*case_stmt);
