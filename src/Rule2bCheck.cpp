@@ -31,7 +31,7 @@ void Rule2bCheck::registerMatchers(MatchFinder *Finder) {
 void Rule2bCheck::check(const MatchFinder::MatchResult &Result) {
     this->acquire_common(Result);
     if (auto MatchedDecl = Result.Nodes.getNodeAs<FunctionDecl>("function")) {
-        std::string name = MatchedDecl->getName().str();
+        std::string name = MatchedDecl->getNameAsString();
 
         const FunctionDecl *FunctionDefinition = MatchedDecl->getDefinition();
         if (!MatchedDecl->doesThisDeclarationHaveABody()) {

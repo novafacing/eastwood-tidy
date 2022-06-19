@@ -32,11 +32,31 @@ class TestResult:
     Result of testing an eastwood-tidy testcase.
     """
 
+    def __post_init__(self) -> None:
+        """
+        Check whether an exception happened running eastwood-tidy
+        """
+        if self.raw_output is not None and "Stack dump:" in self.raw_output:
+            self.errored_output = self.raw_output
+
+        elif self.debug_result is not None and (
+            b"Stack dump:" in self.debug_result.stdout
+            or b"Stack dump:" in self.debug_result.stderr
+        ):
+            self.errored = True
+            self.errored_output = (
+                self.debug_result.stdout + self.debug_result.stderr
+            ).decode("utf-8")
+
+        assert not self.errored, self.errored_output
+
     expected_errors: ErrorCollection = field(default_factory=ErrorCollection)
     unexpected_errors: ErrorCollection = field(default_factory=ErrorCollection)
     unseen_errors: ErrorCollection = field(default_factory=ErrorCollection)
     raw_output: Optional[str] = None
     debug_result: Optional[CompletedProcess] = None
+    errored: bool = False
+    errored_output: Optional[str] = None
 
 
 class TestManager:
@@ -327,13 +347,15 @@ class TestManager:
         notes = self.collect_output(res, "note", snippets=True)
         all_msgs = set(errors + warnings + notes)
         expected_msgs = set(snippet.errors)
-        return TestResult(
+        result = TestResult(
             ErrorCollection(sorted(list(all_msgs & expected_msgs))),
             ErrorCollection(sorted(list(all_msgs - expected_msgs))),
             ErrorCollection(sorted(list(expected_msgs - all_msgs))),
             res,
             dres,
         )
+        assert not result.errored, result.raw_output
+        return result
 
     def test_file(self, file_test: FileTest) -> TestResult:
         """
@@ -350,13 +372,15 @@ class TestManager:
         notes = self.collect_output(res, "note", snippets=False)
         all_msgs = set(errors + warnings + notes)
         expected_msgs = set(file_test.errors)
-        return TestResult(
+        result = TestResult(
             ErrorCollection(sorted(list(all_msgs & expected_msgs))),
             ErrorCollection(sorted(list(all_msgs - expected_msgs))),
             ErrorCollection(sorted(list(expected_msgs - all_msgs))),
             res,
             dres,
         )
+        assert not result.errored, result.raw_output
+        return result
 
 
 @fixture

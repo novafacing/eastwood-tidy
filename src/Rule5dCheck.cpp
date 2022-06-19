@@ -42,7 +42,7 @@ void Rule5dCheck::check(const MatchFinder::MatchResult &Result) {
         const FunctionDecl *FunctionDefinition = MatchedDecl->getDefinition();
         auto NI = FunctionDefinition->getNameInfo();
         std::string fname = NI.getName().getAsString();
-        if (FunctionDefinition) {
+        if (FunctionDefinition and FunctionDefinition->getBody()) {
             SourceRange FunctionDefinitionRange =
                 FunctionDefinition->getBody()->getSourceRange();
             std::pair<FileID, unsigned> LocInfo =

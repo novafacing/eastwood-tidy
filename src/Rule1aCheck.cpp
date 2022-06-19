@@ -61,15 +61,15 @@ void Rule1aCheck::check(const MatchFinder::MatchResult &Result) {
 
     if (auto MatchedDecl = Result.Nodes.getNodeAs<VarDecl>("variable")) {
         loc = MatchedDecl->getLocation();
-        name = MatchedDecl->getName().str();
+        name = MatchedDecl->getNameAsString();
         type = "Variable";
     } else if (auto MatchedDecl = Result.Nodes.getNodeAs<FunctionDecl>("function")) {
         loc = MatchedDecl->getLocation();
-        name = MatchedDecl->getName().str();
+        name = MatchedDecl->getNameAsString();
         type = "Function";
     } else if (auto MatchedDecl = Result.Nodes.getNodeAs<EnumDecl>("enum")) {
         loc = MatchedDecl->getLocation();
-        name = MatchedDecl->getName().str();
+        name = MatchedDecl->getNameAsString();
         type = "Enum";
     } else if (auto MatchedDecl = Result.Nodes.getNodeAs<RecordDecl>("struct")) {
         if (MatchedDecl->isAnonymousStructOrUnion()) {
@@ -77,7 +77,7 @@ void Rule1aCheck::check(const MatchFinder::MatchResult &Result) {
         }
 
         loc = MatchedDecl->getLocation();
-        name = MatchedDecl->getName().str();
+        name = MatchedDecl->getNameAsString();
         type = "Struct";
     } else if (auto MatchedDecl = Result.Nodes.getNodeAs<RecordDecl>("union")) {
         if (MatchedDecl->isAnonymousStructOrUnion()) {
@@ -85,7 +85,7 @@ void Rule1aCheck::check(const MatchFinder::MatchResult &Result) {
         }
 
         loc = MatchedDecl->getLocation();
-        name = MatchedDecl->getName().str();
+        name = MatchedDecl->getNameAsString();
         type = "Union";
     } else if (auto MatchedDecl = Result.Nodes.getNodeAs<FieldDecl>("field")) {
         if (MatchedDecl->isAnonymousStructOrUnion()) {
@@ -93,11 +93,11 @@ void Rule1aCheck::check(const MatchFinder::MatchResult &Result) {
         }
 
         loc = MatchedDecl->getLocation();
-        name = MatchedDecl->getName().str();
+        name = MatchedDecl->getNameAsString();
         type = "Field";
     } else if (auto MatchedDecl = Result.Nodes.getNodeAs<TypedefDecl>("typedef")) {
         loc = MatchedDecl->getLocation();
-        name = MatchedDecl->getName().str();
+        name = MatchedDecl->getNameAsString();
         type = "Enum";
     } else {
         return;
