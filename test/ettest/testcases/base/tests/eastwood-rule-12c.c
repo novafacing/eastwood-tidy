@@ -2,7 +2,7 @@
 /* --------------------- Test Code Style Section XII.C 
  * Variables should be placed in as local a scope as possible, as close to the f
  * irst use as possible.
- * ------------------------------------------------------------------------------------------------------ */
+ * ----------------------------------------------------------------------------------- */
 #include "eastwood-rule-12c.h"
 
 

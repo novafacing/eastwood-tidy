@@ -2,7 +2,7 @@
 /* --------------------- Test Code Style Section VIII.C 
  * All header files should have #define guards to prevent multiple inclusions. T
  * he format of the symbol name should be _H.
- * ------------------------------------------------------------------------------------------------------ */
+ * ------------------------------------------------------------------------------------ */
 #include "eastwood-rule-8x.h"
 
 #include <stdio.h>

@@ -9,6 +9,7 @@
 #include "Rule4aCheck.h"
 #include "clang/AST/ASTContext.h"
 #include "clang/AST/ASTTypeTraits.h"
+#include "clang/AST/Decl.h"
 #include "clang/ASTMatchers/ASTMatchers.h"
 #include "clang/Basic/SourceLocation.h"
 #include "clang/Lex/Lexer.h"
@@ -30,6 +31,20 @@ Rule4aCheck::Rule4aCheck(StringRef Name, ClangTidyContext *Context)
     }
 }
 
+static bool hasCompoundChildRec(const Stmt *stmt) {
+    if (auto compound = dyn_cast<CompoundStmt>(stmt)) {
+        return true;
+    }
+
+    for (auto child : stmt->children()) {
+        return hasCompoundChildRec(child);
+    }
+
+    if (stmt->children().empty()) {
+        return false;
+    }
+}
+
 void Rule4aCheck::registerMatchers(MatchFinder *Finder) {
     this->register_relex_matchers(Finder, this);
     Finder->addMatcher(recordDecl().bind("record"), this);
@@ -43,6 +58,31 @@ void Rule4aCheck::registerMatchers(MatchFinder *Finder) {
     Finder->addMatcher(defaultStmt().bind("default"), this);
     Finder->addMatcher(whileStmt().bind("while"), this);
     Finder->addMatcher(compoundStmt().bind("compound"), this);
+
+    /* Matchers for broken lines:
+     * - varDecl
+     * - functionDecl->getParametersSourceRange
+     * - callExpr->getRParenLoc, callExpr->getBeginLoc
+     * - doStmt->getWhileLoc, doStmt->getRParenLoc
+     * - forStmt->getLParenLoc, forStmt->getRParenLoc
+     * - ifStmt->getLParenLoc, ifStmt->getRParenLoc
+     * - parenExpr->getLParen, parenExpr->getRParen
+     * - parenListExpr->getLParenLoc, parenListExpr->getRParenLoc
+     * - switchStmt->getLParenLoc, switchStmt->getRParenLoc
+     * - whileStmt->getLParenLoc, whileStmt->getRParenLoc
+     * - stmt without compoundstmt child
+     */
+    Finder->addMatcher(functionDecl().bind("functionSplit"), this);
+    Finder->addMatcher(callExpr().bind("callSplit"), this);
+    Finder->addMatcher(doStmt().bind("doSplit"), this);
+    Finder->addMatcher(forStmt().bind("forSplit"), this);
+    Finder->addMatcher(ifStmt().bind("ifSplit"), this);
+    Finder->addMatcher(switchStmt().bind("switchSplit"), this);
+    Finder->addMatcher(parenExpr().bind("parenSplit"), this);
+    Finder->addMatcher(parenListExpr().bind("parenListSplit"), this);
+    Finder->addMatcher(switchStmt().bind("switchSplit"), this);
+    Finder->addMatcher(whileStmt().bind("whileSplit"), this);
+    Finder->addMatcher(stmt().bind("stmtSplit"), this);
 }
 
 void Rule4aCheck::check(const MatchFinder::MatchResult &Result) {
@@ -89,8 +129,6 @@ void Rule4aCheck::check(const MatchFinder::MatchResult &Result) {
     } else if (auto MatchedDecl = Result.Nodes.getNodeAs<FunctionDecl>("function")) {
         CHECK_LOC(MatchedDecl);
 
-        /* This is just a hack to set up the lexer in a known location
-         */
         if (MatchedDecl->isThisDeclarationADefinition() &&
             MatchedDecl->doesThisDeclarationHaveABody()) {
             size_t start, end;
@@ -155,7 +193,6 @@ void Rule4aCheck::check(const MatchFinder::MatchResult &Result) {
             this->source_manager->getSpellingLineNumber(condition_range.getEnd())) {
             this->broken_ranges.push_back(condition_range);
         }
-
     } else if (auto MatchedDecl = Result.Nodes.getNodeAs<ForStmt>("for")) {
         CHECK_LOC(MatchedDecl);
 
@@ -240,7 +277,6 @@ void Rule4aCheck::check(const MatchFinder::MatchResult &Result) {
                 this->closes.push_back(Else->getEndLoc().getLocWithOffset(-1));
             }
         }
-
     } else if (auto MatchedDecl = Result.Nodes.getNodeAs<SwitchStmt>("switch")) {
         CHECK_LOC(MatchedDecl);
 
@@ -374,6 +410,62 @@ void Rule4aCheck::check(const MatchFinder::MatchResult &Result) {
             this->opens.push_back(MatchedDecl->getLBracLoc());
             LOG_CLOSE("compound", MatchedDecl->getRBracLoc().getLocWithOffset(-1));
             this->closes.push_back(MatchedDecl->getRBracLoc().getLocWithOffset(-1));
+        }
+    }
+
+    /* Matchers for broken lines:
+     * - varDecl
+     * - functionDecl->getParametersSourceRange
+     * - callExpr->getRParenLoc, callExpr->getBeginLoc
+     * - doStmt->getWhileLoc, doStmt->getRParenLoc
+     * - forStmt->getLParenLoc, forStmt->getRParenLoc
+     * - ifStmt->getLParenLoc, ifStmt->getRParenLoc
+     * - parenExpr->getLParen, parenExpr->getRParen
+     * - parenListExpr->getLParenLoc, parenListExpr->getRParenLoc
+     * - switchStmt->getLParenLoc, switchStmt->getRParenLoc
+     * - whileStmt->getLParenLoc, whileStmt->getRParenLoc
+     * - stmt without compoundstmt child
+     */
+    if (auto MatchedDecl = Result.Nodes.getNodeAs<FunctionDecl>("functionSplit")) {
+        CHECK_LOC(MatchedDecl);
+        this->broken_ranges.push_back(MatchedDecl->getParametersSourceRange());
+    } else if (auto MatchedDecl = Result.Nodes.getNodeAs<CallExpr>("callSplit")) {
+        CHECK_LOC(MatchedDecl);
+        this->broken_ranges.push_back(
+            SourceRange(MatchedDecl->getBeginLoc(), MatchedDecl->getRParenLoc()));
+    } else if (auto MatchedDecl = Result.Nodes.getNodeAs<DoStmt>("doSplit")) {
+        CHECK_LOC(MatchedDecl);
+        this->broken_ranges.push_back(
+            SourceRange(MatchedDecl->getWhileLoc(), MatchedDecl->getRParenLoc()));
+    } else if (auto MatchedDecl = Result.Nodes.getNodeAs<ForStmt>("forSplit")) {
+        CHECK_LOC(MatchedDecl);
+        this->broken_ranges.push_back(
+            SourceRange(MatchedDecl->getLParenLoc(), MatchedDecl->getRParenLoc()));
+    } else if (auto MatchedDecl = Result.Nodes.getNodeAs<IfStmt>("ifSplit")) {
+        CHECK_LOC(MatchedDecl);
+        this->broken_ranges.push_back(
+            SourceRange(MatchedDecl->getLParenLoc(), MatchedDecl->getRParenLoc()));
+    } else if (auto MatchedDecl = Result.Nodes.getNodeAs<ParenExpr>("parenSplit")) {
+        CHECK_LOC(MatchedDecl);
+        this->broken_ranges.push_back(
+            SourceRange(MatchedDecl->getLParen(), MatchedDecl->getRParen()));
+    } else if (auto MatchedDecl =
+                   Result.Nodes.getNodeAs<ParenListExpr>("parenListSplit")) {
+        CHECK_LOC(MatchedDecl);
+        this->broken_ranges.push_back(
+            SourceRange(MatchedDecl->getLParenLoc(), MatchedDecl->getRParenLoc()));
+    } else if (auto MatchedDecl = Result.Nodes.getNodeAs<SwitchStmt>("switchSplit")) {
+        CHECK_LOC(MatchedDecl);
+        this->broken_ranges.push_back(
+            SourceRange(MatchedDecl->getLParenLoc(), MatchedDecl->getRParenLoc()));
+    } else if (auto MatchedDecl = Result.Nodes.getNodeAs<WhileStmt>("whileSplit")) {
+        CHECK_LOC(MatchedDecl);
+        this->broken_ranges.push_back(
+            SourceRange(MatchedDecl->getLParenLoc(), MatchedDecl->getRParenLoc()));
+    } else if (auto MatchedDecl = Result.Nodes.getNodeAs<Stmt>("stmtSplit")) {
+        CHECK_LOC(MatchedDecl);
+        if (!hasCompoundChildRec(MatchedDecl)) {
+            this->broken_ranges.push_back(MatchedDecl->getSourceRange());
         }
     }
 }

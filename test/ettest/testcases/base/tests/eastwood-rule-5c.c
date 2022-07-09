@@ -3,7 +3,7 @@
  * Code and comments must be separated by blank lines, and lined up. A blank lin
  * e is not required above the comment if it is the 1st. line following an openi
  * ng brace.
- * --------------------------------------------------------------------------------------------------- */
+ * ----------------------------------------------------------------------------------- */
 #include "eastwood-rule-5c.h"
 
 

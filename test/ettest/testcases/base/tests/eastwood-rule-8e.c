@@ -2,7 +2,7 @@
 /* --------------------- Test Code Style Section VIII.E 
  * Includes should be ordered per the following example. Suppose dir/foo.c imple
  * ments things in dir2/foo.h. Your includes should be ordered as follows:
- * ------------------------------------------------------------------------------------------------------ */
+ * ---------------------------------------------------------------------- */
 #include "eastwood-rule-8e.h"
 
 #include <time.h>

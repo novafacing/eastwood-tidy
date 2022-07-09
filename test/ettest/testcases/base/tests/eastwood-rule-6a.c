@@ -2,7 +2,7 @@
 /* --------------------- Test Code Style Section VI.A 
  * If multiple logical expressions are used, sub-expressions must be parenthesiz
  * ed. Note the spacing and format below.
- * ---------------------------------------------------------------------------------------------------- */
+ * -------------------------------------------------------------------------- */
 #include "eastwood-rule-6a.h"
 
 /*

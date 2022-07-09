@@ -49,8 +49,10 @@ def test_rule_1_c(manager) -> None:
     "Constants must be uppercase, contain >= 2 characters, be declared using #define, have () for numbers and \"...\" for strings."
     """
     snippets = [
+        Snippet("", [], "#define ROOM_TEMPERATURE (10)"),
         Snippet("", [Error(Rule.I_C, 0, 9)], "#define ROOM_TEMPERATURE 10"),
         Snippet("", [Error(Rule.I_C, 0, 9)], "#define room_temperature (10)"),
+        Snippet("", [Error(Rule.I_C, 0, 9)], "#define R (10)"),
     ]
     for snip in snippets:
         res = manager.test_snippet(snip)
@@ -63,7 +65,24 @@ def test_rule_1_d(manager) -> None:
     Snippet test cases for rule 1d
     "Global variables must begin with the prefix 'g_' and be located at the top of the file."
     """
-    snippets = []
+    snippets = [
+        Snippet("", [Error(Rule.I_D, 0, 5)], "int bad_global = 5;"),
+        Snippet(
+            "",
+            [Error(Rule.I_D, 1, 5)],
+            (
+                "/*\n"
+                " * header\n"
+                " */\n"
+                "\n"
+                "void foo() {\n"
+                "} /* foo() */\n"
+                "\n"
+                "int bad_global = 5;"
+            ),
+        ),
+        Snippet("", [], "int g_good_global = 5;"),
+    ]
     for snip in snippets:
         res = manager.test_snippet(snip)
         assert not res.unexpected_errors

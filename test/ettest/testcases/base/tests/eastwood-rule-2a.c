@@ -4,7 +4,7 @@
  * e will fit on printouts.  If the line is too long, then it must be broken up 
  * into readable segments. The indentation of the code on the following lines ne
  * eds to be at least 2 spaces.
- * ------------------------------------------------------------------------------------------ */
+ * ------------------------------------------------------------------------- */
 #include "eastwood-rule-2a.h"
 
 #include <stdlib.h>

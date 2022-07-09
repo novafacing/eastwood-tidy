@@ -1,7 +1,7 @@
 // RUN: %%check_clang_tidy %%s eastwood-rule-11a %%t
 /* --------------------- Test Code Style Section XI.A 
  * Do not use tabs for indentation.
- * ----------------------------------------------------------------------------------------------------- */
+ * ------------------------------------------------------- */
 #include "eastwood-rule-11a.h"
 
 

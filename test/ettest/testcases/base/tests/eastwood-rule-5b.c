@@ -4,7 +4,7 @@
  * Place comments above the code rather than along side the code. Exceptions can
  *  be made for short comments placed beside declarations, else, and switch comm
  * ands.
- * --------------------------------------------------------------------------------------------------- */
+ * ---------------------------------------------------------------------------------- */
 
 #include "eastwood-rule-5b.h"
 

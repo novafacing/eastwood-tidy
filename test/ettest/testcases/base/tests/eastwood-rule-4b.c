@@ -5,7 +5,7 @@
  *  line should begin at the same column position as the parameters on the first
  *  line. The example below uses fewer than 80 characters just for demonstration
  *  purposes.
- * ---------------------------------------------------------------------------------------------------- */
+ * -------------------------------------------------------------------------------- */
 #include "eastwood-rule-4b.h"
 
 /*

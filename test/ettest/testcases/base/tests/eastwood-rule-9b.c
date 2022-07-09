@@ -4,7 +4,7 @@
  * ose the file.  It is important to remember that fclose does not explicitly se
  * t the file pointer back to NULL. Therefore, it is necessary to set the file p
  * ointer to NULL.
- * ---------------------------------------------------------------------------------------------------- */
+ * ----------------------------------------------------------------------------------- */
 #include "eastwood-rule-9b.h"
 
 

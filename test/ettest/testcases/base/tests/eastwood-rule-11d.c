@@ -2,7 +2,7 @@
 /* --------------------- Test Code Style Section XI.D 
  * Do not use embedded constants; except for general initialization purposes and
  *  values that lack intrinsic meaning. Common sense need to apply.
- * ----------------------------------------------------------------------------------------------------- */
+ * ------------------------------------------------------------------- */
 #include "eastwood-rule-11d.h"
 
 /*
