@@ -40,9 +40,7 @@ static bool hasCompoundChildRec(const Stmt *stmt) {
         return hasCompoundChildRec(child);
     }
 
-    if (stmt->children().empty()) {
-        return false;
-    }
+    return false;
 }
 
 void Rule4aCheck::registerMatchers(MatchFinder *Finder) {
@@ -101,11 +99,11 @@ void Rule4aCheck::check(const MatchFinder::MatchResult &Result) {
             LOG_CLOSE("record", BraceRange.getEnd());
             this->closes.push_back(BraceRange.getEnd());
 
-            if (this->source_manager->getSpellingLineNumber(this->opens.back()) !=
+            if (this->source_manager->getSpellingLineNumber(BraceRange.getBegin()) !=
                 this->source_manager->getSpellingLineNumber(
                     MatchedDecl->getLocation())) {
-                diag(this->opens.back(), "Open brace must be located "
-                                         "on same line as record.");
+                diag(BraceRange.getBegin(), "Open brace must be located "
+                                            "on same line as record.");
             }
         }
     } else if (auto MatchedDecl = Result.Nodes.getNodeAs<EnumDecl>("enum")) {
@@ -116,14 +114,14 @@ void Rule4aCheck::check(const MatchFinder::MatchResult &Result) {
 
             LOG_OPEN("enum", BraceRange.getBegin());
             this->opens.push_back(BraceRange.getBegin());
-            LOG_CLOSE("enum", BraceRange.getEnd().getLocWithOffset(-1));
-            this->closes.push_back(BraceRange.getEnd().getLocWithOffset(-1));
+            LOG_CLOSE("enum", BraceRange.getEnd());
+            this->closes.push_back(BraceRange.getEnd());
 
-            if (this->source_manager->getSpellingLineNumber(this->opens.back()) !=
+            if (this->source_manager->getSpellingLineNumber(BraceRange.getBegin()) !=
                 this->source_manager->getSpellingLineNumber(
                     MatchedDecl->getLocation())) {
-                diag(this->opens.back(), "Open brace must be located "
-                                         "on same line as record.");
+                diag(BraceRange.getBegin(), "Open brace must be located "
+                                            "on same line as record.");
             }
         }
     } else if (auto MatchedDecl = Result.Nodes.getNodeAs<FunctionDecl>("function")) {
@@ -131,28 +129,16 @@ void Rule4aCheck::check(const MatchFinder::MatchResult &Result) {
 
         if (MatchedDecl->isThisDeclarationADefinition() &&
             MatchedDecl->doesThisDeclarationHaveABody()) {
-            size_t start, end;
             SourceLocation StartBrace = MatchedDecl->getBody()->getBeginLoc();
-            SourceLocation EndBrace = MatchedDecl->getBodyRBrace();
-            LOG_OPEN("function", StartBrace);
-            this->opens.push_back(StartBrace);
-            LOG_CLOSE("function", EndBrace);
-            this->closes.push_back(EndBrace);
-            if (MatchedDecl->getNumParams() > 1 &&
-                ((start = this->source_manager->getSpellingLineNumber(
-                      MatchedDecl->getLocation()))) !=
-                    (end = this->source_manager->getSpellingLineNumber(
-                         MatchedDecl->getParamDecl(MatchedDecl->getNumParams() - 1)
-                             ->getEndLoc()))) {
-                for (size_t i = start + 1; i <= end; i++) {
-                    this->broken_lines.push_back(i);
-                }
-            }
 
-            if ((MatchedDecl->getNumParams() == 0 &&
+            if ( // No parameters and the function decl isn't on the same line as the
+                 // open brace
+                (MatchedDecl->getNumParams() == 0 &&
                  this->source_manager->getSpellingLineNumber(StartBrace) !=
                      this->source_manager->getSpellingLineNumber(
                          MatchedDecl->getLocation())) ||
+                // There are parameters and the open brace isn't on the same line as the
+                // last parameter
                 (MatchedDecl->getNumParams() > 0 &&
                  this->source_manager->getSpellingLineNumber(
                      MatchedDecl->getParamDecl(MatchedDecl->getNumParams() - 1)
@@ -169,86 +155,33 @@ void Rule4aCheck::check(const MatchFinder::MatchResult &Result) {
             }
         }
 
-        SourceRange param_range = MatchedDecl->getParametersSourceRange();
-        if (this->source_manager->getSpellingLineNumber(param_range.getBegin()) !=
-            this->source_manager->getSpellingLineNumber(param_range.getEnd())) {
-            this->broken_ranges.push_back(param_range);
-        }
     } else if (auto MatchedDecl = Result.Nodes.getNodeAs<DoStmt>("do")) {
         CHECK_LOC(MatchedDecl);
 
-        LOG_OPEN("do", MatchedDecl->getBody()->getBeginLoc());
-        this->opens.push_back(MatchedDecl->getBody()->getBeginLoc());
-        LOG_CLOSE("do", MatchedDecl->getBody()->getEndLoc().getLocWithOffset(-1));
-        this->closes.push_back(
-            MatchedDecl->getBody()->getEndLoc().getLocWithOffset(-1));
-
-        if (this->source_manager->getSpellingLineNumber(this->opens.back()) !=
+        if (this->source_manager->getSpellingLineNumber(
+                MatchedDecl->getBody()->getBeginLoc()) !=
             this->source_manager->getSpellingLineNumber(MatchedDecl->getBeginLoc())) {
-            diag(this->opens.back(), "Open brace must be located on same line as do.");
-        }
-        SourceRange condition_range = SourceRange(MatchedDecl->getCond()->getBeginLoc(),
-                                                  MatchedDecl->getCond()->getEndLoc());
-        if (this->source_manager->getSpellingLineNumber(condition_range.getBegin()) !=
-            this->source_manager->getSpellingLineNumber(condition_range.getEnd())) {
-            this->broken_ranges.push_back(condition_range);
+            diag(MatchedDecl->getBody()->getBeginLoc(),
+                 "Open brace must be located on same line as do.");
         }
     } else if (auto MatchedDecl = Result.Nodes.getNodeAs<ForStmt>("for")) {
         CHECK_LOC(MatchedDecl);
 
-        size_t start, end;
-        LOG_OPEN("for", MatchedDecl->getBody()->getBeginLoc());
-        this->opens.push_back(MatchedDecl->getBody()->getBeginLoc());
-        LOG_CLOSE("for", MatchedDecl->getBody()->getEndLoc().getLocWithOffset(-1));
-        this->closes.push_back(
-            MatchedDecl->getBody()->getEndLoc().getLocWithOffset(-1));
-
-        if ((start = this->source_manager->getSpellingLineNumber(
-                 MatchedDecl->getLParenLoc())) !=
-            (end = this->source_manager->getSpellingLineNumber(
-                 MatchedDecl->getRParenLoc()))) {
-            for (size_t i = start + 1; i <= end; i++) {
-                this->broken_lines.push_back(i);
-            }
-        }
         if (this->source_manager->getSpellingLineNumber(MatchedDecl->getRParenLoc()) !=
-            this->source_manager->getSpellingLineNumber(this->opens.back())) {
-            diag(this->opens.back(), "Open brace must be located on "
-                                     "same line as for or after "
-                                     "split contents.");
-        }
-        SourceRange condition_range =
-            SourceRange(MatchedDecl->getLParenLoc(), MatchedDecl->getRParenLoc());
-        if (this->source_manager->getSpellingLineNumber(condition_range.getBegin()) !=
-            this->source_manager->getSpellingLineNumber(condition_range.getEnd())) {
-            this->broken_ranges.push_back(condition_range);
+            this->source_manager->getSpellingLineNumber(
+                MatchedDecl->getBody()->getBeginLoc())) {
+            diag(MatchedDecl->getBody()->getBeginLoc(), "Open brace must be located on "
+                                                        "same line as for or after "
+                                                        "split contents.");
         }
     } else if (auto MatchedDecl = Result.Nodes.getNodeAs<IfStmt>("if")) {
         CHECK_LOC(MatchedDecl)
-        size_t start, end;
         const IfStmt *If = MatchedDecl;
         const Stmt *Else = MatchedDecl->getElse();
-
-        SourceLocation StartIf = If->getThen()->getBeginLoc();
-        SourceLocation EndIf = If->getThen()->getEndLoc();
-
-        LOG_OPEN("if", StartIf);
-        this->opens.push_back(StartIf);
-        LOG_CLOSE("if", EndIf.getLocWithOffset(-1));
-        this->closes.push_back(EndIf.getLocWithOffset(-1));
 
         if (this->source_manager->getSpellingLineNumber(this->opens.back()) !=
             this->source_manager->getSpellingLineNumber(MatchedDecl->getRParenLoc())) {
             diag(this->opens.back(), "Open brace must be located on same line as if.");
-        }
-
-        if ((start = this->source_manager->getSpellingLineNumber(
-                 MatchedDecl->getLParenLoc())) !=
-            (end = this->source_manager->getSpellingLineNumber(
-                 MatchedDecl->getRParenLoc()))) {
-            for (size_t i = start + 1; i <= end; i++) {
-                this->broken_lines.push_back(i);
-            }
         }
 
         if (Else) {
@@ -260,6 +193,7 @@ void Rule4aCheck::check(const MatchFinder::MatchResult &Result) {
                      "'if' "
                      "statement's closing brace.");
             }
+
             if (const auto *ChildIf = dyn_cast<IfStmt>(Else)) {
                 SourceLocation StartElse = ChildIf->getThen()->getBeginLoc();
 
@@ -270,147 +204,108 @@ void Rule4aCheck::check(const MatchFinder::MatchResult &Result) {
                          "Open brace must be located on same line as "
                          "else.");
                 }
-            } else {
-                LOG_OPEN("else", Else->getBeginLoc());
-                this->opens.push_back(Else->getBeginLoc());
-                LOG_CLOSE("else", Else->getEndLoc().getLocWithOffset(-1));
-                this->closes.push_back(Else->getEndLoc().getLocWithOffset(-1));
             }
         }
     } else if (auto MatchedDecl = Result.Nodes.getNodeAs<SwitchStmt>("switch")) {
         CHECK_LOC(MatchedDecl);
-
-        // Add an open/close for the switch itself
-        LOG_OPEN("switch", MatchedDecl->getBody()->getBeginLoc());
-        this->opens.push_back(MatchedDecl->getBody()->getBeginLoc());
-        // Don't really need a close because it's a compound anyway
-        LOG_CLOSE("switch", MatchedDecl->getBody()->getEndLoc());
-        this->closes.push_back(MatchedDecl->getBody()->getEndLoc());
+        this->dbgdump(MatchedDecl, *this->ast_context);
 
         // Add an open/close for each case
         auto switch_children = MatchedDecl->getSwitchCaseList();
+        Stmt *last_child = nullptr;
+
+        for (const Stmt *child : switch_children->children()) {
+            last_child = const_cast<Stmt *>(child);
+        }
+
+        /* we actually always want to dedent because if we have:
+        case 1:
+          a = 1;
+          {
+            break;
+          }
+        we still need to dedent from the final compoundstmt child of the case stmt
+        */
+        LOG_CLOSE("case", MatchedDecl->getBody()->getEndLoc().getLocWithOffset(-1));
+        this->closes.push_back(
+            MatchedDecl->getBody()->getEndLoc().getLocWithOffset(-1));
+
+        // This iterates from bottom to top, and we only close the switch case if it
+        // is not the first switch case because we are closing *before* the case not
+        // after
         while (switch_children) {
             auto child = switch_children;
             LOG_OPEN("case", child->getColonLoc().getLocWithOffset(1));
             this->opens.push_back(child->getColonLoc().getLocWithOffset(1));
 
             switch_children = switch_children->getNextSwitchCase();
+
             if (switch_children) {
                 LOG_CLOSE("case", child->getKeywordLoc().getLocWithOffset(-1));
                 this->closes.push_back(child->getKeywordLoc().getLocWithOffset(-1));
             }
         }
+
     } else if (auto MatchedDecl = Result.Nodes.getNodeAs<WhileStmt>("while")) {
         CHECK_LOC(MatchedDecl);
-        size_t start, end;
-        LOG_OPEN("while", MatchedDecl->getBody()->getBeginLoc());
-        this->opens.push_back(MatchedDecl->getBody()->getBeginLoc());
-
-        LOG_CLOSE("while", MatchedDecl->getBody()->getEndLoc().getLocWithOffset(-1));
-        this->closes.push_back(
-            MatchedDecl->getBody()->getEndLoc().getLocWithOffset(-1));
 
         if (this->source_manager->getSpellingLineNumber(MatchedDecl->getRParenLoc()) !=
-            this->source_manager->getSpellingLineNumber(this->opens.back())) {
+            this->source_manager->getSpellingLineNumber(
+                MatchedDecl->getBody()->getBeginLoc())) {
             diag(this->opens.back(),
                  "Open brace must be located on same line as while.");
         }
-        if ((start = this->source_manager->getSpellingLineNumber(
-                 MatchedDecl->getLParenLoc())) !=
-            (end = this->source_manager->getSpellingLineNumber(
-                 MatchedDecl->getRParenLoc()))) {
-            for (size_t i = start + 1; i <= end; i++) {
-                this->broken_lines.push_back(i);
-            }
-        }
+
     } else if (auto MatchedDecl = Result.Nodes.getNodeAs<CompoundStmt>("compound")) {
         CHECK_LOC(MatchedDecl);
         ParentMapContext &PMC =
             const_cast<ASTContext *>(this->ast_context)->getParentMapContext();
         DynTypedNode node = DynTypedNode::create<CompoundStmt>(*MatchedDecl);
         DynTypedNodeList Parents = PMC.getParents(node);
-        bool is_case = false;
-        bool is_last = false;
-        bool is_ignore = false;
-        const CaseStmt *case_stmt = nullptr;
+        const SwitchCase *case_stmt = nullptr;
         const SwitchStmt *switch_stmt = nullptr;
+
         for (auto it = Parents.begin(); it != Parents.end(); it++) {
             // If the parent is a case, this is handled there...
             if (it->getNodeKind().asStringRef().str() == "CaseStmt") {
-                is_case = true;
-                case_stmt = it->get<CaseStmt>();
+                case_stmt = it->get<SwitchCase>();
                 this->dout() << "Got node as case_stmt: " << case_stmt << std::endl;
-
-            } else {
-                auto ptype = it->getNodeKind().asStringRef().str();
-                if (ptype == "FunctionDecl" || ptype == "RecordDecl" ||
-                    ptype == "EnumDecl" || ptype == "IfStmt" || ptype == "ForStmt" ||
-                    ptype == "DoStmt" || ptype == "WhileStmt") {
-                    is_ignore = true;
-                }
+            } else if (it->getNodeKind().asStringRef().str() == "DefaultStmt") {
+                case_stmt = it->get<SwitchCase>();
+                this->dout() << "Got node as case_stmt: " << case_stmt << std::endl;
             }
         }
-        if (is_ignore) {
-            return;
-        }
+
         if (case_stmt) {
-            DynTypedNode parents_node = DynTypedNode::create<CaseStmt>(*case_stmt);
-            while (!switch_stmt) {
-                DynTypedNodeList parents = PMC.getParents(parents_node);
-                for (auto it = parents.begin(); it != parents.end(); it++) {
-                    if (it->getNodeKind().asStringRef().str() == "SwitchStmt") {
-                        switch_stmt = it->get<SwitchStmt>();
-                        const SwitchCase *last_case = switch_stmt->getSwitchCaseList();
-                        if (last_case) {
-                            this->dout() << "This source range: "
-                                         << *this->sourcerange_string(
-                                                *this->source_manager,
-                                                case_stmt->getSourceRange())
-                                         << std::endl;
-                            this->dout() << "Last source range: "
-                                         << *this->sourcerange_string(
-                                                *this->source_manager,
-                                                last_case->getSourceRange())
-                                         << std::endl;
-                            is_last = case_stmt->getSourceRange() ==
-                                      last_case->getSourceRange();
-                            this->dout() << "Got switch stmt. This casestmt is last?: "
-                                         << is_last << std::endl;
-                        }
-                    } else {
-                        parents_node = *it;
+            size_t child_num = 0;
+            for (auto case_child : case_stmt->children()) {
+                if (auto case_child_compound = dyn_cast<CompoundStmt>(case_child)) {
+                    // 1 because the compound will be the first child of the case
+                    // *after* the case constexpr
+                    if (child_num == 1 &&
+                        this->source_manager->getSpellingLineNumber(
+                            case_stmt->getColonLoc()) ==
+                            this->source_manager->getSpellingLineNumber(
+                                case_child_compound->getLBracLoc())) {
+                        // This case child is the compound stmt, so if it is the first
+                        // thing after the case and it needs a special case of not
+                        // modifying the indentation at all other than its close brace
+                        this->closes.push_back(case_child_compound->getRBracLoc());
+                        this->opens.push_back(case_child_compound->getRBracLoc());
+                        return;
                     }
                 }
+
+                if (child_num++ >= 1) {
+                    break;
+                }
             }
         }
 
-        if (is_case && !is_last) {
-            // Little trick to allow this:
-            /*
-               case 1: {
-                 something...
-               }
-                 break;
-               case 2: ...
-             */
-            // However we need to avoid adding the open for the last case statement, so
-            // if this does not have any children after the compoundstmt, we don't add
-            // it...
-
-            LOG_CLOSE("compound-case", MatchedDecl->getRBracLoc().getLocWithOffset(-1));
-            this->closes.push_back(MatchedDecl->getRBracLoc().getLocWithOffset(-1));
-            LOG_OPEN("compound-case", MatchedDecl->getRBracLoc().getLocWithOffset(1));
-            this->opens.push_back(MatchedDecl->getRBracLoc().getLocWithOffset(1));
-        } else if (is_case) {
-            LOG_CLOSE("compound-case", MatchedDecl->getRBracLoc().getLocWithOffset(-1));
-            this->closes.push_back(MatchedDecl->getRBracLoc().getLocWithOffset(-1));
-
-        } else {
-            LOG_OPEN("compound", MatchedDecl->getLBracLoc());
-            this->opens.push_back(MatchedDecl->getLBracLoc());
-            LOG_CLOSE("compound", MatchedDecl->getRBracLoc().getLocWithOffset(-1));
-            this->closes.push_back(MatchedDecl->getRBracLoc().getLocWithOffset(-1));
-        }
+        LOG_OPEN("compound", MatchedDecl->getLBracLoc());
+        this->opens.push_back(MatchedDecl->getLBracLoc());
+        LOG_CLOSE("compound", MatchedDecl->getRBracLoc());
+        this->closes.push_back(MatchedDecl->getRBracLoc());
     }
 
     /* Matchers for broken lines:
@@ -500,15 +395,15 @@ void Rule4aCheck::onEndOfTranslationUnit(void) {
     // Sort open and close locations and remove duplicates
     std::sort(opens.begin(), opens.end());
     std::sort(open_lines.begin(), open_lines.end());
-    opens.erase(std::unique(opens.begin(), opens.end()), opens.end());
-    open_lines.erase(std::unique(open_lines.begin(), open_lines.end()),
-                     open_lines.end());
+    // opens.erase(std::unique(opens.begin(), opens.end()), opens.end());
+    // open_lines.erase(std::unique(open_lines.begin(), open_lines.end()),
+    //                  open_lines.end());
 
     std::sort(closes.begin(), closes.end());
     std::sort(close_lines.begin(), close_lines.end());
-    closes.erase(std::unique(closes.begin(), closes.end()), closes.end());
-    close_lines.erase(std::unique(close_lines.begin(), close_lines.end()),
-                      close_lines.end());
+    // closes.erase(std::unique(closes.begin(), closes.end()), closes.end());
+    // close_lines.erase(std::unique(close_lines.begin(), close_lines.end()),
+    //                   close_lines.end());
 
     for (auto o : open_lines) {
         this->dout() << "Open after line " << o << std::endl;
@@ -533,15 +428,14 @@ void Rule4aCheck::onEndOfTranslationUnit(void) {
         size_t tok_line_number =
             this->source_manager->getSpellingLineNumber(tok.getLocation());
 
-        this->dout() << "Token: " << raw_tok_data << " at line " << tok_line_number
-                     << std::endl;
-
+        // Basically, set an open on the line before the next indented line
+        // and set a close on the line that needs to be dedented
         while (open_lines.front() < tok_line_number && !open_lines.empty()) {
             size_t open_line = open_lines.front();
             open_lines.erase(open_lines.begin());
             indent_amount += INDENT_AMOUNT;
             this->dout() << "Opening at line " << open_line << " with indent "
-                         << indent_amount << std::endl;
+                         << indent_amount << ":" << raw_tok_data << std::endl;
         }
 
         while (close_lines.front() <= tok_line_number && !close_lines.empty()) {
@@ -549,7 +443,7 @@ void Rule4aCheck::onEndOfTranslationUnit(void) {
             close_lines.erase(close_lines.begin());
             indent_amount -= INDENT_AMOUNT;
             this->dout() << "Closing at line " << close_line << " with indent "
-                         << indent_amount << std::endl;
+                         << indent_amount << ":" << raw_tok_data << std::endl;
         }
 
         std::string ws("");

@@ -272,7 +272,7 @@ int main() {
 
 
 
-    return 1;
+  return 1;
 } /* main() */
 
 // Good: This function is under the 2-page limit
@@ -517,5 +517,5 @@ int good() {
 
 
 
-    return 1;
+  return 1;
 } /* good() */

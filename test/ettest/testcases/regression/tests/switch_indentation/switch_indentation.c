@@ -1,5 +1,17 @@
 #include "switch_indentation.h"
 
+
+struct x {
+  int a;
+  int b;
+};
+
+enum y {
+  A,
+  B,
+  C
+};
+
 /*
  * Good header comment
  */
@@ -26,5 +38,36 @@ int main() {
     case 7: {
       break;
     }
+    case 8:
+      a = 1;
+      break;
   }
+
+  switch (10) {
+    default:
+      break;
+  }
+
+  switch (10) {
+    case 10:
+      break;
+  }
+
+  switch (10) {
+    default:
+      a = 1;
+      {
+        break;
+      }
+  }
+
+  switch (10) {
+    case 10: {
+      a = 1;
+    }
+      break;
+  }
+
+
+  return 1;
 }
