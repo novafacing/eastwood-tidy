@@ -90,11 +90,11 @@ int bar(void) {
     int a = 10;
   }
 
-// Good: One space
+  // Good: One space
   for (int i = 0; i < 10; i++) {
   }
 
-// Good: One space
+  // Good: One space
   switch (10) {
     default:
       break;

@@ -205,19 +205,19 @@ def test_rule_3_b_file(manager) -> None:
         FileTest(
             "eastwood-rule-3b.c",
             [
+                Error(Rule.III_B, 15, 13),
                 Error(Rule.III_B, 15, 14),
-                Error(Rule.III_B, 15, 15),
-                Error(Rule.III_B, 16, 16),
-                Error(Rule.III_B, 17, 14),
-                Error(Rule.III_B, 20, 9),
-                Error(Rule.III_B, 20, 11),
-                Error(Rule.III_B, 22, 12),
-                Error(Rule.III_B, 22, 14),
-                Error(Rule.III_B, 22, 17),
-                Error(Rule.III_B, 22, 19),
-                Error(Rule.III_B, 22, 22),
-                Error(Rule.III_B, 22, 24),
-                Error(Rule.III_B, 24, 19),
+                Error(Rule.III_B, 16, 15),
+                Error(Rule.III_B, 17, 13),
+                Error(Rule.III_B, 20, 8),
+                Error(Rule.III_B, 20, 10),
+                Error(Rule.III_B, 22, 11),
+                Error(Rule.III_B, 22, 13),
+                Error(Rule.III_B, 22, 16),
+                Error(Rule.III_B, 22, 18),
+                Error(Rule.III_B, 22, 21),
+                Error(Rule.III_B, 22, 23),
+                Error(Rule.III_B, 24, 18),
             ],
         )
     ]
@@ -245,10 +245,10 @@ def test_rule_3_c_file(manager) -> None:
             "eastwood-rule-3c.c",
             [
                 Error(Rule.III_C, 12, 15),
+                Error(Rule.III_C, 16, 20),
                 Error(Rule.III_C, 16, 22),
-                Error(Rule.III_C, 16, 24),
-                Error(Rule.III_C, 18, 20),
-                Error(Rule.III_C, 18, 27),
+                Error(Rule.III_C, 18, 18),
+                Error(Rule.III_C, 18, 25),
             ],
         )
     ]

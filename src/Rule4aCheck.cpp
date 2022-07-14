@@ -32,6 +32,11 @@ Rule4aCheck::Rule4aCheck(StringRef Name, ClangTidyContext *Context)
 }
 
 static bool hasCompoundChildRec(const Stmt *stmt) {
+    if (dyn_cast<WhileStmt>(stmt) || dyn_cast<DoStmt>(stmt) ||
+        dyn_cast<ForStmt>(stmt) || dyn_cast<IfStmt>(stmt) ||
+        dyn_cast<SwitchStmt>(stmt)) {
+        return true;
+    }
     if (auto compound = dyn_cast<CompoundStmt>(stmt)) {
         return true;
     }
@@ -371,6 +376,7 @@ void Rule4aCheck::check(const MatchFinder::MatchResult &Result) {
             this->source_manager->isWrittenInMainFile(range->getEnd()) &&
             this->source_manager->getSpellingLineNumber(range->getBegin()) !=
                 this->source_manager->getSpellingLineNumber(range->getEnd())) {
+            this->dout() << "Adding range: " << std::endl;
             this->broken_ranges.push_back(*range);
         }
         delete range;
@@ -504,13 +510,13 @@ void Rule4aCheck::onEndOfTranslationUnit(void) {
         if (tok.isAtStartOfLine()) {
             if (this->tok_string(*this->source_manager, tok)->rfind("#", 0) == 0) {
                 // This is a preprocessor directive, so it must be on
-                // the left edge.
+                // the left edge. This is checked by rule 3.D
                 if (spc_ct(ws) != 0) {
-                    diag(tok.getLocation(),
-                         "Incorrect indentation level. Preprocessor "
-                         "directives should not be indented. Expected "
-                         "%0, got %1")
-                        << 0 << spc_ct(ws);
+                    // diag(tok.getLocation(),
+                    //      "Incorrect indentation level. Preprocessor "
+                    //      "directives should not be indented. Expected "
+                    //      "%0, got %1")
+                    //     << 0 << spc_ct(ws);
                 }
             } else if (breakable) {
                 // This error falls under 2.A and is displayed in that check

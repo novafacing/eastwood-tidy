@@ -37,6 +37,14 @@ Rule2aCheck::Rule2aCheck(StringRef Name, ClangTidyContext *Context)
 }
 
 static bool hasCompoundChildRec(const Stmt *stmt) {
+    if (dyn_cast<WhileStmt>(stmt) || dyn_cast<DoStmt>(stmt) ||
+        dyn_cast<ForStmt>(stmt) || dyn_cast<IfStmt>(stmt) ||
+        dyn_cast<SwitchStmt>(stmt) ||
+        (dyn_cast<DeclStmt>(stmt) &&
+         (dyn_cast<RecordDecl>(dyn_cast<DeclStmt>(stmt)->getSingleDecl()) ||
+          dyn_cast<EnumDecl>(dyn_cast<DeclStmt>(stmt)->getSingleDecl())))) {
+        return true;
+    }
     if (auto compound = dyn_cast<CompoundStmt>(stmt)) {
         return true;
     }

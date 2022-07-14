@@ -11,13 +11,26 @@
 
 int foo(int a,int b) {
 
-    /* Bad: No space after commas */
+  /* Bad: No space after commas */
 
-    printf("%d %d\n",a,b);
+  printf("%d %d\n",a,b);
 
-    for (int i = 0;i < 10;i++) {
-        /* Bad: No space after semicolon */
+  for (int i = 0;i < 10;i++) {
+    /* Bad: No space after semicolon */
 
-    }
+  }
 
+  for (int i = 0; i < 10; i++) {
+    /* Good: space after semicolon */
+  }
+
+  return 1;
 } /* foo() */
+
+/*
+ * bar (good: space after comma)
+ */
+
+int bar(int a, int b) {
+  return a + b;
+} /* bar() */
