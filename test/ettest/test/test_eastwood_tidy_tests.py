@@ -11,9 +11,8 @@ def test_run_tidy_file(manager) -> None:
     """
     tf = manager.get_test("test_run_tidy.c")
     assert tf.exists(), f"Test file does not exist: {tf}"
-    res = manager.run(tf)
-    assert res
-    res = manager.run(tf, opts=manager.DUMP_OPTS)
+    res, dres = manager.run(tf)
+    res, dres = manager.run(tf, opts=manager.DUMP_OPTS)
     assert res
     assert "variable | a" in res
 
@@ -23,7 +22,7 @@ def test_run_tidy_snippet(manager) -> None:
     Test that we can run eastwood-tidy tests on a snippet.
     """
     s = Snippet(code="int a = 0;")
-    res = manager.run_snippet(s)
+    res, dres = manager.run_snippet(s)
     assert res
     assert "Incorrect indentation level." in res
 

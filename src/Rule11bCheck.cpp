@@ -81,25 +81,27 @@ void Rule11bCheck::check(const MatchFinder::MatchResult &Result) {
                 if (tok.isAtStartOfLine()) {
                     lines++;
                     if (lines >= 2) {
-                        if (tq.at(tq.size() - 1).second == "\r") {
+                        if (tq.size() > 0 && tq.at(tq.size() - 1).second == "\r") {
                             // XI.B Unix newline
                             diag(tq.at(tq.size() - 1).first.getLocation(),
                                  "Non-Unix newlines are not permitted. "
                                  "Please run dos2unix on your source file.");
-                        } else if (std::regex_match(tq.at(tq.size() - 2).second,
+                        } else if (tq.size() > 1 &&
+                                   std::regex_match(tq.at(tq.size() - 2).second,
                                                     results, trailing_ws)) {
                             // III.E Trailing Whitespace
                             // diag(tq.at(tq.size() -
                             // 1).first.getLocation(), "Trailing whitespace
                             // is not permitted.");
-                        }
-                        unsigned lcol = SM.getSpellingColumnNumber(
-                            tq.at(tq.size() - 2).first.getLocation());
-                        if (lcol >= MAX_LINE_LEN) {
-                            // diag(tq.at(tq.size() -
-                            // 1).first.getLocation(), "Lines must be <= " +
-                            // std::to_string(MAX_LINE_LEN) + " characters
-                            // in length.");
+                        } else if (tq.size() > 1) {
+                            unsigned lcol = SM.getSpellingColumnNumber(
+                                tq.at(tq.size() - 2).first.getLocation());
+                            if (lcol >= MAX_LINE_LEN) {
+                                // diag(tq.at(tq.size() -
+                                // 1).first.getLocation(), "Lines must be <= " +
+                                // std::to_string(MAX_LINE_LEN) + " characters
+                                // in length.");
+                            }
                         }
                     }
                     std::string Indentation =

@@ -4,7 +4,7 @@
  * e will fit on printouts.  If the line is too long, then it must be broken up 
  * into readable segments. The indentation of the code on the following lines ne
  * eds to be at least 2 spaces.
- * ------------------------------------------------------------------------- */
+ * ------------------------------------------------------------------------------------------ */
 #include "eastwood-rule-2a.h"
 
 #include <stdlib.h>
@@ -28,10 +28,10 @@ int foo(void) {
   // Bad: The expression does not fit on one line and should be indented by 2
   // on subsequent lines
   node->next->next->next->next->next->next->next->next->next->next->next->next
-  ->next->next = NULL;
-
-  // Good: The expression does not fit on one line and is indented by 2 on subsequent lines
-  node->next->next->next->next->next->next->next->next->next->next->next->next
+    ->next->next = NULL;
+  // Good: The expression does not fit on one line and is indented+2 on
+  // subsequent lines
+  node->next->next->next->next->next->next->next->next->next->next->next->next->next->next
     ->next
     ->next = NULL;
 }

@@ -119,7 +119,7 @@ def test_rule_2_a_file(manager) -> None:
             [
                 Error(Rule.II_A, 7, 97),
                 Error(Rule.II_A, 24, 91),
-                Error(Rule.II_A, 33, 92),
+                Error(Rule.II_A, 34, 91),
             ],
         )
     ]

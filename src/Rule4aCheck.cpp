@@ -179,7 +179,7 @@ void Rule4aCheck::check(const MatchFinder::MatchResult &Result) {
         const IfStmt *If = MatchedDecl;
         const Stmt *Else = MatchedDecl->getElse();
 
-        if (this->source_manager->getSpellingLineNumber(this->opens.back()) !=
+        if (this->source_manager->getSpellingLineNumber(If->getThen()->getBeginLoc()) !=
             this->source_manager->getSpellingLineNumber(MatchedDecl->getRParenLoc())) {
             diag(this->opens.back(), "Open brace must be located on same line as if.");
         }
@@ -321,47 +321,59 @@ void Rule4aCheck::check(const MatchFinder::MatchResult &Result) {
      * - whileStmt->getLParenLoc, whileStmt->getRParenLoc
      * - stmt without compoundstmt child
      */
+    SourceRange *range = nullptr;
+    ;
     if (auto MatchedDecl = Result.Nodes.getNodeAs<FunctionDecl>("functionSplit")) {
         CHECK_LOC(MatchedDecl);
-        this->broken_ranges.push_back(MatchedDecl->getParametersSourceRange());
+
+        range = new SourceRange(MatchedDecl->getParametersSourceRange());
     } else if (auto MatchedDecl = Result.Nodes.getNodeAs<CallExpr>("callSplit")) {
         CHECK_LOC(MatchedDecl);
-        this->broken_ranges.push_back(
-            SourceRange(MatchedDecl->getBeginLoc(), MatchedDecl->getRParenLoc()));
+        range =
+            new SourceRange(MatchedDecl->getBeginLoc(), MatchedDecl->getRParenLoc());
     } else if (auto MatchedDecl = Result.Nodes.getNodeAs<DoStmt>("doSplit")) {
         CHECK_LOC(MatchedDecl);
-        this->broken_ranges.push_back(
-            SourceRange(MatchedDecl->getWhileLoc(), MatchedDecl->getRParenLoc()));
+        range =
+            new SourceRange(MatchedDecl->getWhileLoc(), MatchedDecl->getRParenLoc());
     } else if (auto MatchedDecl = Result.Nodes.getNodeAs<ForStmt>("forSplit")) {
         CHECK_LOC(MatchedDecl);
-        this->broken_ranges.push_back(
-            SourceRange(MatchedDecl->getLParenLoc(), MatchedDecl->getRParenLoc()));
+        range =
+            new SourceRange(MatchedDecl->getLParenLoc(), MatchedDecl->getRParenLoc());
     } else if (auto MatchedDecl = Result.Nodes.getNodeAs<IfStmt>("ifSplit")) {
         CHECK_LOC(MatchedDecl);
-        this->broken_ranges.push_back(
-            SourceRange(MatchedDecl->getLParenLoc(), MatchedDecl->getRParenLoc()));
+        range =
+            new SourceRange(MatchedDecl->getLParenLoc(), MatchedDecl->getRParenLoc());
     } else if (auto MatchedDecl = Result.Nodes.getNodeAs<ParenExpr>("parenSplit")) {
         CHECK_LOC(MatchedDecl);
-        this->broken_ranges.push_back(
-            SourceRange(MatchedDecl->getLParen(), MatchedDecl->getRParen()));
+        range = new SourceRange(MatchedDecl->getLParen(), MatchedDecl->getRParen());
     } else if (auto MatchedDecl =
                    Result.Nodes.getNodeAs<ParenListExpr>("parenListSplit")) {
         CHECK_LOC(MatchedDecl);
-        this->broken_ranges.push_back(
-            SourceRange(MatchedDecl->getLParenLoc(), MatchedDecl->getRParenLoc()));
+        range =
+            new SourceRange(MatchedDecl->getLParenLoc(), MatchedDecl->getRParenLoc());
     } else if (auto MatchedDecl = Result.Nodes.getNodeAs<SwitchStmt>("switchSplit")) {
         CHECK_LOC(MatchedDecl);
-        this->broken_ranges.push_back(
-            SourceRange(MatchedDecl->getLParenLoc(), MatchedDecl->getRParenLoc()));
+        range =
+            new SourceRange(MatchedDecl->getLParenLoc(), MatchedDecl->getRParenLoc());
     } else if (auto MatchedDecl = Result.Nodes.getNodeAs<WhileStmt>("whileSplit")) {
         CHECK_LOC(MatchedDecl);
-        this->broken_ranges.push_back(
-            SourceRange(MatchedDecl->getLParenLoc(), MatchedDecl->getRParenLoc()));
+        range =
+            new SourceRange(MatchedDecl->getLParenLoc(), MatchedDecl->getRParenLoc());
     } else if (auto MatchedDecl = Result.Nodes.getNodeAs<Stmt>("stmtSplit")) {
         CHECK_LOC(MatchedDecl);
         if (!hasCompoundChildRec(MatchedDecl)) {
-            this->broken_ranges.push_back(MatchedDecl->getSourceRange());
+            range = new SourceRange(MatchedDecl->getSourceRange());
         }
+    }
+
+    if (range != nullptr) {
+        if (this->source_manager->isWrittenInMainFile(range->getBegin()) &&
+            this->source_manager->isWrittenInMainFile(range->getEnd()) &&
+            this->source_manager->getSpellingLineNumber(range->getBegin()) !=
+                this->source_manager->getSpellingLineNumber(range->getEnd())) {
+            this->broken_ranges.push_back(*range);
+        }
+        delete range;
     }
 }
 
@@ -392,24 +404,40 @@ void Rule4aCheck::onEndOfTranslationUnit(void) {
         close_lines.push_back(line);
     }
 
-    // Sort open and close locations and remove duplicates
-    std::sort(opens.begin(), opens.end());
     std::sort(open_lines.begin(), open_lines.end());
-    // opens.erase(std::unique(opens.begin(), opens.end()), opens.end());
-    // open_lines.erase(std::unique(open_lines.begin(), open_lines.end()),
-    //                  open_lines.end());
 
-    std::sort(closes.begin(), closes.end());
     std::sort(close_lines.begin(), close_lines.end());
-    // closes.erase(std::unique(closes.begin(), closes.end()), closes.end());
-    // close_lines.erase(std::unique(close_lines.begin(), close_lines.end()),
-    //                   close_lines.end());
+
+    std::sort(this->broken_ranges.begin(), this->broken_ranges.end(),
+              [this](SourceRange a, SourceRange b) {
+                  return this->source_manager->getSpellingLineNumber(a.getBegin()) <
+                         this->source_manager->getSpellingLineNumber(b.getBegin());
+              });
+
+    this->broken_ranges.erase(
+        std::unique(
+            this->broken_ranges.begin(), this->broken_ranges.end(),
+            [this](SourceRange a, SourceRange b) {
+                return this->source_manager->getSpellingLineNumber(a.getBegin()) ==
+                           this->source_manager->getSpellingLineNumber(b.getBegin()) &&
+                       this->source_manager->getSpellingLineNumber(a.getEnd()) ==
+                           this->source_manager->getSpellingLineNumber(b.getEnd());
+            }),
+        this->broken_ranges.end());
 
     for (auto o : open_lines) {
         this->dout() << "Open after line " << o << std::endl;
     }
+
     for (auto o : close_lines) {
         this->dout() << "Close before line " << o << std::endl;
+    }
+
+    for (auto b : broken_ranges) {
+        this->dout() << "Broken range: ("
+                     << this->source_manager->getSpellingLineNumber(b.getBegin())
+                     << ", " << this->source_manager->getSpellingLineNumber(b.getEnd())
+                     << ")" << std::endl;
     }
 
     this->dout() << "Checking indentation over " << this->tokens.size() << " tokens"
@@ -417,9 +445,10 @@ void Rule4aCheck::onEndOfTranslationUnit(void) {
 
     for (size_t i = 0; i < this->tokens.size(); i++) {
         auto tok = this->tokens.at(i);
+        bool breakable = false;
 
-        if (not this->source_manager->isWrittenInMainFile(tok.getLocation()) ||
-            not this->source_manager->isWrittenInMainFile(tok.getEndLoc())) {
+        if (!this->source_manager->isWrittenInMainFile(tok.getLocation()) ||
+            !this->source_manager->isWrittenInMainFile(tok.getEndLoc())) {
             continue;
         }
 
@@ -427,6 +456,19 @@ void Rule4aCheck::onEndOfTranslationUnit(void) {
                                                       this->ast_context->getLangOpts());
         size_t tok_line_number =
             this->source_manager->getSpellingLineNumber(tok.getLocation());
+
+        // Check if we're inside a broken range (but not on the first line of a range)
+        for (auto r : broken_ranges) {
+            if (this->source_manager->isBeforeInTranslationUnit(r.getBegin(),
+                                                                tok.getLocation()) &&
+                this->source_manager->isBeforeInTranslationUnit(tok.getLocation(),
+                                                                r.getEnd())) {
+                this->dout() << "Token " << raw_tok_data << " on line "
+                             << tok_line_number << " is in broken range" << std::endl;
+                breakable = true;
+                break;
+            }
+        }
 
         // Basically, set an open on the line before the next indented line
         // and set a close on the line that needs to be dedented
@@ -459,8 +501,6 @@ void Rule4aCheck::onEndOfTranslationUnit(void) {
             }
         }
 
-        bool breakable = false;
-
         if (tok.isAtStartOfLine()) {
             if (this->tok_string(*this->source_manager, tok)->rfind("#", 0) == 0) {
                 // This is a preprocessor directive, so it must be on
@@ -472,47 +512,24 @@ void Rule4aCheck::onEndOfTranslationUnit(void) {
                          "%0, got %1")
                         << 0 << spc_ct(ws);
                 }
+            } else if (breakable) {
+                // This error falls under 2.A and is displayed in that check
+                if (spc_ct(ws) != indent_amount + INDENT_AMOUNT) {
+                    // diag(tok.getLocation(), "Incorrect indentation level for broken "
+                    //                         "line. Expected %0, got %1")
+                    //     << indent_amount + INDENT_AMOUNT << spc_ct(ws);
+                }
             } else if (spc_ct(ws) != indent_amount) {
-                if (std::find(this->broken_lines.begin(), this->broken_lines.end(),
-                              this->source_manager->getSpellingLineNumber(
-                                  tok.getLocation())) != this->broken_lines.end()) {
-                    if (spc_ct(ws) < indent_amount + 2) {
-                        diag(tok.getLocation(),
-                             "Incorrect indentation level. Expected at "
-                             "least %0, got %1")
-                            << std::to_string(indent_amount + 2)
-                            << std::to_string(spc_ct(ws));
-                    }
-                    // Is the end of the previous line something other
-                    // than:
-                    // - ';'
-                    // - '{'
-                    // - A comment
-                    // - A macro define, ifndef, endif, include
-                } else if (breakable) {
-                    if (spc_ct(ws) < indent_amount + 2) {
-                        diag(tok.getLocation(),
-                             "Incorrect indentation level for broken "
-                             "line. "
-                             "Expected at "
-                             "least %0, got %1")
-                            << std::to_string(indent_amount + 2)
-                            << std::to_string(spc_ct(ws));
-                    }
-
-                } else if (tok.getKind() == tok::comment) {
-                    if (spc_ct(ws) < indent_amount) {
-                        diag(tok.getLocation(),
-                             "Incorrect indentation level for comment. "
-                             "Expected at "
-                             "least %0, got %1")
-                            << std::to_string(indent_amount + 2)
-                            << std::to_string(spc_ct(ws));
-                    }
-                } else {
-                    diag(tok.getLocation(), "Incorrect indentation level. Expected %0, "
-                                            "got %1")
-                        << std::to_string(indent_amount) << std::to_string(spc_ct(ws));
+                diag(tok.getLocation(),
+                     "Incorrect indentation level. Expected %0, got %1")
+                    << indent_amount << spc_ct(ws);
+            } else if (tok.getKind() == tok::comment) {
+                if (spc_ct(ws) < indent_amount) {
+                    diag(tok.getLocation(), "Incorrect indentation level for comment. "
+                                            "Expected at "
+                                            "least %0, got %1")
+                        << std::to_string(indent_amount + 2)
+                        << std::to_string(spc_ct(ws));
                 }
             }
         }

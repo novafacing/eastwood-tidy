@@ -16,8 +16,32 @@
 
 #include "clang/AST/ASTContext.h"
 #include "clang/ASTMatchers/ASTMatchFinder.h"
+#include "clang/Lex/Lexer.h"
+#include "clang/Lex/Token.h"
+#include <deque>
+#include <unordered_map>
 
 #include <vector>
+
+/* Make sure the location is checkable. */
+#define CHECK_LOC(MatchedDecl)                                                         \
+    if (not this->source_manager->isWrittenInMainFile(MatchedDecl->getBeginLoc()) or   \
+        not MatchedDecl->getBeginLoc().isValid() or                                    \
+        this->source_manager->isMacroArgExpansion(MatchedDecl->getBeginLoc()) or       \
+        this->source_manager->isMacroBodyExpansion(MatchedDecl->getBeginLoc())) {      \
+        return;                                                                        \
+    }
+
+#define LOG_OPEN(Reason, Location)                                                     \
+    this->dout() << "Adding OPEN for " << Reason << " at "                             \
+                 << Location.printToString(*this->source_manager) << "\n";
+
+#define LOG_CLOSE(Reason, Location)                                                    \
+    this->dout() << "Adding CLOSE for " << Reason << " at "                            \
+                 << Location.printToString(*this->source_manager) << "\n";
+
+/* The number of spaces an indent should be wide */
+#define INDENT_AMOUNT (2)
 
 namespace clang {
 namespace tidy {
@@ -28,6 +52,11 @@ private:
     std::string debug_enabled;
     std::vector<size_t> over_length_lines;
     std::vector<size_t> broken_lines;
+    std::unordered_map<size_t, size_t> indent_map;
+    size_t indent_level;
+    std::deque<SourceLocation> opens;
+    std::deque<SourceLocation> closes;
+    std::deque<SourceRange> broken_ranges;
 
 public:
     /* Constructors */
