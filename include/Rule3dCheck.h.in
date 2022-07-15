@@ -20,6 +20,9 @@
 #include "clang/Lex/Pragma.h"
 #include "clang/Lex/Preprocessor.h"
 
+#include <algorithm>
+#include <vector>
+
 namespace clang {
 namespace tidy {
 namespace eastwood {
@@ -33,8 +36,7 @@ private:
 
 public:
     /* Constructors */
-    Rule3dCheck(StringRef Name, ClangTidyContext *Context)
-        : ClangTidyCheck(Name, Context), EastwoodTidyCheckBase(Name) {}
+    Rule3dCheck(StringRef Name, ClangTidyContext *Context);
 
     /* Overrides */
     void registerPPCallbacks(const SourceManager &SM, Preprocessor *PP,
