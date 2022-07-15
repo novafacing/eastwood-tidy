@@ -15,14 +15,21 @@
 
 #include "clang/AST/ASTContext.h"
 #include "clang/ASTMatchers/ASTMatchFinder.h"
+#include "clang/Lex/MacroInfo.h"
+#include "clang/Lex/PPCallbacks.h"
+#include "clang/Lex/Pragma.h"
+#include "clang/Lex/Preprocessor.h"
 
 namespace clang {
 namespace tidy {
 namespace eastwood {
 
 class Rule3dCheck : public ClangTidyCheck, public EastwoodTidyCheckBase {
+    friend class Rule3dPPCallback;
+
 private:
     std::string debug_enabled;
+    std::vector<std::pair<size_t, size_t>> function_boundaries;
 
 public:
     /* Constructors */
@@ -30,9 +37,12 @@ public:
         : ClangTidyCheck(Name, Context), EastwoodTidyCheckBase(Name) {}
 
     /* Overrides */
+    void registerPPCallbacks(const SourceManager &SM, Preprocessor *PP,
+                             Preprocessor *ModuleExpanderPP) override;
     void registerMatchers(ast_matchers::MatchFinder *Finder) override;
     void check(const ast_matchers::MatchFinder::MatchResult &Result) override;
     void onEndOfTranslationUnit() override;
+    std::vector<size_t> directive_lines;
 }; // Rule3dCheck
 } // namespace eastwood
 } // namespace tidy

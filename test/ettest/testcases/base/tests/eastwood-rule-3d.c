@@ -9,6 +9,7 @@
 #define TOP_OF_FILE_DEF2 (10)
 #define ANOTHER_TOP_OF_FILE_DEF "hello"
   #define BAD_DEF_SHOULD_NOT_BE_INDENTED (12)
+int g_global_bad = 0;
 
 #define BAD_DEF_SHOULD_BE_GROUPED (10)
   #define BAD_DEF_SHOULD_NOT_BE_INDENTED_SHOULD_BE_GROUPED (10)
@@ -18,9 +19,12 @@
  */
 
 int foo() {
-#define GOOD_DEF_SHOULD_NOT_BE_INDENTED_IN_FUNC (10)
-  #define BAD_DEF_SHOULD_NOT_BE_INDENTED_IN_FUNC (12)
+#define BAD_DEF_SHOULD_HAVE_PREC_LINE (10)
+  #define BAD_DEF_SHOULD_NOT_BE_INDENTED_IN_FUNC_AND_NL (12)
+  int i = 0;
 
 #define BAD_DEF_SHOULD_BE_GROUPED_IN_FUNC (10)
   return 0;
 } /* foo() */
+
+#define BAD_DEF_SHOULD_BE_IN_FUNC (10)
