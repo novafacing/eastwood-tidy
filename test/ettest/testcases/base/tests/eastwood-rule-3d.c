@@ -35,7 +35,7 @@ int foo() {
 
 int bar() {
 
-#define BAD_DEF_SHOULD_HAVE_PREC_LINE (10)
+#define GOOD_DEF_HAS_PREC_LINE (10)
   #define BAD_DEF_SHOULD_NOT_BE_INDENTED_IN_FUNC_AND_NL (12)
 
 #define BAD_DEF_SHOULD_BE_GROUPED_IN_FUNC (10)

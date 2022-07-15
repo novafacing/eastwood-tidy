@@ -275,11 +275,16 @@ def test_rule_3_d_file(manager) -> None:
         FileTest(
             "eastwood-rule-3d.c",
             [
+                # Indentation errors
                 Error(Rule.III_D, 11, 3),
-                Error(Rule.III_D, 13, 1),
-                Error(Rule.III_D, 14, 3),
-                Error(Rule.III_D, 22, 3),
-                Error(Rule.III_D, 24, 1),
+                Error(Rule.III_D, 15, 3),
+                Error(Rule.III_D, 23, 3),
+                Error(Rule.III_D, 39, 3),
+                # Grouping errors
+                Error(Rule.III_D, 22, 1),
+                Error(Rule.III_D, 26, 1),
+                Error(Rule.III_D, 30, 1),
+                Error(Rule.III_D, 41, 1),
             ],
         )
     ]
