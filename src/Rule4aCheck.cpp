@@ -10,6 +10,7 @@
 #include "clang/AST/ASTContext.h"
 #include "clang/AST/ASTTypeTraits.h"
 #include "clang/AST/Decl.h"
+#include "clang/AST/Stmt.h"
 #include "clang/ASTMatchers/ASTMatchers.h"
 #include "clang/Basic/SourceLocation.h"
 #include "clang/Lex/Lexer.h"
@@ -34,7 +35,7 @@ Rule4aCheck::Rule4aCheck(StringRef Name, ClangTidyContext *Context)
 static bool hasCompoundChildRec(const Stmt *stmt) {
     if (dyn_cast<WhileStmt>(stmt) || dyn_cast<DoStmt>(stmt) ||
         dyn_cast<ForStmt>(stmt) || dyn_cast<IfStmt>(stmt) ||
-        dyn_cast<SwitchStmt>(stmt)) {
+        dyn_cast<SwitchStmt>(stmt) || dyn_cast<SwitchCase>(stmt)) {
         return true;
     }
     if (auto compound = dyn_cast<CompoundStmt>(stmt)) {
@@ -85,7 +86,12 @@ void Rule4aCheck::registerMatchers(MatchFinder *Finder) {
     Finder->addMatcher(parenListExpr().bind("parenListSplit"), this);
     Finder->addMatcher(switchStmt().bind("switchSplit"), this);
     Finder->addMatcher(whileStmt().bind("whileSplit"), this);
-    Finder->addMatcher(stmt().bind("stmtSplit"), this);
+
+    Finder->addMatcher(expr().bind("exprSplit"), this);
+    Finder->addMatcher(returnStmt().bind("returnSplit"), this);
+    Finder->addMatcher(typedefNameDecl().bind("typeSplit"), this);
+    Finder->addMatcher(fieldDecl().bind("fieldSplit"), this);
+    Finder->addMatcher(varDecl().bind("varSplit"), this);
 }
 
 void Rule4aCheck::check(const MatchFinder::MatchResult &Result) {
@@ -217,11 +223,6 @@ void Rule4aCheck::check(const MatchFinder::MatchResult &Result) {
 
         // Add an open/close for each case
         auto switch_children = MatchedDecl->getSwitchCaseList();
-        Stmt *last_child = nullptr;
-
-        for (const Stmt *child : switch_children->children()) {
-            last_child = const_cast<Stmt *>(child);
-        }
 
         /* we actually always want to dedent because if we have:
         case 1:
@@ -268,26 +269,33 @@ void Rule4aCheck::check(const MatchFinder::MatchResult &Result) {
         DynTypedNode node = DynTypedNode::create<CompoundStmt>(*MatchedDecl);
         DynTypedNodeList Parents = PMC.getParents(node);
         const SwitchCase *case_stmt = nullptr;
-        const SwitchStmt *switch_stmt = nullptr;
 
+        size_t check_compound_child =
+            0; // The index of the child to check for a switchcase if the child is a
+               // compound (for case it is the second child because the expression is
+               // the first, for default it is the first child)
         for (auto it = Parents.begin(); it != Parents.end(); it++) {
             // If the parent is a case, this is handled there...
             if (it->getNodeKind().asStringRef().str() == "CaseStmt") {
                 case_stmt = it->get<SwitchCase>();
-                this->dout() << "Got node as case_stmt: " << case_stmt << std::endl;
+                this->dout() << "Got node as case_stmt: " << std::endl;
+                this->dbgdump(case_stmt, *this->ast_context);
+                check_compound_child = 1;
             } else if (it->getNodeKind().asStringRef().str() == "DefaultStmt") {
                 case_stmt = it->get<SwitchCase>();
-                this->dout() << "Got node as case_stmt: " << case_stmt << std::endl;
+                this->dout() << "Got node as case_stmt: " << std::endl;
+                this->dbgdump(case_stmt, *this->ast_context);
+                check_compound_child = 0;
             }
         }
 
-        if (case_stmt) {
+        if (case_stmt != nullptr) {
             size_t child_num = 0;
             for (auto case_child : case_stmt->children()) {
                 if (auto case_child_compound = dyn_cast<CompoundStmt>(case_child)) {
                     // 1 because the compound will be the first child of the case
                     // *after* the case constexpr
-                    if (child_num == 1 &&
+                    if (child_num == check_compound_child &&
                         this->source_manager->getSpellingLineNumber(
                             case_stmt->getColonLoc()) ==
                             this->source_manager->getSpellingLineNumber(
@@ -295,7 +303,9 @@ void Rule4aCheck::check(const MatchFinder::MatchResult &Result) {
                         // This case child is the compound stmt, so if it is the first
                         // thing after the case and it needs a special case of not
                         // modifying the indentation at all other than its close brace
+                        LOG_CLOSE("compound-case", MatchedDecl->getRBracLoc());
                         this->closes.push_back(case_child_compound->getRBracLoc());
+                        LOG_OPEN("compound-case", MatchedDecl->getLBracLoc());
                         this->opens.push_back(case_child_compound->getRBracLoc());
                         return;
                     }
@@ -327,7 +337,7 @@ void Rule4aCheck::check(const MatchFinder::MatchResult &Result) {
      * - stmt without compoundstmt child
      */
     SourceRange *range = nullptr;
-    ;
+
     if (auto MatchedDecl = Result.Nodes.getNodeAs<FunctionDecl>("functionSplit")) {
         CHECK_LOC(MatchedDecl);
 
@@ -364,11 +374,22 @@ void Rule4aCheck::check(const MatchFinder::MatchResult &Result) {
         CHECK_LOC(MatchedDecl);
         range =
             new SourceRange(MatchedDecl->getLParenLoc(), MatchedDecl->getRParenLoc());
-    } else if (auto MatchedDecl = Result.Nodes.getNodeAs<Stmt>("stmtSplit")) {
+    } else if (auto MatchedDecl = Result.Nodes.getNodeAs<Expr>("exprSplit")) {
         CHECK_LOC(MatchedDecl);
-        if (!hasCompoundChildRec(MatchedDecl)) {
-            range = new SourceRange(MatchedDecl->getSourceRange());
-        }
+        range = new SourceRange(MatchedDecl->getBeginLoc(), MatchedDecl->getEndLoc());
+    } else if (auto MatchedDecl = Result.Nodes.getNodeAs<ReturnStmt>("returnSplit")) {
+        CHECK_LOC(MatchedDecl);
+        range = new SourceRange(MatchedDecl->getReturnLoc(), MatchedDecl->getEndLoc());
+    } else if (auto MatchedDecl =
+                   Result.Nodes.getNodeAs<TypedefNameDecl>("typeSplit")) {
+        CHECK_LOC(MatchedDecl);
+        range = new SourceRange(MatchedDecl->getBeginLoc(), MatchedDecl->getEndLoc());
+    } else if (auto MatchedDecl = Result.Nodes.getNodeAs<FieldDecl>("fieldSplit")) {
+        CHECK_LOC(MatchedDecl);
+        range = new SourceRange(MatchedDecl->getBeginLoc(), MatchedDecl->getEndLoc());
+    } else if (auto MatchedDecl = Result.Nodes.getNodeAs<VarDecl>("varSplit")) {
+        CHECK_LOC(MatchedDecl);
+        range = new SourceRange(MatchedDecl->getBeginLoc(), MatchedDecl->getEndLoc());
     }
 
     if (range != nullptr) {

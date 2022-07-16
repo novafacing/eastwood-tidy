@@ -298,6 +298,31 @@ def test_rule_3_d_file(manager) -> None:
         ), f"Did not receive EXPECTED error(s): {res.unseen_errors}"
 
 
+# File tests for Rule3e:
+# Never put trailing whitespace at the end of a line
+
+
+@mark.rule3
+def test_rule_3_e_file(manager) -> None:
+    """
+    File test cases for rule 3e
+    """
+    tests = [
+        FileTest(
+            "eastwood-rule-3e.c",
+            [],
+        )
+    ]
+    for test in tests:
+        res = manager.test_file(test)
+        assert (
+            not res.unexpected_errors
+        ), f"Received UNEXPECTED error(s): {res.unexpected_errors}"
+        assert (
+            not res.unseen_errors
+        ), f"Did not receive EXPECTED error(s): {res.unseen_errors}"
+
+
 # File tests for Rule4a:
 # "Two space indentation must be applied to the entire program. Opening brace must be on the same line as keyword. Else must be on its own line."
 

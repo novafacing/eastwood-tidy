@@ -93,7 +93,12 @@ void Rule2aCheck::registerMatchers(MatchFinder *Finder) {
     Finder->addMatcher(parenListExpr().bind("parenListSplit"), this);
     Finder->addMatcher(switchStmt().bind("switchSplit"), this);
     Finder->addMatcher(whileStmt().bind("whileSplit"), this);
-    Finder->addMatcher(stmt().bind("stmtSplit"), this);
+
+    Finder->addMatcher(expr().bind("exprSplit"), this);
+    Finder->addMatcher(returnStmt().bind("returnSplit"), this);
+    Finder->addMatcher(typedefNameDecl().bind("typeSplit"), this);
+    Finder->addMatcher(fieldDecl().bind("fieldSplit"), this);
+    Finder->addMatcher(varDecl().bind("varSplit"), this);
 }
 
 void Rule2aCheck::check(const MatchFinder::MatchResult &Result) {
@@ -346,7 +351,7 @@ void Rule2aCheck::check(const MatchFinder::MatchResult &Result) {
      * - stmt without compoundstmt child
      */
     SourceRange *range = nullptr;
-    ;
+
     if (auto MatchedDecl = Result.Nodes.getNodeAs<FunctionDecl>("functionSplit")) {
         CHECK_LOC(MatchedDecl);
 
@@ -383,11 +388,22 @@ void Rule2aCheck::check(const MatchFinder::MatchResult &Result) {
         CHECK_LOC(MatchedDecl);
         range =
             new SourceRange(MatchedDecl->getLParenLoc(), MatchedDecl->getRParenLoc());
-    } else if (auto MatchedDecl = Result.Nodes.getNodeAs<Stmt>("stmtSplit")) {
+    } else if (auto MatchedDecl = Result.Nodes.getNodeAs<Expr>("exprSplit")) {
         CHECK_LOC(MatchedDecl);
-        if (!hasCompoundChildRec(MatchedDecl)) {
-            range = new SourceRange(MatchedDecl->getSourceRange());
-        }
+        range = new SourceRange(MatchedDecl->getBeginLoc(), MatchedDecl->getEndLoc());
+    } else if (auto MatchedDecl = Result.Nodes.getNodeAs<ReturnStmt>("returnSplit")) {
+        CHECK_LOC(MatchedDecl);
+        range = new SourceRange(MatchedDecl->getReturnLoc(), MatchedDecl->getEndLoc());
+    } else if (auto MatchedDecl =
+                   Result.Nodes.getNodeAs<TypedefNameDecl>("typeSplit")) {
+        CHECK_LOC(MatchedDecl);
+        range = new SourceRange(MatchedDecl->getBeginLoc(), MatchedDecl->getEndLoc());
+    } else if (auto MatchedDecl = Result.Nodes.getNodeAs<FieldDecl>("fieldSplit")) {
+        CHECK_LOC(MatchedDecl);
+        range = new SourceRange(MatchedDecl->getBeginLoc(), MatchedDecl->getEndLoc());
+    } else if (auto MatchedDecl = Result.Nodes.getNodeAs<VarDecl>("varSplit")) {
+        CHECK_LOC(MatchedDecl);
+        range = new SourceRange(MatchedDecl->getBeginLoc(), MatchedDecl->getEndLoc());
     }
 
     if (range != nullptr) {
