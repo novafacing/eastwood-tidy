@@ -36,55 +36,58 @@ void Rule3eCheck::check(const MatchFinder::MatchResult &Result) {
 }
 
 void Rule3eCheck::onEndOfTranslationUnit() {
-    std::vector<std::tuple<SourceLocation, std::string>> whitespaces;
+    std::vector<std::tuple<Token, std::string>> whitespaces;
 
     for (size_t i = 0; i < this->tokens.size(); i++) {
         Token tok = this->tokens.at(i);
-        std::string tok_str = *this->tok_string(*this->source_manager, tok);
 
         if (tok.isAtStartOfLine()) {
-            whitespaces.push_back(std::make_tuple(tok.getLocation(), ""));
+            whitespaces.push_back(std::make_tuple(tok, ""));
         }
 
-        if (std::regex_match(*this->tok_string(*this->source_manager, tok),
-                             std::regex("[ \\t\\n\\r]+")) ||
-            // If a comment is multiline, we need to see if it contains any trailing
-            // whitespace
-            (tok.is(tok::comment) &&
-             this->source_manager->getSpellingLineNumber(tok.getLocation()) <
-                 this->source_manager->getSpellingLineNumber(tok.getEndLoc()))
-
-        ) {
-            std::get<1>(whitespaces.back()) += tok_str;
-        }
-
-        // Debug print all whitespaces
-        for (auto &ws : whitespaces) {
-            SourceLocation loc = std::get<0>(ws);
-            std::string str = std::get<1>(ws);
-            this->dout() << this->source_manager->getSpellingLineNumber(loc) << ": "
-                         << str << "\n";
-        }
-
-        for (auto &ws : whitespaces) {
-            SourceLocation loc = std::get<0>(ws);
-            std::string ws_str = std::get<1>(ws);
-            size_t str_loc = 0;
-
-            std::stringstream ss;
-            ss << std::hex << std::setw(2) << std::setfill('0');
-            for (size_t i = 0; i < ws_str.size(); i++) {
-                ss << (unsigned int)ws_str[i] << " ";
+        std::smatch match;
+        for (ssize_t j = i - 1; j > 0; j--) {
+            Token itok = this->tokens.at(j);
+            std::string tok_str = *this->tok_string(*this->source_manager, itok);
+            std::get<0>(whitespaces.back()) = itok;
+            if (std::regex_match(tok_str, std::regex("[ \\t\\n\\r]+")) ||
+                tok.is(tok::comment)) {
+                std::get<1>(whitespaces.back()).insert(0, tok_str);
+            } else if (std::regex_match(tok_str, match,
+                                        std::regex("[^ \\t\\n\\r]+([ \\t\\n\\r]+)"))) {
+                std::get<1>(whitespaces.back()).insert(0, match[0]);
+                break;
+            } else {
+                break;
             }
+        }
+    }
 
-            this->dout() << this->source_manager->getSpellingLineNumber(loc) << ": "
-                         << ss.str() << "\n";
+    // Debug print all whitespaces
 
-            while (ws_str.find(" \n", str_loc) != std::string::npos) {
-                this->dout() << "Got a space/nl at " << str_loc;
-                diag(loc.getLocWithOffset(str_loc), "Trailing whitespace.");
-                str_loc = ws_str.find(" \n", str_loc) + 1;
-            }
+    for (auto &ws : whitespaces) {
+        SourceLocation loc = std::get<0>(ws).getLocation();
+        std::string ws_str = std::get<1>(ws);
+
+        this->dout() << this->source_manager->getSpellingLineNumber(loc) << ": "
+                     << ws_str << "\n";
+
+        size_t str_loc = 0;
+
+        std::stringstream ss;
+        ss << std::hex << std::setw(2) << std::setfill('0');
+
+        for (size_t i = 0; i < ws_str.size(); i++) {
+            ss << (unsigned int)ws_str.at(i) << " ";
+        }
+
+        this->dout() << this->source_manager->getSpellingLineNumber(loc) << ": "
+                     << ss.str() << "\n";
+
+        while ((str_loc = ws_str.find(" \n", str_loc)) != std::string::npos) {
+            this->dout() << "Got a space/nl at " << str_loc;
+            diag(loc.getLocWithOffset(str_loc), "Trailing whitespace.");
+            str_loc += 2;
         }
     }
 }
