@@ -38,57 +38,16 @@ void Rule3eCheck::check(const MatchFinder::MatchResult &Result) {
 void Rule3eCheck::onEndOfTranslationUnit() {
     std::vector<std::tuple<Token, std::string>> whitespaces;
 
+    std::string ws_str;
     for (size_t i = 0; i < this->tokens.size(); i++) {
-        Token tok = this->tokens.at(i);
-
-        if (tok.isAtStartOfLine()) {
-            whitespaces.push_back(std::make_tuple(tok, ""));
-        }
-
-        std::smatch match;
-        for (ssize_t j = i - 1; j > 0; j--) {
-            Token itok = this->tokens.at(j);
-            std::string tok_str = *this->tok_string(*this->source_manager, itok);
-            std::get<0>(whitespaces.back()) = itok;
-            if (std::regex_match(tok_str, std::regex("[ \\t\\n\\r]+")) ||
-                tok.is(tok::comment)) {
-                std::get<1>(whitespaces.back()).insert(0, tok_str);
-            } else if (std::regex_match(tok_str, match,
-                                        std::regex("[^ \\t\\n\\r]+([ \\t\\n\\r]+)"))) {
-                std::get<1>(whitespaces.back()).insert(0, match[0]);
-                break;
-            } else {
-                break;
-            }
-        }
+        ws_str += *this->tok_string(*this->source_manager, this->tokens.at(i));
     }
 
-    // Debug print all whitespaces
-
-    for (auto &ws : whitespaces) {
-        SourceLocation loc = std::get<0>(ws).getLocation();
-        std::string ws_str = std::get<1>(ws);
-
-        this->dout() << this->source_manager->getSpellingLineNumber(loc) << ": "
-                     << ws_str << "\n";
-
-        size_t str_loc = 0;
-
-        std::stringstream ss;
-        ss << std::hex << std::setw(2) << std::setfill('0');
-
-        for (size_t i = 0; i < ws_str.size(); i++) {
-            ss << (unsigned int)ws_str.at(i) << " ";
-        }
-
-        this->dout() << this->source_manager->getSpellingLineNumber(loc) << ": "
-                     << ss.str() << "\n";
-
-        while ((str_loc = ws_str.find(" \n", str_loc)) != std::string::npos) {
-            this->dout() << "Got a space/nl at " << str_loc;
-            diag(loc.getLocWithOffset(str_loc), "Trailing whitespace.");
-            str_loc += 2;
-        }
+    size_t str_loc = 0;
+    SourceLocation loc = this->tokens.at(0).getLocation();
+    while ((str_loc = ws_str.find(" \n", str_loc)) != std::string::npos) {
+        diag(loc.getLocWithOffset(str_loc), "Trailing whitespace.");
+        str_loc += 2;
     }
 }
 } // namespace eastwood
