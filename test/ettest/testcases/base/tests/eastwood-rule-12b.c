@@ -7,16 +7,27 @@
 
 int g_x; // Bad: RAII
 
+int g_y = 0; // OK: RAII
+
+/*
+ * foo
+ */
+
 int foo(void) {
-    int a; // Bad: RAII
-}
+  int a; // Bad: RAII
+} /* foo() */
+
 // Put Something That Fails Here
 // CHECK-MESSAGES: :[[@LINE-1]]:[column goes here]:  Failure Message Goes Here
 
-int g_y = 0;
+
+/*
+ * bar
+ */
 
 int bar(void) {
-    int b = 5;
-}
+  int b = 5; // OK: RAII
+} /* bar() */
+
 // OK: Reason
 // Some code that doesn't fail here

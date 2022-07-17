@@ -44,19 +44,11 @@ def test_define_in_function_72(manager) -> None:
     """
     snippets = [
         # This should be allowed
-        Snippet(
-            [
-                "#define SOMETHING (0)",
-                "  int something = 0;",
-            ]
-        ),
+        Snippet(["\n" "#define SOMETHING (0)\n", "  int something = 0;\n", "\n"]),
         # Make sure we can *only* do this if define is aligned to the left
         Snippet(
-            [
-                "  #define SOMETHING (0)",
-                "  int something = 0;",
-            ],
-            [Error(Rule.IV_A, 0, 3)],
+            ["\n" "  #define SOMETHING (0)\n", "  int something = 0;\n", "\n"],
+            [Error(Rule.III_D, 1, 3)],
         ),
     ]
     for snip in snippets:

@@ -307,7 +307,7 @@ bool ta_calendar_check(teaching_assistant_t);
 
 bool first_name_check(char first_name[]) {
   if (strlen(first_name) == 0) {
-    return false; //empty name string
+    return false;
   }
   return true;
 } /* first_name_check() */

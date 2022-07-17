@@ -14,6 +14,7 @@
 /* CONSTANTs */
 
 #define TA_STRUCT_SIZE (sizeof(teaching_assistant_t))
+
 /* Define your functions here */
 
 /*

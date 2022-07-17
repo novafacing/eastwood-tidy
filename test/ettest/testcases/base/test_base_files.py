@@ -946,7 +946,11 @@ def test_rule_11_a_file(manager) -> None:
     """
     File test cases for rule 11a
     """
-    tests = [FileTest("eastwood-rule-11a.c", [])]
+    tests = [
+        FileTest(
+            "eastwood-rule-11a.c", [Error(Rule.IV_A, 13, 2), Error(Rule.XI_A, 13, 2)]
+        )
+    ]
     for test in tests:
         res = manager.test_file(test)
         assert (
@@ -986,7 +990,17 @@ def test_rule_11_c_file(manager) -> None:
     """
     File test cases for rule 11c
     """
-    tests = [FileTest("eastwood-rule-11c.c", [])]
+    tests = [
+        FileTest(
+            "eastwood-rule-11c.c",
+            [
+                Error(Rule.XI_C, 15, 7),
+                Error(Rule.XI_C, 19, 10),
+                Error(Rule.XI_C, 23, 7),
+                Error(Rule.XI_C, 25, 3),
+            ],
+        )
+    ]
     for test in tests:
         res = manager.test_file(test)
         assert (
@@ -1026,7 +1040,14 @@ def test_rule_11_e_file(manager) -> None:
     """
     File test cases for rule 11e
     """
-    tests = [FileTest("eastwood-rule-11e.c", [])]
+    tests = [
+        FileTest(
+            "eastwood-rule-11e.c",
+            [
+                Error(Rule.XI_E, 12, 3),
+            ],
+        )
+    ]
     for test in tests:
         res = manager.test_file(test)
         assert (
@@ -1046,7 +1067,18 @@ def test_rule_12_a_file(manager) -> None:
     """
     File test cases for rule 12a
     """
-    tests = [FileTest("eastwood-rule-12a.c", [])]
+    tests = [
+        FileTest(
+            "eastwood-rule-12a.c",
+            [
+                Error(Rule.XII_A, 12, 16),
+                Error(Rule.XII_A, 19, 15),
+                Error(Rule.XII_B, 20, 7),
+                Error(Rule.XII_A, 20, 10),
+                Error(Rule.XII_B, 20, 10),
+            ],
+        )
+    ]
     for test in tests:
         res = manager.test_file(test)
         assert (
@@ -1066,7 +1098,15 @@ def test_rule_12_b_file(manager) -> None:
     """
     File test cases for rule 12b
     """
-    tests = [FileTest("eastwood-rule-12b.c", [])]
+    tests = [
+        FileTest(
+            "eastwood-rule-12b.c",
+            [
+                Error(Rule.XII_B, 8, 5),
+                Error(Rule.XII_B, 17, 7),
+            ],
+        )
+    ]
     for test in tests:
         res = manager.test_file(test)
         assert (

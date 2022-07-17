@@ -4,13 +4,17 @@
  * ----------------------------------------------------------------- */
 #include "eastwood-rule-11e.h"
 
-void badgoto() {
-    goto end;
-// CHECK-MESSAGES: :[[@LINE-1]]:5: warning: Use of goto is prohibited.
+/*
+ * badgoto
+ */
 
-end:
-    return;
-}
+void badgoto() {
+  goto end;
+  // CHECK-MESSAGES: :[[@LINE-1]]:5: warning: Use of goto is prohibited.
+
+  end:
+  return;
+} /* badgoto() */
 
 
 // OK: anything without GOTO is gonna work so I'm leaving this blank

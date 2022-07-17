@@ -185,8 +185,6 @@ void Rule11dCheck::check(const MatchFinder::MatchResult &Result) {
 
 void Rule11dCheck::onEndOfTranslationUnit() {
     if (this->dump == "true") {
-        std::ios init(NULL);
-        init.copyfmt(std::cout);
         for (auto ty :
              {"characterLiteral", "floatLiteral", "imaginaryLiteral", "integerLiteral",
               "userDefinedLiteral", "fixedPointLiteral", "compoundLiteral"}) {

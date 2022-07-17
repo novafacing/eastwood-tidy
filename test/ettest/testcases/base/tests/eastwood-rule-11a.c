@@ -4,6 +4,9 @@
  * ----------------------------------------------------------------- */
 #include "eastwood-rule-11a.h"
 
+/*
+ * main
+ */
 
 int main() {
   // Bad: there is a tab here instead of spaces

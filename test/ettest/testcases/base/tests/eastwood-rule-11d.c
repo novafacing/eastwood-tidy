@@ -10,12 +10,12 @@
  */
 
 int foo(void) {
-    int a = 10;
-    int b = a + 100;
-    if (a + b < 135) {
-        return 1;
-    }
-    return 0;
+  int a = 10;
+  int b = a + 100;
+  if (a + b < 135) {
+    return 1;
+  }
+  return 0;
 } /* foo() */
 
 // Put Something That Fails Here

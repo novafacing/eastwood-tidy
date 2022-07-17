@@ -9,14 +9,21 @@
 //===----------------------------------------------------------------------===//
 
 #include "Rule11eCheck.h"
+#include "clang/ASTMatchers/ASTMatchers.h"
 
 using namespace clang::ast_matchers;
 
 namespace clang {
 namespace tidy {
 namespace eastwood {
-void Rule11eCheck::registerMatchers(MatchFinder *Finder) {}
-void Rule11eCheck::check(const MatchFinder::MatchResult &Result) {}
+void Rule11eCheck::registerMatchers(MatchFinder *Finder) {
+    Finder->addMatcher(gotoStmt().bind("goto"), this);
+}
+void Rule11eCheck::check(const MatchFinder::MatchResult &Result) {
+    if (auto MatchedDecl = Result.Nodes.getNodeAs<GotoStmt>("goto")) {
+        diag(MatchedDecl->getBeginLoc(), "Use of goto.");
+    }
+}
 } // namespace eastwood
 } // namespace tidy
 } // namespace clang
