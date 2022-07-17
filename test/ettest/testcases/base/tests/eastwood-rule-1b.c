@@ -1,5 +1,5 @@
 // RUN: %%check_clang_tidy %%s eastwood-rule-1b %%t
-/* --------------------- Test Code Style Section I.B 
+/* --------------------- Test Code Style Section I.B
  * Use descriptive and meaningful names.
  * ----------------------------------------------------------------- */
 #include "eastwood-rule-1b.h"

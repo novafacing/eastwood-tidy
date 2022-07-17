@@ -51,6 +51,7 @@ void Rule5bCheck::registerMatchers(MatchFinder *Finder) {
     Finder->addMatcher(decl().bind("decl"), this);
     Finder->addMatcher(ifStmt().bind("if"), this);
     Finder->addMatcher(switchCase().bind("case"), this);
+    Finder->addMatcher(forStmt().bind("for"), this);
 }
 
 size_t count_newlines(std::string s) {
@@ -73,7 +74,9 @@ void Rule5bCheck::check(const MatchFinder::MatchResult &Result) {
 
         this->alongside_ok_lines.push_back(MatchedDecl->getSourceRange().getEnd());
     } else if (auto MatchedDecl = Result.Nodes.getNodeAs<Decl>("decl")) {
-        if (!this->source_manager->isWrittenInMainFile(MatchedDecl->getEndLoc())) {
+        if (!this->source_manager->isWrittenInMainFile(MatchedDecl->getEndLoc()) ||
+            (MatchedDecl->getKind() != Decl::Kind::Var &&
+             MatchedDecl->getKind() != Decl::Kind::Field)) {
             return;
         }
         this->alongside_ok_lines.push_back(MatchedDecl->getEndLoc());
@@ -94,30 +97,37 @@ void Rule5bCheck::check(const MatchFinder::MatchResult &Result) {
             return;
         }
         this->alongside_ok_lines.push_back(MatchedDecl->getEndLoc());
+    } else if (auto MatchedDecl = Result.Nodes.getNodeAs<ForStmt>("for")) {
+        if (!this->source_manager->isWrittenInMainFile(MatchedDecl->getBeginLoc())) {
+            return;
+        }
+        this->explicit_not_ok_lines.push_back(MatchedDecl->getBeginLoc());
     }
 }
 
 void Rule5bCheck::onEndOfTranslationUnit(void) {
     for (auto token : this->tokens) {
         if (token.getKind() == tok::comment) {
-            this->dout() << "Checking comment on line "
-                         << this->source_manager->getSpellingLineNumber(
-                                token.getLocation())
-                         << std::endl;
+            auto git = this->alongside_ok_lines.begin();
+            auto bit = this->explicit_not_ok_lines.begin();
 
-            auto it = this->alongside_ok_lines.begin();
-
-            for (; it != this->alongside_ok_lines.end(); it++) {
-                this->dout() << "Checking against line "
-                             << this->source_manager->getSpellingLineNumber(*it)
-                             << std::endl;
+            for (; git != this->alongside_ok_lines.end(); git++) {
                 if (this->source_manager->getSpellingLineNumber(token.getLocation()) ==
-                    this->source_manager->getSpellingLineNumber(*it)) {
+                    this->source_manager->getSpellingLineNumber(*git)) {
                     break;
                 }
             }
 
-            if (it == this->alongside_ok_lines.end() && !token.isAtStartOfLine()) {
+            for (; bit != this->explicit_not_ok_lines.end(); bit++) {
+                if (this->source_manager->getSpellingLineNumber(token.getLocation()) ==
+                    this->source_manager->getSpellingLineNumber(*bit)) {
+                    break;
+                }
+            }
+
+            if ((git == this->alongside_ok_lines.end() ||
+                 bit != this->explicit_not_ok_lines.end()) &&
+                !token.isAtStartOfLine()) {
                 this->diag(token.getLocation(),
                            "Comments must appear above code except "
                            "for else, case, #defines, or declarations");

@@ -1,7 +1,7 @@
 // RUN: %%check_clang_tidy %%s eastwood-rule-2b %%t
-/* --------------------- Test Code Style Section II.B 
+/* --------------------- Test Code Style Section II.B
  * Each function should be kept small for modularity purpose. The suggested size
- *  is less than two pages. Exception can be made, if the logic of the function 
+ *  is less than two pages. Exception can be made, if the logic of the function
  * requires its size to be longer than two pages. Common sense needs to be follo
  * wed.
  * ----------------------------------------------------------------- */

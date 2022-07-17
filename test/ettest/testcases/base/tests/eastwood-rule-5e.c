@@ -1,5 +1,5 @@
 // RUN: %%check_clang_tidy %%s eastwood-rule-5e %%t
-/* --------------------- Test Code Style Section V.E 
+/* --------------------- Test Code Style Section V.E
  * Function header comments should have a blank line above and below the comment
  * .
  * ----------------------------------------------------------------- */

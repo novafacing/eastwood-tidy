@@ -1,5 +1,5 @@
 // RUN: %%check_clang_tidy %%s eastwood-rule-10a %%t
-/* --------------------- Test Code Style Section X.A 
+/* --------------------- Test Code Style Section X.A
  * All error messages must be directed to standard error.
  * ----------------------------------------------------------------- */
 #include "eastwood-rule-10a.h"

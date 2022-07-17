@@ -1,5 +1,5 @@
 // RUN: %%check_clang_tidy %%s eastwood-rule-9d %%t
-/* --------------------- Test Code Style Section IX.D 
+/* --------------------- Test Code Style Section IX.D
  * Appropriate range checking must be performed to make sure received parameters
  *  are within expected range.
  * ----------------------------------------------------------------- */

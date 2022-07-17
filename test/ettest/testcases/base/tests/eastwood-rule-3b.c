@@ -1,5 +1,5 @@
 // RUN: %%check_clang_tidy %%s eastwood-rule-3b %%t
-/* --------------------- Test Code Style Section III.B 
+/* --------------------- Test Code Style Section III.B
  * One space must be placed before and after all logical, and  arithmetic operat
  * ors; except for unary and data reference  operators (i.e. [], ., &, *, ->).
  * ----------------------------------------------------------------- */

@@ -1,5 +1,5 @@
 // RUN: %%check_clang_tidy %%s eastwood-rule-4b %%t
-/* --------------------- Test Code Style Section IV.B 
+/* --------------------- Test Code Style Section IV.B
  * Parameters for functions with more than one parameter should be on the same l
  * ine, unless the line length is exceeded. In that case, parameters on the next
  *  line should begin at the same column position as the parameters on the first

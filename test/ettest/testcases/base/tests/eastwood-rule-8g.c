@@ -1,5 +1,5 @@
 // RUN: %%check_clang_tidy %%s eastwood-rule-8g %%t
-/* --------------------- Test Code Style Section VIII.G 
+/* --------------------- Test Code Style Section VIII.G
  * Non-local includes (standard libraries, etc) must be surrounded by < and >. D
  * ouble quotes should only be used for include files that exist in the local di
  * rectory structure.

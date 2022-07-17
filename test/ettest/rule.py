@@ -58,6 +58,10 @@ class Rule(Enum):
         "Define expressions should be grouped, and have a blank line above and below.",
         (3, "d"),
     )
+    III_E = (
+        "No trailing whitespace.",
+        (3, "e"),
+    )
     IV_A = (
         (
             "Two space indentation must be applied to the entire program. Opening "

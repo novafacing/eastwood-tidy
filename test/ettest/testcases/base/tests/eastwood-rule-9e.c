@@ -1,5 +1,5 @@
 // RUN: %%check_clang_tidy %%s eastwood-rule-9e %%t
-/* --------------------- Test Code Style Section IX.E 
+/* --------------------- Test Code Style Section IX.E
  * The appropriately typed symbol should be used to represent 0 and NULL.
  * ----------------------------------------------------------------- */
 #include "eastwood-rule-9e.h"

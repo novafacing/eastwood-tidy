@@ -1,5 +1,5 @@
 // RUN: %%check_clang_tidy %%s eastwood-rule-8c %%t
-/* --------------------- Test Code Style Section VIII.C 
+/* --------------------- Test Code Style Section VIII.C
  * All header files should have #define guards to prevent multiple inclusions. T
  * he format of the symbol name should be _H.
  * ----------------------------------------------------------------- */

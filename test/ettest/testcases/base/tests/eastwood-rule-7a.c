@@ -1,5 +1,5 @@
 // RUN: %%check_clang_tidy %%s eastwood-rule-7a %%t
-/* --------------------- Test Code Style Section VII.A 
+/* --------------------- Test Code Style Section VII.A
  * A header must be placed at the beginning of each function (including the main
  *  program).  A header must contain detailed information, whic describes the pu
  * rpose of the function.  The format is defined below The header comment block 

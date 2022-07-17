@@ -310,7 +310,28 @@ def test_rule_3_e_file(manager) -> None:
     tests = [
         FileTest(
             "eastwood-rule-3e.c",
-            [],
+            [
+                Error(Rule.III_E, 2, 55),
+                Error(Rule.III_E, 11, 13),
+                Error(Rule.III_E, 13, 14),
+                Error(Rule.III_E, 15, 11),
+                Error(Rule.III_E, 17, 16),
+                Error(Rule.III_E, 19, 16),
+                Error(Rule.III_E, 21, 18),
+                Error(Rule.III_E, 23, 19),
+                Error(Rule.III_E, 25, 16),
+                Error(Rule.III_E, 27, 18),
+                Error(Rule.III_E, 29, 52),
+                Error(Rule.III_E, 32, 79),
+                Error(Rule.III_E, 35, 17),
+                Error(Rule.III_E, 37, 19),
+                Error(Rule.III_E, 39, 18),
+                Error(Rule.III_E, 41, 17),
+                Error(Rule.III_E, 43, 10),
+                Error(Rule.III_E, 45, 8),
+                Error(Rule.III_E, 47, 6),
+                Error(Rule.III_E, 49, 4),
+            ],
         )
     ]
     for test in tests:

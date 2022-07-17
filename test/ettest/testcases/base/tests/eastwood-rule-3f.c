@@ -1,5 +1,5 @@
 // RUN: %%check_clang_tidy %%s eastwood-rule-3f %%t
-/* --------------------- Test Code Style Section III.F 
+/* --------------------- Test Code Style Section III.F
  * Never place spaces between function names and the parenthesis preceding the a
  * rgument list.
  * ----------------------------------------------------------------- */

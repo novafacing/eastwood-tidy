@@ -1,5 +1,5 @@
 // RUN: %%check_clang_tidy %%s eastwood-rule-9c %%t
-/* --------------------- Test Code Style Section IX.C 
+/* --------------------- Test Code Style Section IX.C
  * After dynamically deallocating a pointer using free, the pointer must be set 
  * back to NULL.
  * ----------------------------------------------------------------- */

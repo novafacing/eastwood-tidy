@@ -1,5 +1,5 @@
 // RUN: %%check_clang_tidy %%s eastwood-rule-12c %%t
-/* --------------------- Test Code Style Section XII.C 
+/* --------------------- Test Code Style Section XII.C
  * Variables should be placed in as local a scope as possible, as close to the f
  * irst use as possible.
  * ----------------------------------------------------------------- */

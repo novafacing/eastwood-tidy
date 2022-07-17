@@ -1,5 +1,5 @@
 // RUN: %%check_clang_tidy %%s eastwood-rule-5a %%t
-/* --------------------- Test Code Style Section V.A 
+/* --------------------- Test Code Style Section V.A
  * Comment should be meaningful and not repeat the obvious. Comments are intende
  * d to alert people the intention of the code.
  * ----------------------------------------------------------------- */

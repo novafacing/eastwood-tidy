@@ -36,6 +36,7 @@ private:
 
 public:
     std::vector<SourceLocation> alongside_ok_lines;
+    std::vector<SourceLocation> explicit_not_ok_lines;
 
     /* Constructors */
     Rule5bCheck(StringRef Name, ClangTidyContext *Context);

@@ -36,6 +36,10 @@ void Rule3eCheck::check(const MatchFinder::MatchResult &Result) {
 }
 
 void Rule3eCheck::onEndOfTranslationUnit() {
+    if (this->tokens.size() == 0) {
+        return;
+    }
+
     std::vector<std::tuple<Token, std::string>> whitespaces;
 
     std::string ws_str;
