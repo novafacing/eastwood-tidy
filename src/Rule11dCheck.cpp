@@ -210,8 +210,6 @@ void Rule11dCheck::onEndOfTranslationUnit() {
                 }
             }
         }
-
-        std::cout.copyfmt(init);
     }
 }
 

@@ -76,14 +76,24 @@ void Rule3aCheck::check(const MatchFinder::MatchResult &Result) {
                     this->dout() << "Text between else and l_brace: '" << got << "'"
                                  << std::endl;
                     if (else_space_tokens.size() != 1) {
-                        this->diag(els->getBeginLoc(),
-                                   "There must be exactly one token between 'else' and "
-                                   "open brace");
+                        auto errmsg =
+                            diag(els->getBeginLoc(),
+                                 "There must be exactly one token between 'else' and "
+                                 "open brace");
+                        errmsg << FixItHint::CreateReplacement(
+                            SourceRange(this->tokens.at(idx).getEndLoc(),
+                                        this->tokens.at(i).getEndLoc()),
+                            " ");
                     } else if (*this->tok_string(*this->source_manager,
                                                  else_space_tokens.at(0)) != " ") {
-                        this->diag(els->getBeginLoc(),
-                                   "There must be exactly one space between 'else' and "
-                                   "open brace");
+                        auto errmsg =
+                            diag(els->getBeginLoc(),
+                                 "There must be exactly one token between 'else' and "
+                                 "open brace");
+                        errmsg << FixItHint::CreateReplacement(
+                            SourceRange(this->tokens.at(idx).getEndLoc(),
+                                        this->tokens.at(i).getEndLoc()),
+                            " ");
                     }
                     break;
                 }
@@ -148,9 +158,11 @@ void Rule3aCheck::check(const MatchFinder::MatchResult &Result) {
                 }
             }
             if (bad || ws != 1) {
-                diag(*lit, "There must be exactly one space "
-                           "between %0 and open parenthesis.")
-                    << type;
+                auto errmsg = diag(*lit, "There must be exactly one space "
+                                         "between %0 and open parenthesis.")
+                              << type;
+                errmsg << FixItHint::CreateReplacement(
+                    SourceRange(rtok_it->getEndLoc(), *lit), " ");
             }
 
             lit++;
@@ -186,9 +198,11 @@ void Rule3aCheck::check(const MatchFinder::MatchResult &Result) {
             }
 
             if (bad || ws != 1) {
-                diag(*rit, "There must be exactly one space between "
-                           "parenthesis and open brace.")
-                    << type;
+                auto errmsg = diag(*rit, "There must be exactly one space between "
+                                         "parenthesis and open brace.")
+                              << type;
+                errmsg << FixItHint::CreateReplacement(
+                    SourceRange(*rit, rtok_it->getEndLoc()), " ");
             }
 
             rit++;

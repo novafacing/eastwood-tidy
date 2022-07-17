@@ -50,10 +50,10 @@ void Rule2bCheck::check(const MatchFinder::MatchResult &Result) {
         unsigned end_ln = this->source_manager->getSpellingLineNumber(end);
 
         if (end_ln - func_start_line >= MAX_FN_SIZE) {
-            diag(FunctionDefinition->getSourceRange().getBegin(),
-                 "Function %0 is over the maximum function size"
-                 " of %1 lines")
-                << name << MAX_FN_SIZE;
+            auto errmsg = diag(FunctionDefinition->getSourceRange().getBegin(),
+                               "Function %0 is over the maximum function size"
+                               " of %1 lines")
+                          << name << MAX_FN_SIZE;
         }
     } else {
         return;

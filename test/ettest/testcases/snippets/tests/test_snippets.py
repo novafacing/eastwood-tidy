@@ -50,7 +50,7 @@ def test_rule_1_c(manager) -> None:
     """
     snippets = [
         Snippet("", [], "#define ROOM_TEMPERATURE (10)"),
-        Snippet("", [Error(Rule.I_C, 0, 9)], "#define ROOM_TEMPERATURE 10"),
+        Snippet("", [Error(Rule.I_C, 0, 26)], "#define ROOM_TEMPERATURE 10"),
         Snippet("", [Error(Rule.I_C, 0, 9)], "#define room_temperature (10)"),
         Snippet("", [Error(Rule.I_C, 0, 9)], "#define R (10)"),
     ]

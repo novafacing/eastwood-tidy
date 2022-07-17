@@ -42,14 +42,22 @@ void Rule1aCheck::checkName(SourceLocation loc, std::string name, std::string ty
 
     std::regex localRegex{R"([a-z][a-z0-9_]*)"};
     std::smatch results;
+    std::string newname(name.begin(), name.end());
+    std::transform(newname.begin(), newname.end(), newname.begin(), ::tolower);
+    std::replace_if(
+        newname.begin(), newname.end(),
+        [](char c) { return !((c <= 'z' && c >= 'a') || (c <= 'Z' && c >= 'A')); },
+        '_');
 
     if (std::regex_match(name, results, localRegex)) {
         return;
     } else if (name != "") {
         // Error
-        diag(loc, "%0 %1 is not all lowercase"
-                  " and separated by underscores")
-            << type << name;
+        auto errmsg = diag(loc, "%0 %1 is not all lowercase"
+                                " and separated by underscores")
+                      << type << name;
+        errmsg << FixItHint::CreateReplacement(
+            SourceRange(loc, loc.getLocWithOffset(name.length())), newname);
     }
 }
 

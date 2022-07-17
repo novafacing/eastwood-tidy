@@ -69,7 +69,7 @@ def test_rule_1_c_file(manager) -> None:
     tests = [
         FileTest(
             "eastwood-rule-1c.c",
-            [Error(Rule.I_C, 11, 9), Error(Rule.I_C, 12, 9), Error(Rule.I_C, 14, 9)],
+            [Error(Rule.I_C, 11, 26), Error(Rule.I_C, 12, 9), Error(Rule.I_C, 14, 33)],
         )
     ]
     for test in tests:
@@ -119,6 +119,7 @@ def test_rule_2_a_file(manager) -> None:
             [
                 Error(Rule.II_A, 7, 97),
                 Error(Rule.II_A, 24, 91),
+                Error(Rule.II_A, 31, 3),
                 Error(Rule.II_A, 34, 91),
             ],
         )
@@ -167,17 +168,21 @@ def test_rule_3_a_file(manager) -> None:
             "eastwood-rule-3a.c",
             [
                 Error(Rule.III_A, 15, 15),
-                Error(Rule.III_A, 20, 15),
+                Error(Rule.III_A, 20, 10),
+                Error(Rule.III_A, 20, 16),
                 Error(Rule.III_A, 25, 8),
                 Error(Rule.III_A, 29, 30),
-                Error(Rule.III_A, 33, 30),
+                Error(Rule.III_A, 33, 8),
+                Error(Rule.III_A, 33, 31),
                 Error(Rule.III_A, 37, 6),
                 Error(Rule.III_A, 41, 15),
-                Error(Rule.III_A, 45, 15),
+                Error(Rule.III_A, 45, 7),
+                Error(Rule.III_A, 45, 16),
                 Error(Rule.III_A, 49, 5),
                 Error(Rule.III_A, 51, 7),
                 Error(Rule.III_A, 56, 13),
-                Error(Rule.III_A, 62, 13),
+                Error(Rule.III_A, 62, 11),
+                Error(Rule.III_A, 62, 14),
                 Error(Rule.III_A, 68, 9),
             ],
         )

@@ -18,6 +18,7 @@
 #include <sstream>
 #include <vector>
 
+#include "clang/Basic/Diagnostic.h"
 #include "clang/Lex/Lexer.h"
 #include "clang/Lex/Token.h"
 
@@ -439,9 +440,13 @@ void Rule2aCheck::onEndOfTranslationUnit(void) {
                 this->tokens.at(i - 2).getEndLoc());
             this->dout() << "Checking line with end column " << col_num << "\n";
             if (col_num > MAX_LINE_LEN) {
-                this->diag(this->tokens.at(i - 2).getEndLoc(),
-                           "Line length must be less than %0 characters")
-                    << MAX_LINE_LEN;
+                auto errmsg = diag(this->tokens.at(i - 2).getEndLoc(),
+                                   "Line length must be less than %0 characters")
+                              << MAX_LINE_LEN;
+                errmsg << FixItHint::CreateRemoval(
+                    SourceRange(this->tokens.at(i - 2).getEndLoc().getLocWithOffset(
+                                    MAX_LINE_LEN - col_num),
+                                this->tokens.at(i - 2).getEndLoc()));
             }
         }
     }
@@ -572,9 +577,21 @@ void Rule2aCheck::onEndOfTranslationUnit(void) {
                 }
             } else if (breakable) {
                 if (spc_ct(ws) != indent_amount + INDENT_AMOUNT) {
-                    diag(tok.getLocation(), "Incorrect indentation level for broken "
-                                            "line. Expected %0, got %1")
-                        << indent_amount + INDENT_AMOUNT << spc_ct(ws);
+                    auto errmsg = diag(tok.getLocation(),
+                                       "Incorrect indentation level for broken "
+                                       "line. Expected %0, got %1")
+                                  << indent_amount + INDENT_AMOUNT << spc_ct(ws);
+                    if (spc_ct(ws) < indent_amount + INDENT_AMOUNT) {
+                        errmsg << FixItHint::CreateRemoval(SourceRange(
+                            tok.getLocation().getLocWithOffset(
+                                -(indent_amount + INDENT_AMOUNT - spc_ct(ws))),
+                            tok.getLocation()));
+                    } else {
+                        errmsg << FixItHint::CreateInsertion(
+                            tok.getLocation(),
+                            std::string(indent_amount + INDENT_AMOUNT - spc_ct(ws),
+                                        ' '));
+                    }
                 }
             } else if (spc_ct(ws) != indent_amount) {
                 // This error falls under 4.A and is displayed there

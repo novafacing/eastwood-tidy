@@ -47,12 +47,22 @@ public:
         std::regex defineNameRegex{R"([A-Z0-9_][A-Z0-9_]+)"};
         std::smatch results;
         std::string name = this->PP->getSpelling(MacroNameTok);
+        std::string newname(name.begin(), name.end());
+        std::transform(newname.begin(), newname.end(), newname.begin(), ::toupper);
+        std::replace_if(
+            newname.begin(), newname.end(),
+            [](char c) { return !((c <= 'z' && c >= 'a') || (c <= 'Z' && c >= 'A')); },
+            '_');
+
         if (!std::regex_match(name, results, defineNameRegex)) {
-            DiagnosticBuilder Diag = this->Check->diag(
-                MD->getLocation(),
-                "'%0' is not all uppercase, separated by underscores, and "
-                ">= 2 characters in length.");
-            Diag << name;
+            auto errmsg =
+                Check->diag(MacroNameTok.getLocation(),
+                            "'%0' is not all uppercase, separated by underscores, and "
+                            ">= 2 characters in length.")
+                << name;
+            errmsg << FixItHint::CreateReplacement(
+                SourceRange(MacroNameTok.getLocation(), MacroNameTok.getEndLoc()),
+                newname);
         }
 
         if (MD->getMacroInfo()->getNumTokens() == 1) {
@@ -60,10 +70,14 @@ public:
 
             if (tok::isLiteral(start.getKind()) &&
                 !tok::isStringLiteral(start.getKind())) {
-                this->Check->diag(MD->getLocation(),
-                                  "'%0' initializer is non-string constant and not "
-                                  "surrounded by parentheses.")
+                auto errmsg =
+                    Check->diag(start.getLocation(),
+                                "'%0' initializer is non-string constant and not "
+                                "surrounded by parentheses.")
                     << name;
+                errmsg << FixItHint::CreateReplacement(
+                    SourceRange(start.getLocation(), start.getEndLoc()),
+                    "(" + this->PP->getSpelling(start) + ")");
             }
         } else if (MD->getMacroInfo()->getNumTokens() == 3) {
             const Token &start = *(MD->getMacroInfo()->tokens_begin());
@@ -73,16 +87,23 @@ public:
             if (tok::isLiteral(primary.getKind())) {
                 if (tok::isStringLiteral(primary.getKind()) && isLeftSurround(start) &&
                     isRightSurround(end)) {
-                    this->Check->diag(MD->getLocation(),
-                                      "'%0' initializer is string constant and "
-                                      "surrounded by parentheses.")
-                        << name;
+                    auto errmsg = Check->diag(start.getLocation(),
+                                              "'%0' initializer is string constant and "
+                                              "surrounded by parentheses.")
+                                  << name;
+                    errmsg << FixItHint::CreateReplacement(
+                        SourceRange(start.getLocation(), end.getEndLoc()),
+                        this->PP->getSpelling(primary));
                 } else if (!tok::isStringLiteral(primary.getKind()) &&
                            (!isLeftSurround(start) || !isRightSurround(end))) {
-                    this->Check->diag(MD->getLocation(),
-                                      "'%0' initializer is non-string constant and not "
-                                      "surrounded by parentheses.")
+                    auto errmsg =
+                        Check->diag(primary.getLocation(),
+                                    "'%0' initializer is non-string constant and not "
+                                    "surrounded by parentheses.")
                         << name;
+                    errmsg << FixItHint::CreateReplacement(
+                        SourceRange(primary.getLocation(), primary.getEndLoc()),
+                        "(" + this->PP->getSpelling(primary) + ")");
                 }
             }
         }

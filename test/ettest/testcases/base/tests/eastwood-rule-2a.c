@@ -28,7 +28,7 @@ int foo(void) {
   // Bad: The expression does not fit on one line and should be indented by 2
   // on subsequent lines
   node->next->next->next->next->next->next->next->next->next->next->next->next
-    ->next->next = NULL;
+  ->next->next = NULL;
   // Good: The expression does not fit on one line and is indented+2 on
   // subsequent lines
   node->next->next->next->next->next->next->next->next->next->next->next->next->next->next

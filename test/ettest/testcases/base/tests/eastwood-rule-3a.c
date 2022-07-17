@@ -17,7 +17,7 @@ int foo(void) {
   }
 
   // Bad: Must be exactly one space
-  while (((1)))  {
+  while  (((1)))  {
     int a = 10;
   }
 
@@ -30,7 +30,7 @@ int foo(void) {
   }
 
   // Bad: Must be exactly one space
-  for (int i = 0; i < 10; i++)  {
+  for  (int i = 0; i < 10; i++)  {
   }
 
   // Bad: No space after control flow
@@ -42,7 +42,7 @@ int foo(void) {
   }
 
   // Bad: Must be exactly one space
-  if (10 == 10)  {
+  if  (10 == 10)  {
   }
 
   // Bad: No space after control flow
@@ -59,7 +59,7 @@ int foo(void) {
   }
 
   // Bad: Must be exactly one space
-  switch (10)  {
+  switch  (10)  {
     default:
       break;
   }

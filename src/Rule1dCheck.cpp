@@ -40,19 +40,26 @@ void Rule1dCheck::check(const MatchFinder::MatchResult &Result) {
         }
 
         if (!MatchedDecl->getName().startswith("g_")) {
-            diag(MatchedDecl->getLocation(),
-                 "Global variable %0 doesn't conform to global naming scheme.")
-                << MatchedDecl
-                << FixItHint::CreateInsertion(MatchedDecl->getLocation(), "g_");
+            auto errmsg =
+                diag(MatchedDecl->getLocation(),
+                     "Global variable %0 doesn't conform to global naming scheme.")
+                << MatchedDecl;
+
+            errmsg << FixItHint::CreateReplacement(
+                SourceRange(MatchedDecl->getLocation(),
+                            MatchedDecl->getLocation().getLocWithOffset(
+                                MatchedDecl->getName().str().length())),
+                "g_" + MatchedDecl->getName().str());
         }
 
         if (this->first_function_line != -1 &&
             (Result.SourceManager)->getSpellingLineNumber(MatchedDecl->getLocation()) >
                 this->first_function_line) {
-            diag(MatchedDecl->getLocation(), "Global variable %0 must be declared at "
-                                             "the top of the file before any function.")
-                << MatchedDecl->getName()
-                << FixItHint::CreateRemoval(MatchedDecl->getSourceRange());
+            auto errmsg = diag(MatchedDecl->getLocation(),
+                               "Global variable %0 must be declared at "
+                               "the top of the file before any function.")
+                          << MatchedDecl->getName();
+            errmsg << FixItHint::CreateRemoval(MatchedDecl->getSourceRange());
         }
     } else if (auto MatchedDecl = Result.Nodes.getNodeAs<FunctionDecl>("function")) {
         if (!(Result.SourceManager)->isWrittenInMainFile(MatchedDecl->getLocation())) {
