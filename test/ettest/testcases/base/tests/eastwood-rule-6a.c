@@ -2,7 +2,7 @@
 /* --------------------- Test Code Style Section VI.A
  * If multiple logical expressions are used, sub-expressions must be parenthesiz
  * ed. Note the spacing and format below.
- * -------------------------------------------------------------------------- */
+ * ------------------------------------------------------------ */
 #include "eastwood-rule-6a.h"
 
 /*
@@ -23,7 +23,10 @@ int foo(void) {
 
   if (((a + 4) == 14) && 4 == (b + 2)) {
   }
-}
+
+  if (((a + 4) == 14) && (4 == (b + 2))) {
+  }
+} /* foo() */
 
 // Put Something That Fails Here
 // CHECK-MESSAGES: :[[@LINE-1]]:[column goes here]:  Failure Message Goes Here

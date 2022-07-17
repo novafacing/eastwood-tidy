@@ -5,6 +5,24 @@
  * ----------------------------------------------------------------- */
 #include "eastwood-rule-5e.h"
 
+/*
+ * foo
+ */
+void foo() {
+} /* foo() */
+/*
+ * bar
+ */
+
+void bar() {
+} /* bar() */
+
+/*
+ * bar
+ */
+
+void baz() {
+} /* baz() */
 
 // Put Something That Fails Here
 // CHECK-MESSAGES: :[[@LINE-1]]:[column goes here]:  Failure Message Goes Here

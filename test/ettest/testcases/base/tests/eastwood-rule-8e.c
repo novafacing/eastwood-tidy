@@ -18,7 +18,7 @@
  */
 
 int foo(void) {
-    int a = 10;
+  int a = 10;
 } /* foo() */
 
 // Put Something That Fails Here

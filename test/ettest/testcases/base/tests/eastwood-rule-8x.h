@@ -1,4 +1,4 @@
-#ifndef EASTWOOD_RULE_8X
-#define EASTWOOD_RULE_8X
+#ifndef EASTWOOD_RULE_8X_H
+#define EASTWOOD_RULE_8X_H
 
 #endif // EASTWOOD_RULE_8X_H

@@ -538,7 +538,16 @@ def test_rule_5_d_file(manager) -> None:
     """
     File test cases for rule 5d
     """
-    tests = [FileTest("eastwood-rule-5d.c", [])]
+    tests = [
+        FileTest(
+            "eastwood-rule-5d.c",
+            [
+                Error(Rule.V_D, 14, 1),
+                Error(Rule.V_D, 22, 3),
+                Error(Rule.V_D, 30, 4),
+            ],
+        )
+    ]
     for test in tests:
         res = manager.test_file(test)
         assert (
@@ -558,7 +567,15 @@ def test_rule_5_e_file(manager) -> None:
     """
     File test cases for rule 5e
     """
-    tests = [FileTest("eastwood-rule-5e.c", [])]
+    tests = [
+        FileTest(
+            "eastwood-rule-5e.c",
+            [
+                Error(Rule.V_E, 11, 1),
+                Error(Rule.V_E, 13, 1),
+            ],
+        )
+    ]
     for test in tests:
         res = manager.test_file(test)
         assert (
@@ -578,7 +595,16 @@ def test_rule_6_a_file(manager) -> None:
     """
     File test cases for rule 6a
     """
-    tests = [FileTest("eastwood-rule-6a.c", [])]
+    tests = [
+        FileTest(
+            "eastwood-rule-6a.c",
+            [
+                Error(Rule.VI_A, 15, 9),
+                Error(Rule.VI_A, 15, 20),
+                Error(Rule.VI_A, 24, 28),
+            ],
+        )
+    ]
     for test in tests:
         res = manager.test_file(test)
         assert (
@@ -598,7 +624,18 @@ def test_rule_7_a_file(manager) -> None:
     """
     File test cases for rule 7a
     """
-    tests = [FileTest("eastwood-rule-7a.c", [])]
+    tests = [
+        FileTest(
+            "eastwood-rule-7a.c",
+            [
+                # We have to cause these errors to have a missing header comment
+                Error(Rule.V_E, 8, 10),
+                Error(Rule.V_E, 11, 1),
+                Error(Rule.VII_A, 11, 1),
+                Error(Rule.VII_A, 16, 1),
+            ],
+        )
+    ]
     for test in tests:
         res = manager.test_file(test)
         assert (
@@ -618,7 +655,7 @@ def test_rule_8_a_file(manager) -> None:
     """
     File test cases for rule 8a
     """
-    tests = [FileTest("eastwood-rule-8a.c", [])]
+    tests = [FileTest("eastwood-rule-8a.c", [Error(Rule.VIII_A, 6, 1)])]
     for test in tests:
         res = manager.test_file(test)
         assert (
@@ -638,7 +675,15 @@ def test_rule_8_b_file(manager) -> None:
     """
     File test cases for rule 8b
     """
-    tests = [FileTest("eastwood-rule-8b.c", [])]
+    tests = [
+        FileTest(
+            "eastwood-rule-8b.c",
+            [
+                Error(Rule.VIII_B, 6, 1),
+                Error(Rule.VIII_B, 7, 1),
+            ],
+        )
+    ]
     for test in tests:
         res = manager.test_file(test)
         assert (
@@ -658,7 +703,7 @@ def test_rule_8_c_file(manager) -> None:
     """
     File test cases for rule 8c
     """
-    tests = [FileTest("eastwood-rule-8c.c", [])]
+    tests = [FileTest("eastwood-rule-8c.c", [Error(Rule.VIII_C, 6, 1)])]
     for test in tests:
         res = manager.test_file(test)
         assert (
@@ -678,7 +723,11 @@ def test_rule_8_d_file(manager) -> None:
     """
     File test cases for rule 8d
     """
-    tests = [FileTest("eastwood-rule-8d.c", [])]
+    tests = [
+        FileTest(
+            "eastwood-rule-8d.c", [Error(Rule.VIII_D, 6, 1), Error(Rule.VIII_D, 7, 1)]
+        )
+    ]
     for test in tests:
         res = manager.test_file(test)
         assert (
@@ -698,7 +747,17 @@ def test_rule_8_e_file(manager) -> None:
     """
     File test cases for rule 8e
     """
-    tests = [FileTest("eastwood-rule-8e.c", [])]
+    tests = [
+        FileTest(
+            "eastwood-rule-8e.c",
+            [
+                Error(Rule.VIII_E, 9, 1),
+                Error(Rule.VIII_E, 10, 1),
+                Error(Rule.VIII_E, 13, 1),
+                Error(Rule.VIII_E, 14, 1),
+            ],
+        )
+    ]
     for test in tests:
         res = manager.test_file(test)
         assert (
@@ -738,7 +797,16 @@ def test_rule_8_g_file(manager) -> None:
     """
     File test cases for rule 8g
     """
-    tests = [FileTest("eastwood-rule-8g.c", [])]
+    tests = [
+        FileTest(
+            "eastwood-rule-8g.c",
+            [
+                Error(Rule.VIII_C, 8, 1),
+                Error(Rule.VIII_G, 7, 1),
+                Error(Rule.VIII_G, 8, 1),
+            ],
+        )
+    ]
     for test in tests:
         res = manager.test_file(test)
         assert (

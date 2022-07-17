@@ -6,13 +6,24 @@
  * ----------------------------------------------------------------- */
 #include "eastwood-rule-5d.h"
 
+/*
+ * foo
+ */
 
 int foo(void) {
 }
 
+/*
+ * baz
+ */
+
 int baz(void) {
     // Bad: wrong name
 } /* foo() */
+
+/*
+ * boo
+ */
 
 int boo(void) {
     // Bad: too much spacing
@@ -20,6 +31,10 @@ int boo(void) {
 
 // Put Something That Fails Here
 // CHECK-MESSAGES: :[[@LINE-1]]:[column goes here]:  Failure Message Goes Here
+
+/*
+ * bar
+ */
 
 int bar(void) {
 } /* bar() */

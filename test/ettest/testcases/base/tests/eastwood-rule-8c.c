@@ -3,12 +3,12 @@
  * All header files should have #define guards to prevent multiple inclusions. T
  * he format of the symbol name should be _H.
  * ----------------------------------------------------------------- */
-#include "eastwood-rule-8x.h"
+#include "eastwood-rule-8c.h"
 
 #include <stdio.h>
 #include <time.h>
 
-#include "eastwood-rule-8c.h"
+#include "eastwood-rule-8c-h2.h"
 
 // Put Something That Fails Here
 // CHECK-MESSAGES: :[[@LINE-1]]:[column goes here]:  Failure Message Goes Here

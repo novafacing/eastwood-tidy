@@ -15,6 +15,7 @@
 
 #include "clang/AST/ASTContext.h"
 #include "clang/ASTMatchers/ASTMatchFinder.h"
+#include <regex>
 
 namespace clang {
 namespace tidy {
@@ -26,8 +27,7 @@ private:
 
 public:
     /* Constructors */
-    Rule5eCheck(StringRef Name, ClangTidyContext *Context)
-        : ClangTidyCheck(Name, Context), EastwoodTidyCheckBase(Name) {}
+    Rule5eCheck(StringRef Name, ClangTidyContext *Context);
 
     /* Overrides */
     void registerMatchers(ast_matchers::MatchFinder *Finder) override;

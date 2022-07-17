@@ -4,7 +4,7 @@
  * rce directory. UNIX directory shortcuts  (e.g., . and ..) are forbidden.
  * ----------------------------------------------------------------- */
 #include "./eastwood-rule-8d.h"
-#include "../test/eastwood-rule-8x.h"
+#include "../tests/eastwood-rule-8x.h"
 
 
 // Put Something That Fails Here

@@ -1,4 +1,3 @@
-
 //===--- Rule7aCheck.cpp - clang-tidy -------------------------------------===//
 //
 // Part of the LLVM Project, under the Apache License v2.0 with LLVM Exceptions.
@@ -88,40 +87,6 @@ void Rule7aCheck::check(const MatchFinder::MatchResult &Result) {
                 }
                 std::string before_tok_str =
                     *this->tok_string(SM, tokens.at(tokens.size() - 3));
-                if (std::count(before_tok_str.begin(), before_tok_str.end(), '\n') <
-                    2) {
-                    diag(tokens.at(tokens.size() - 2).getLocation(),
-                         "At least one empty line required before function "
-                         "header "
-                         "comment for function " +
-                             fname + ".");
-                }
-
-                if (*this->tok_string(SM, tokens.back()) != "\n\n") {
-                    diag(tokens.back().getEndLoc(),
-                         "Exactly one empty line required after function "
-                         "header "
-                         "comment for function " +
-                             fname + ".");
-                }
-
-                if (!isWhitespace(*SM.getCharacterData(
-                        tokens.at(tokens.size() - 3).getLocation()))) {
-                    diag(tokens.at(tokens.size() - 2).getLocation(),
-                         "At least one empty line required before function "
-                         "header "
-                         "comment for function " +
-                             fname + ".");
-                }
-
-                if (!isWhitespace(*SM.getCharacterData(tokens.back().getLocation()))) {
-                    diag(tokens.back().getEndLoc(),
-                         "Exactly one empty line required after function "
-                         "header "
-                         "comment for function " +
-                             fname + ".");
-                }
-
                 if (tokens.at(tokens.size() - 2).getKind() == tok::comment) {
                     std::string raw_header_comment =
                         *this->tok_string(SM, tokens.at(tokens.size() - 2));
