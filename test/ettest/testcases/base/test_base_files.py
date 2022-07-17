@@ -489,7 +489,16 @@ def test_rule_5_b_file(manager) -> None:
     """
     File test cases for rule 5b
     """
-    tests = [FileTest("eastwood-rule-5b.c", [])]
+    tests = [
+        FileTest(
+            "eastwood-rule-5b.c",
+            [
+                Error(Rule.V_B, 21, 15),
+                Error(Rule.V_B, 24, 33),
+                Error(Rule.V_B, 27, 16),
+            ],
+        )
+    ]
     for test in tests:
         res = manager.test_file(test)
         assert (
