@@ -2,7 +2,7 @@
 /* --------------------- Test Code Style Section V.E 
  * Function header comments should have a blank line above and below the comment
  * .
- * --------------------------------------------------------------------------------- */
+ * ----------------------------------------------------------------- */
 #include "eastwood-rule-5e.h"
 
 

@@ -1,7 +1,7 @@
 // RUN: %%check_clang_tidy %%s eastwood-rule-3c %%t
 /* --------------------- Test Code Style Section III.C 
  * One space must be placed after internal semi-colons and commas. 
- * ------------------------------------------------------------------ */
+ * ----------------------------------------------------------------- */
 #include "eastwood-rule-3c.h"
 #include <stdio.h>
 

@@ -341,7 +341,13 @@ void Rule4aCheck::check(const MatchFinder::MatchResult &Result) {
     if (auto MatchedDecl = Result.Nodes.getNodeAs<FunctionDecl>("functionSplit")) {
         CHECK_LOC(MatchedDecl);
 
-        range = new SourceRange(MatchedDecl->getParametersSourceRange());
+        if (this->source_manager->getSpellingLineNumber(
+                MatchedDecl->getParametersSourceRange().getBegin()) !=
+            this->source_manager->getSpellingLineNumber(
+                MatchedDecl->getParametersSourceRange().getEnd())) {
+            this->param_ranges.push_back(
+                SourceRange(MatchedDecl->getParametersSourceRange()));
+        }
     } else if (auto MatchedDecl = Result.Nodes.getNodeAs<CallExpr>("callSplit")) {
         CHECK_LOC(MatchedDecl);
         range =
@@ -441,6 +447,12 @@ void Rule4aCheck::onEndOfTranslationUnit(void) {
                          this->source_manager->getSpellingLineNumber(b.getBegin());
               });
 
+    std::sort(this->param_ranges.begin(), this->param_ranges.end(),
+              [this](SourceRange a, SourceRange b) {
+                  return this->source_manager->getSpellingLineNumber(a.getBegin()) <
+                         this->source_manager->getSpellingLineNumber(b.getBegin());
+              });
+
     this->broken_ranges.erase(
         std::unique(
             this->broken_ranges.begin(), this->broken_ranges.end(),
@@ -528,7 +540,19 @@ void Rule4aCheck::onEndOfTranslationUnit(void) {
             }
         }
 
-        if (tok.isAtStartOfLine()) {
+        bool is_param_line = false;
+        for (auto r : this->param_ranges) {
+            if (r.fullyContains(SourceRange(tok.getLocation(), tok.getEndLoc())) &&
+                this->source_manager->getSpellingLineNumber(tok.getLocation()) !=
+                    this->source_manager->getSpellingLineNumber(r.getBegin())) {
+                // This token is located inside a broken param range and not on the
+                // first line so we don't need to check its indentation, it will be
+                // checked by 4.B
+                is_param_line = true;
+            }
+        }
+
+        if (tok.isAtStartOfLine() && !is_param_line) {
             if (this->tok_string(*this->source_manager, tok)->rfind("#", 0) == 0) {
                 // This is a preprocessor directive, so it must be on
                 // the left edge. This is checked by rule 3.D
@@ -546,10 +570,6 @@ void Rule4aCheck::onEndOfTranslationUnit(void) {
                     //                         "line. Expected %0, got %1")
                     //     << indent_amount + INDENT_AMOUNT << spc_ct(ws);
                 }
-            } else if (spc_ct(ws) != indent_amount) {
-                diag(tok.getLocation(),
-                     "Incorrect indentation level. Expected %0, got %1")
-                    << indent_amount << spc_ct(ws);
             } else if (tok.getKind() == tok::comment) {
                 if (spc_ct(ws) < indent_amount) {
                     diag(tok.getLocation(), "Incorrect indentation level for comment. "
@@ -558,6 +578,10 @@ void Rule4aCheck::onEndOfTranslationUnit(void) {
                         << std::to_string(indent_amount + 2)
                         << std::to_string(spc_ct(ws));
                 }
+            } else if (spc_ct(ws) != indent_amount) {
+                diag(tok.getLocation(),
+                     "Incorrect indentation level. Expected %0, got %1")
+                    << indent_amount << spc_ct(ws);
             }
         }
     }

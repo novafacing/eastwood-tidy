@@ -3,7 +3,7 @@
  * All relevant include files should be explicitly included. Do not assume that 
  * just because foo.h currently includes bar.h you do not need to explicitly inc
  * lude bar.h.
- * ---------------------------------------------------------------------------------- */
+ * ----------------------------------------------------------------- */
 #include "eastwood-rule-8f.h"
 
 

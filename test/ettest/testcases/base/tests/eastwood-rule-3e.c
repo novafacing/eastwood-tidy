@@ -1,14 +1,14 @@
 // RUN: %%check_clang_tidy %%s eastwood-rule-3e %%t
 /* --------------------- Test Code Style Section III.E 
  * Never put trailing whitespace at the end of a line.
- * -------------------------------------------------------- */
+ * ----------------------------------------------------------------- */
 #include "eastwood-rule-3e.h"
 
 /*
  * main
  */
 
-int main() {
+int main() { 
   // Bad, the next line has a trailing whitespace
   int b = 10; 
   // Bad, the next line has a trailing whitespace

@@ -2,7 +2,7 @@
 /* --------------------- Test Code Style Section I.D 
  * All global variables must be started with prefix 'g_'.Declarations/
  * definitions should be at the top of the file.
- * ------------------------------------------------------------------------- */
+ * ----------------------------------------------------------------- */
 #include "eastwood-rule-1d.h"
 
 

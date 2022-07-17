@@ -26,12 +26,12 @@ private:
 
 public:
     /* Constructors */
-    Rule3eCheck(StringRef Name, ClangTidyContext *Context)
-        : ClangTidyCheck(Name, Context), EastwoodTidyCheckBase(Name) {}
+    Rule3eCheck(StringRef Name, ClangTidyContext *Context);
 
     /* Overrides */
     void registerMatchers(ast_matchers::MatchFinder *Finder) override;
     void check(const ast_matchers::MatchFinder::MatchResult &Result) override;
+    void onEndOfTranslationUnit() override;
 }; // Rule3eCheck
 } // namespace eastwood
 } // namespace tidy

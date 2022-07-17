@@ -2,7 +2,7 @@
 /* --------------------- Test Code Style Section V.A 
  * Comment should be meaningful and not repeat the obvious. Comments are intende
  * d to alert people the intention of the code.
- * --------------------------------------------------------------------------------- */
+ * ----------------------------------------------------------------- */
 #include "eastwood-rule-5a.h"
 
 

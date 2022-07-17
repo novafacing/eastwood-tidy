@@ -2,7 +2,7 @@
 /* --------------------- Test Code Style Section III.B 
  * One space must be placed before and after all logical, and  arithmetic operat
  * ors; except for unary and data reference  operators (i.e. [], ., &, *, ->).
- * ------------------------------------------------------------------------- */
+ * ----------------------------------------------------------------- */
 #include "eastwood-rule-3b.h"
 #include <stdlib.h>
 

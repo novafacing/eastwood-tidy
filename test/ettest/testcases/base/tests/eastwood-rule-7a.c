@@ -4,7 +4,7 @@
  *  program).  A header must contain detailed information, whic describes the pu
  * rpose of the function.  The format is defined below The header comment block 
  * must be at the left edge.
- * ----------------------------------------------------------------------- */
+ * ----------------------------------------------------------------- */
 #include "eastwood-rule-7a.h"
 
 

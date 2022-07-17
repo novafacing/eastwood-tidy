@@ -355,7 +355,7 @@ void Rule2aCheck::check(const MatchFinder::MatchResult &Result) {
     if (auto MatchedDecl = Result.Nodes.getNodeAs<FunctionDecl>("functionSplit")) {
         CHECK_LOC(MatchedDecl);
 
-        range = new SourceRange(MatchedDecl->getParametersSourceRange());
+        // range = new SourceRange(MatchedDecl->getParametersSourceRange());
     } else if (auto MatchedDecl = Result.Nodes.getNodeAs<CallExpr>("callSplit")) {
         CHECK_LOC(MatchedDecl);
         range =

@@ -69,7 +69,7 @@ def test_rule_1_c_file(manager) -> None:
     tests = [
         FileTest(
             "eastwood-rule-1c.c",
-            [Error(Rule.I_C, 12, 9), Error(Rule.I_C, 15, 9), Error(Rule.I_C, 21, 9)],
+            [Error(Rule.I_C, 11, 9), Error(Rule.I_C, 12, 9), Error(Rule.I_C, 14, 9)],
         )
     ]
     for test in tests:
@@ -404,7 +404,11 @@ def test_rule_4_b_file(manager) -> None:
     """
     File test cases for rule 4b
     """
-    tests = [FileTest("eastwood-rule-4b.c", [])]
+    tests = [
+        FileTest(
+            "eastwood-rule-4b.c", [Error(Rule.IV_B, 16, 10), Error(Rule.IV_B, 17, 11)]
+        )
+    ]
     for test in tests:
         res = manager.test_file(test)
         assert (
@@ -424,7 +428,7 @@ def test_rule_4_c_file(manager) -> None:
     """
     File test cases for rule 4c
     """
-    tests = [FileTest("eastwood-rule-4c.c", [])]
+    tests = [FileTest("eastwood-rule-4c.c", [Error(Rule.IV_C, 16, 4)])]
     for test in tests:
         res = manager.test_file(test)
         assert (

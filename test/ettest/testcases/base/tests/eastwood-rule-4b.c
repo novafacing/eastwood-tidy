@@ -5,7 +5,7 @@
  *  line should begin at the same column position as the parameters on the first
  *  line. The example below uses fewer than 80 characters just for demonstration
  *  purposes.
- * -------------------------------------------------------------------------------- */
+ * ----------------------------------------------------------------- */
 #include "eastwood-rule-4b.h"
 
 /*
@@ -16,7 +16,9 @@ int foo(int aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa,
          char * bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb,
           int xxxxxxxxxxxxxxxxxxxxxxxxxxx) {
 
-    /* BAD: Does not have lined-up indentation */
+  /* BAD: Does not have lined-up indentation */
+
+  return 1;
 
 } /* foo() */
 

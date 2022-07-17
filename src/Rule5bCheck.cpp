@@ -14,12 +14,35 @@ using namespace clang::ast_matchers;
 namespace clang {
 namespace tidy {
 namespace eastwood {
+class Rule5bPPCallBack : public PPCallbacks {
+private:
+    Rule5bCheck *Check;
+    const SourceManager &SM;
+
+public:
+    Rule5bPPCallBack(Rule5bCheck *Check, const SourceManager &SM)
+        : Check(Check), SM(SM){};
+
+    void MacroDefined(const Token &MacroNameTok, const MacroDirective *MD) override {
+        SourceLocation Loc = MacroNameTok.getLocation();
+        if (!SM.isWrittenInMainFile(Loc)) {
+            return;
+        }
+        Check->alongside_ok_lines.push_back(Loc);
+    }
+};
+
 Rule5bCheck::Rule5bCheck(StringRef Name, ClangTidyContext *Context)
     : ClangTidyCheck(Name, Context), EastwoodTidyCheckBase(Name),
       debug_enabled(Options.get("debug", "false")) {
     if (this->debug_enabled == "true") {
         this->debug = true;
     }
+}
+
+void Rule5bCheck::registerPPCallbacks(const SourceManager &SM, Preprocessor *PP,
+                                      Preprocessor *ModuleExpanderPP) {
+    PP->addPPCallbacks(std::make_unique<Rule5bPPCallBack>(this, SM));
 }
 
 void Rule5bCheck::registerMatchers(MatchFinder *Finder) {
@@ -44,14 +67,32 @@ void Rule5bCheck::check(const MatchFinder::MatchResult &Result) {
     RELEX();
 
     if (auto MatchedDecl = Result.Nodes.getNodeAs<FunctionDecl>("function")) {
+        if (!this->source_manager->isWrittenInMainFile(MatchedDecl->getLocation())) {
+            return;
+        }
+
         this->alongside_ok_lines.push_back(MatchedDecl->getSourceRange().getEnd());
     } else if (auto MatchedDecl = Result.Nodes.getNodeAs<Decl>("decl")) {
+        if (!this->source_manager->isWrittenInMainFile(MatchedDecl->getEndLoc())) {
+            return;
+        }
         this->alongside_ok_lines.push_back(MatchedDecl->getEndLoc());
     } else if (auto MatchedDecl = Result.Nodes.getNodeAs<IfStmt>("if")) {
+        if (!this->source_manager->isWrittenInMainFile(MatchedDecl->getBeginLoc())) {
+            return;
+        }
+        this->alongside_ok_lines.push_back(MatchedDecl->getBeginLoc());
+
         if (auto els = MatchedDecl->getElse()) {
+            if (!this->source_manager->isWrittenInMainFile(els->getBeginLoc())) {
+                return;
+            }
             this->alongside_ok_lines.push_back(els->getBeginLoc());
         }
     } else if (auto MatchedDecl = Result.Nodes.getNodeAs<SwitchCase>("case")) {
+        if (!this->source_manager->isWrittenInMainFile(MatchedDecl->getEndLoc())) {
+            return;
+        }
         this->alongside_ok_lines.push_back(MatchedDecl->getEndLoc());
     }
 }
@@ -59,17 +100,27 @@ void Rule5bCheck::check(const MatchFinder::MatchResult &Result) {
 void Rule5bCheck::onEndOfTranslationUnit(void) {
     for (auto token : this->tokens) {
         if (token.getKind() == tok::comment) {
+            this->dout() << "Checking comment on line "
+                         << this->source_manager->getSpellingLineNumber(
+                                token.getLocation())
+                         << std::endl;
+
             auto it = this->alongside_ok_lines.begin();
+
             for (; it != this->alongside_ok_lines.end(); it++) {
+                this->dout() << "Checking against line "
+                             << this->source_manager->getSpellingLineNumber(*it)
+                             << std::endl;
                 if (this->source_manager->getSpellingLineNumber(token.getLocation()) ==
                     this->source_manager->getSpellingLineNumber(*it)) {
                     break;
                 }
             }
+
             if (it == this->alongside_ok_lines.end() && !token.isAtStartOfLine()) {
                 this->diag(token.getLocation(),
                            "Comments must appear above code except "
-                           "for else, case, or declarations");
+                           "for else, case, #defines, or declarations");
             }
         }
     }

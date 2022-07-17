@@ -1,7 +1,7 @@
 // RUN: %%check_clang_tidy %%s eastwood-rule-8a %%t
 /* --------------------- Test Code Style Section VIII.A 
  * In general, every .c file should have an associated .h file.
- * ---------------------------------------------------------------- */
+ * ----------------------------------------------------------------- */
 
 // #include "eastwood-rule-8x.h"
 #include <stdio.h

@@ -2,7 +2,7 @@
 /* --------------------- Test Code Style Section IX.D 
  * Appropriate range checking must be performed to make sure received parameters
  *  are within expected range.
- * ---------------------------------------------------------------------------------- */
+ * ----------------------------------------------------------------- */
 #include "eastwood-rule-9d.h"
 
 

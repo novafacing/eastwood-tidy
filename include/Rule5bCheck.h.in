@@ -17,6 +17,10 @@
 #include "clang/AST/RecursiveASTVisitor.h"
 #include "clang/ASTMatchers/ASTMatchFinder.h"
 #include "clang/Lex/Lexer.h"
+#include "clang/Lex/MacroInfo.h"
+#include "clang/Lex/PPCallbacks.h"
+#include "clang/Lex/Pragma.h"
+#include "clang/Lex/Preprocessor.h"
 #include "clang/Lex/Token.h"
 #include <iostream>
 #include <vector>
@@ -25,15 +29,20 @@ namespace clang {
 namespace tidy {
 namespace eastwood {
 class Rule5bCheck : public ClangTidyCheck, public EastwoodTidyCheckBase {
+    friend class Rule5bPPCallBack;
+
 private:
     std::string debug_enabled;
-    std::vector<SourceLocation> alongside_ok_lines;
 
 public:
+    std::vector<SourceLocation> alongside_ok_lines;
+
     /* Constructors */
     Rule5bCheck(StringRef Name, ClangTidyContext *Context);
 
     /* Overrides */
+    void registerPPCallbacks(const SourceManager &SM, Preprocessor *PP,
+                             Preprocessor *ModuleExpanderPP) override;
     void registerMatchers(ast_matchers::MatchFinder *Finder) override;
     void check(const ast_matchers::MatchFinder::MatchResult &Result) override;
     void onEndOfTranslationUnit() override;

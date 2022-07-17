@@ -3,7 +3,7 @@
  * Return values of functions such as malloc, calloc, fopen, fread, fwrite, and 
  * system must be checked or returned whenever a possible error condition exists
  * .
- * -------------------------------------------------------------------------------- */
+ * ----------------------------------------------------------------- */
 #include "eastwood-rule-9a.h"
 
 

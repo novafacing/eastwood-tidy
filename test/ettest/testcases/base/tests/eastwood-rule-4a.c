@@ -7,7 +7,7 @@
  * ter the structure, control, or flow commands. The closing brace must also be 
  * alone on the line. Even if only one statement is to be executed it is necessa
  * ry to use braces.
- * ------------------------------------------------------------------------ */
+ * ----------------------------------------------------------------- */
 #include "eastwood-rule-4a.h"
 
 typedef struct a

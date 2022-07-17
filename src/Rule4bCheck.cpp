@@ -45,7 +45,9 @@ void Rule4bCheck::check(const MatchFinder::MatchResult &Result) {
                     SM.isWrittenInMainFile(Param->getBeginLoc())) {
                     diag(Param->getBeginLoc(),
                          "Line-broken parameter is not aligned with first "
-                         "parameter.");
+                         "parameter. Parameters should be aligned in column %0 (got "
+                         "%1).")
+                        << FirstCol << SM.getSpellingColumnNumber(Param->getBeginLoc());
                 }
             }
         }

@@ -2,7 +2,7 @@
 /* --------------------- Test Code Style Section III.F 
  * Never place spaces between function names and the parenthesis preceding the a
  * rgument list.
- * ----------------------------------------------------------------------------------------------------- */
+ * ----------------------------------------------------------------- */
 #include "eastwood-rule-3f.h"
 
 /* 

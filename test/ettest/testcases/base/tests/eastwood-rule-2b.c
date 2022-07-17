@@ -4,7 +4,7 @@
  *  is less than two pages. Exception can be made, if the logic of the function 
  * requires its size to be longer than two pages. Common sense needs to be follo
  * wed.
- * ----------------------------------------------------------------------- */
+ * ----------------------------------------------------------------- */
 #include "eastwood-rule-2b.h"
 
 

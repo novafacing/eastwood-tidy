@@ -3,7 +3,7 @@
  * Function's name must be commented at the end of each function. The comment sh
  * ould be the name of the function indented one space after the closing brace a
  * nd include left and right parentheses.
- * --------------------------------------------------------------------------- */
+ * ----------------------------------------------------------------- */
 #include "eastwood-rule-5d.h"
 
 

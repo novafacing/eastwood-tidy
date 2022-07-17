@@ -2,7 +2,7 @@
 /* --------------------- Test Code Style Section III.D 
  * #define expressions need to be grouped together and need to be lined up in co
  * lumn 1. They need to have a blank line above and below.
- * -------------------------------------------------------------------- */
+ * ----------------------------------------------------------------- */
 #include "eastwood-rule-3d.h"
 
 #define TOP_OF_FILE_DEF (10)
