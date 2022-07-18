@@ -9,7 +9,7 @@ provided by `LLVM`.
 First, configure the `config.json` file in this directory to point to your built
 `clang-tidy` binary. Since we are out of tree, this is unfortunately, required.
 
-    Next, you will need to run `poetry install` and `poetry shell` to activate the python
+Next, you will need to run `poetry install` and `poetry shell` to activate the python 
 environment for the tests. If you don't have `poetry`, you can install it 
 [`here`](https://python-poetry.org/blog/announcing-poetry-1.2.0a1/).
 
