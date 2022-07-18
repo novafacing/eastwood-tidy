@@ -808,8 +808,8 @@ def test_rule_8_g_file(manager) -> None:
             "eastwood-rule-8g.c",
             [
                 Error(Rule.VIII_C, 8, 1),
-                Error(Rule.VIII_G, 7, 1),
-                Error(Rule.VIII_G, 8, 1),
+                Error(Rule.VIII_G, 7, 10),
+                Error(Rule.VIII_G, 8, 10),
             ],
         )
     ]

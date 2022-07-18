@@ -39,7 +39,7 @@ public:
                             const Module *Imported,
                             SrcMgr::CharacteristicKind FileType) override {
         if (!File) {
-            this->Check->diag(HashLoc, "Header file does not exist.");
+            Check->diag(HashLoc, "Header file does not exist.");
             return;
         }
 
@@ -65,40 +65,37 @@ public:
                 std::regex lastline("^#endif // " + basename + "$");
                 std::smatch results;
                 if (lines.size() < 1) {
-                    this->Check->diag(HashLoc,
-                                      "Header file missing ifndef component of "
-                                      "include guard in header file.");
-                    this->Check->diag(HashLoc,
-                                      "Header file missing define component of "
-                                      "include guard in header file.");
-                    this->Check->diag(HashLoc, "Header file missing endif component "
-                                               "of include guard in header file.");
+                    Check->diag(HashLoc, "Header file missing ifndef component of "
+                                         "include guard in header file.");
+                    Check->diag(HashLoc, "Header file missing define component of "
+                                         "include guard in header file.");
+                    Check->diag(HashLoc, "Header file missing endif component "
+                                         "of include guard in header file.");
 
                 } else {
                     if (not std::regex_match(lines.at(0), results, firstline)) {
-                        this->Check->diag(HashLoc, "Malformed ifndef component of "
-                                                   "include guard in header file.");
+                        Check->diag(HashLoc, "Malformed ifndef component of "
+                                             "include guard in header file.");
                     }
                 }
                 if (lines.size() < 2) {
-                    this->Check->diag(HashLoc,
-                                      "Header file missing define component of "
-                                      "include guard in header file.");
-                    this->Check->diag(HashLoc, "Header file missing endif component "
-                                               "of include guard in header file.");
+                    Check->diag(HashLoc, "Header file missing define component of "
+                                         "include guard in header file.");
+                    Check->diag(HashLoc, "Header file missing endif component "
+                                         "of include guard in header file.");
                 } else {
                     if (not std::regex_match(lines.at(1), results, secondline)) {
-                        this->Check->diag(HashLoc, "Malformed define component of "
-                                                   "include guard in header file.");
+                        Check->diag(HashLoc, "Malformed define component of "
+                                             "include guard in header file.");
                     }
                 }
                 if (lines.size() < 3) {
-                    this->Check->diag(HashLoc, "Header file missing endif component "
-                                               "of include guard in header file.");
+                    Check->diag(HashLoc, "Header file missing endif component "
+                                         "of include guard in header file.");
                 } else {
                     if (not std::regex_match(lines.back(), results, lastline)) {
-                        this->Check->diag(HashLoc, "Malformed endif component of "
-                                                   "include guard in header file.");
+                        Check->diag(HashLoc, "Malformed endif component of "
+                                             "include guard in header file.");
                     }
                 }
             }

@@ -44,8 +44,13 @@ void Rule6aCheck::checkBinaryParens(BinaryOperator *BO, SourceManager &SM,
     } else {
         if (!dyn_cast<ParenExpr>(LHS)) {
             if (auto NL_OP = dyn_cast<BinaryOperator>(LHS->IgnoreParenCasts())) {
-                diag(NL_OP->getOperatorLoc(), "This sub-expression must be "
-                                              "surrounded by parentheses");
+                auto errmsg =
+                    diag(NL_OP->getOperatorLoc(), "This sub-expression must be "
+                                                  "surrounded by parentheses");
+                errmsg << FixItHint::CreateInsertion(
+                    LHS->getBeginLoc().getLocWithOffset(-1), "(");
+                errmsg << FixItHint::CreateInsertion(
+                    LHS->getEndLoc().getLocWithOffset(1), ")");
             }
         }
     }
@@ -57,8 +62,13 @@ void Rule6aCheck::checkBinaryParens(BinaryOperator *BO, SourceManager &SM,
     } else {
         if (!dyn_cast<ParenExpr>(RHS)) {
             if (auto NL_OP = dyn_cast<BinaryOperator>(RHS->IgnoreParenCasts())) {
-                diag(NL_OP->getOperatorLoc(), "This sub-expression must be "
-                                              "surrounded by parentheses");
+                auto errmsg =
+                    diag(NL_OP->getOperatorLoc(), "This sub-expression must be "
+                                                  "surrounded by parentheses");
+                errmsg << FixItHint::CreateInsertion(
+                    RHS->getBeginLoc().getLocWithOffset(-1), "(");
+                errmsg << FixItHint::CreateInsertion(
+                    RHS->getEndLoc().getLocWithOffset(1), ")");
             }
         }
     }

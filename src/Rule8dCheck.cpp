@@ -37,7 +37,7 @@ public:
             auto cd_mm_res(std::mismatch(cdirpath.begin(), cdirpath.end(),
                                          header_file_path.begin()));
             if (pp_mm_res.first == ppath.end() || cd_mm_res.first == cdirpath.end()) {
-                this->Check->diag(HashLoc, "Relative include paths are forbidden");
+                Check->diag(HashLoc, "Relative include paths are forbidden");
             }
         }
     }

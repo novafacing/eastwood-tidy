@@ -128,9 +128,11 @@ void Rule5bCheck::onEndOfTranslationUnit(void) {
             if ((git == this->alongside_ok_lines.end() ||
                  bit != this->explicit_not_ok_lines.end()) &&
                 !token.isAtStartOfLine()) {
-                this->diag(token.getLocation(),
-                           "Comments must appear above code except "
-                           "for else, case, #defines, or declarations");
+                auto errmsg = diag(token.getLocation(),
+                                   "Comments must appear above code except "
+                                   "for else, case, #defines, or declarations");
+                errmsg << FixItHint::CreateRemoval(
+                    SourceRange(token.getLocation(), token.getEndLoc()));
             }
         }
     }

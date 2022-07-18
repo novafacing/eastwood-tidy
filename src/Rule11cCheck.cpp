@@ -26,7 +26,9 @@ public:
             this->count++;
         }
     }
+
     size_t getAssignOpCount(void) { return this->count; }
+
     bool VisitBinaryOperator(const BinaryOperator *binop) {
         if (binop->isAssignmentOp()) {
             this->count++;
@@ -121,9 +123,9 @@ void Rule11cCheck::check(const MatchFinder::MatchResult &Result) {
                             const_cast<ASTContext *>(this->ast_context), s_parent);
                         s_visitor.TraverseStmt(s_parent);
                         if (s_visitor.getAssignOpCount() > 1) {
-                            diag(s_parent->getBeginLoc(),
-                                 "Expression contains more than one "
-                                 "assignment.");
+                            auto errmsg = diag(s_parent->getBeginLoc(),
+                                               "Expression contains more than one "
+                                               "assignment.");
                         }
 
                     } else {
@@ -132,9 +134,9 @@ void Rule11cCheck::check(const MatchFinder::MatchResult &Result) {
                             const_cast<ASTContext *>(this->ast_context), d_parent);
                         d_visitor.TraverseDecl(d_parent);
                         if (d_visitor.getAssignOpCount() > 1) {
-                            diag(d_parent->getLocation(),
-                                 "Expression contains more than one "
-                                 "assignment.");
+                            auto errmsg = diag(d_parent->getLocation(),
+                                               "Expression contains more than one "
+                                               "assignment.");
                         }
                     }
 

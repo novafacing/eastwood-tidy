@@ -58,9 +58,9 @@ public:
                     main_file_name.substr(0, main_file_name.find_last_of("."));
 
                 if (main_file_name != header_file_name) {
-                    this->Check->diag(HashLoc,
-                                      "Corresponding header file include must be first "
-                                      "and have same basename as source file.");
+                    Check->diag(HashLoc,
+                                "Corresponding header file include must be first "
+                                "and have same basename as source file.");
                 }
                 std::string ppath("../");
                 std::string cdirpath("./");

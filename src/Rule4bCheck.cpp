@@ -43,11 +43,23 @@ void Rule4bCheck::check(const MatchFinder::MatchResult &Result) {
                 CurrentLine = SM.getSpellingLineNumber(Param->getBeginLoc());
                 if (SM.getSpellingColumnNumber(Param->getBeginLoc()) != FirstCol &&
                     SM.isWrittenInMainFile(Param->getBeginLoc())) {
-                    diag(Param->getBeginLoc(),
-                         "Line-broken parameter is not aligned with first "
-                         "parameter. Parameters should be aligned in column %0 (got "
-                         "%1).")
-                        << FirstCol << SM.getSpellingColumnNumber(Param->getBeginLoc());
+                    size_t colnum = SM.getSpellingColumnNumber(Param->getBeginLoc());
+                    auto errmsg =
+                        diag(
+                            Param->getBeginLoc(),
+                            "Line-broken parameter is not aligned with first "
+                            "parameter. Parameters should be aligned in column %0 (got "
+                            "%1).")
+                        << FirstCol << colnum;
+                    if (FirstCol < colnum) {
+                        errmsg << FixItHint::CreateRemoval(SourceRange(
+                            Param->getBeginLoc().getLocWithOffset(FirstCol - colnum),
+                            Param->getBeginLoc()));
+
+                    } else {
+                        errmsg << FixItHint::CreateInsertion(
+                            Param->getBeginLoc(), std::string(FirstCol - colnum, ' '));
+                    }
                 }
             }
         }

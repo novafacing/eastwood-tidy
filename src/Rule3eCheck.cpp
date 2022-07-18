@@ -50,7 +50,9 @@ void Rule3eCheck::onEndOfTranslationUnit() {
     size_t str_loc = 0;
     SourceLocation loc = this->tokens.at(0).getLocation();
     while ((str_loc = ws_str.find(" \n", str_loc)) != std::string::npos) {
-        diag(loc.getLocWithOffset(str_loc), "Trailing whitespace.");
+        auto errmsg = diag(loc.getLocWithOffset(str_loc), "Trailing whitespace.");
+        errmsg << FixItHint::CreateRemoval(SourceRange(
+            loc.getLocWithOffset(str_loc), loc.getLocWithOffset(str_loc + 1)));
         str_loc += 2;
     }
 }

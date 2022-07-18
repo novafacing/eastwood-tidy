@@ -8,6 +8,7 @@
 //===----------------------------------------------------------------------===//
 
 #include "Rule8gCheck.h"
+#include "clang/Basic/Diagnostic.h"
 #include <ftw.h>
 #include <iostream>
 #include <sys/stat.h>
@@ -71,8 +72,11 @@ public:
         if (isAngled) {
             for (auto fn : *files) {
                 if (fn == header_file_name) {
-                    this->Check->diag(HashLoc, "Local includes must be included "
-                                               "with \"...\", not angle braces.");
+                    auto errmsg = Check->diag(FilenameRange.getBegin(),
+                                              "Local includes must be included "
+                                              "with \"...\", not angle braces.");
+                    errmsg << FixItHint::CreateReplacement(
+                        FilenameRange, "\"" + header_file_name + "\"");
                 }
             }
         } else {
@@ -82,8 +86,11 @@ public:
                 }
             }
             if (SM.isWrittenInMainFile(HashLoc)) {
-                this->Check->diag(HashLoc, "Non-local include must be included "
-                                           "with <...>, not double quotes.");
+                auto errmsg = Check->diag(FilenameRange.getBegin(),
+                                          "Non-local include must be included "
+                                          "with <...>, not double quotes.");
+                errmsg << FixItHint::CreateReplacement(FilenameRange,
+                                                       "<" + header_file_name + ">");
             }
         }
     }

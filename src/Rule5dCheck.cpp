@@ -8,6 +8,7 @@
 //===----------------------------------------------------------------------===//
 
 #include "Rule5dCheck.h"
+#include "clang/Basic/Diagnostic.h"
 #include <iostream>
 #include <vector>
 
@@ -101,7 +102,10 @@ void Rule5dCheck::check(const MatchFinder::MatchResult &Result) {
                     msg += "\" Expected \"/* ";
                     msg += fname;
                     msg += "() */\".";
-                    diag(tok.getLocation(), msg);
+                    auto errmsg = diag(tok.getLocation(), msg);
+                    errmsg << FixItHint::CreateReplacement(
+                        SourceRange(tok.getLocation(), tok.getEndLoc()),
+                        correct_annotation);
                     return;
                 } else {
                     return;

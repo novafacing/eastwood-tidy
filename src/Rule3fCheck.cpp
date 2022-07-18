@@ -31,51 +31,39 @@ void Rule3fCheck::registerMatchers(MatchFinder *Finder) {
 void Rule3fCheck::check(const MatchFinder::MatchResult &Result) {
     this->acquire_common(Result);
     RELEX();
-    const SourceManager &SM = *Result.SourceManager;
-    const ASTContext *Context = Result.Context;
-
     if (auto MatchedDecl = Result.Nodes.getNodeAs<FunctionDecl>("function_decl")) {
         DeclarationNameInfo NameInfo = MatchedDecl->getNameInfo();
         SourceLocation NameEnd(NameInfo.getEndLoc());
-        std::pair<FileID, unsigned> LocInfo = SM.getDecomposedLoc(NameEnd);
-        SourceLocation StartOfFile = SM.getLocForStartOfFile(SM.getFileID(NameEnd));
-        StringRef File = SM.getBufferData(SM.getFileID(StartOfFile));
-        const char *TokenBegin = File.data() + LocInfo.second;
 
-        Lexer RawLexer(SM.getLocForStartOfFile(LocInfo.first), Context->getLangOpts(),
-                       File.begin(), TokenBegin, File.end());
+        for (size_t i = 0; i < this->tokens.size(); i++) {
+            Token tok = this->tokens.at(i);
 
-        RawLexer.SetKeepWhitespaceMode(true);
-
-        Token tok;
-        while (not RawLexer.LexFromRawLexer(tok)) {
             if (tok.getLocation() == NameInfo.getEndLoc()) {
-                if (RawLexer.LexFromRawLexer(tok)) {
+                if (i >= this->tokens.size()) {
                     return;
                 }
-                if (std::string(SM.getCharacterData(tok.getLocation()),
-                                SM.getCharacterData(tok.getEndLoc())) != "(") {
-                    std::string match(SM.getCharacterData(tok.getLocation()),
-                                      SM.getCharacterData(tok.getEndLoc()));
-                    // std::cout << "Matched offender: |" << match << "|" <<
-                    // std::endl;
-                    if (SM.isWrittenInMainFile(tok.getLocation())) {
-                        diag(tok.getLocation(),
-                             "No space permitted between function name and "
-                             "parameter list.");
-                    }
 
-                } else {
-                    std::string match(SM.getCharacterData(tok.getLocation()),
-                                      SM.getCharacterData(tok.getEndLoc()));
-                    // std::cout << "Matched offender: |" << match << "|" <<
-                    // std::endl;
+                tok = this->tokens.at(i + 1);
+
+                std::string token_str = *this->tok_string(*this->source_manager, tok);
+
+                if (token_str != "(") {
+                    if (this->source_manager->isWrittenInMainFile(tok.getLocation())) {
+                        auto errmsg =
+                            diag(tok.getLocation(),
+                                 "No space permitted between function name and "
+                                 "parameter list.");
+                        errmsg << FixItHint::CreateRemoval(SourceRange(
+                            this->tokens.at(i).getEndLoc(), tok.getEndLoc()));
+                    }
                 }
+
                 return;
             }
         }
     }
 }
+
 } // namespace eastwood
 } // namespace tidy
 } // namespace clang

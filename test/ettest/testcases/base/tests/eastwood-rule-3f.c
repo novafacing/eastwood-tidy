@@ -5,7 +5,7 @@
  * ----------------------------------------------------------------- */
 #include "eastwood-rule-3f.h"
 
-/* 
+/*
  * A function
  */
 
@@ -19,7 +19,7 @@ int foo (void) {
 int baz (int i) {
 } /* baz() */
 
-/* 
+/*
  * A function
  */
 

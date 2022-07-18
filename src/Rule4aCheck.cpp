@@ -183,7 +183,7 @@ void Rule4aCheck::check(const MatchFinder::MatchResult &Result) {
                 MatchedDecl->getBody()->getBeginLoc())) {
             diag(MatchedDecl->getBody()->getBeginLoc(), "Open brace must be located on "
                                                         "same line as for or after "
-                                                        "split contents.");
+                                                        "split condition.");
         }
     } else if (auto MatchedDecl = Result.Nodes.getNodeAs<IfStmt>("if")) {
         CHECK_LOC(MatchedDecl)
@@ -572,16 +572,29 @@ void Rule4aCheck::onEndOfTranslationUnit(void) {
                 }
             } else if (tok.getKind() == tok::comment) {
                 if (spc_ct(ws) < indent_amount) {
-                    diag(tok.getLocation(), "Incorrect indentation level for comment. "
-                                            "Expected at "
-                                            "least %0, got %1")
-                        << std::to_string(indent_amount + 2)
-                        << std::to_string(spc_ct(ws));
+                    auto errmsg = diag(tok.getLocation(),
+                                       "Incorrect indentation level for comment. "
+                                       "Expected at "
+                                       "least %0, got %1")
+                                  << std::to_string(indent_amount)
+                                  << std::to_string(spc_ct(ws));
+                    errmsg << FixItHint::CreateInsertion(
+                        tok.getLocation(),
+                        std::string(indent_amount - spc_ct(ws), ' '));
                 }
             } else if (spc_ct(ws) != indent_amount) {
-                diag(tok.getLocation(),
-                     "Incorrect indentation level. Expected %0, got %1")
-                    << indent_amount << spc_ct(ws);
+                auto errmsg = diag(tok.getLocation(),
+                                   "Incorrect indentation level. Expected %0, got %1")
+                              << indent_amount << spc_ct(ws);
+                if (indent_amount < spc_ct(ws)) {
+                    errmsg << FixItHint::CreateRemoval(SourceRange(
+                        tok.getLocation().getLocWithOffset(indent_amount - spc_ct(ws)),
+                        tok.getLocation()));
+                } else {
+                    errmsg << FixItHint::CreateInsertion(
+                        tok.getLocation(),
+                        std::string(indent_amount - spc_ct(ws), ' '));
+                }
             }
         }
     }

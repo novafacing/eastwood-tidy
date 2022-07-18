@@ -21,7 +21,9 @@ void Rule11eCheck::registerMatchers(MatchFinder *Finder) {
 }
 void Rule11eCheck::check(const MatchFinder::MatchResult &Result) {
     if (auto MatchedDecl = Result.Nodes.getNodeAs<GotoStmt>("goto")) {
-        diag(MatchedDecl->getBeginLoc(), "Use of goto.");
+        auto errmsg = diag(MatchedDecl->getBeginLoc(), "Use of goto.");
+        errmsg << FixItHint::CreateRemoval(
+            SourceRange(MatchedDecl->getBeginLoc(), MatchedDecl->getEndLoc()));
     }
 }
 } // namespace eastwood

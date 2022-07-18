@@ -83,9 +83,14 @@ void Rule11bCheck::check(const MatchFinder::MatchResult &Result) {
                     if (lines >= 2) {
                         if (tq.size() > 0 && tq.at(tq.size() - 1).second == "\r") {
                             // XI.B Unix newline
-                            diag(tq.at(tq.size() - 1).first.getLocation(),
-                                 "Non-Unix newlines are not permitted. "
-                                 "Please run dos2unix on your source file.");
+                            auto errmsg =
+                                diag(tq.at(tq.size() - 1).first.getLocation(),
+                                     "Non-Unix newlines are not permitted. "
+                                     "Please run dos2unix on your source file.");
+                            errmsg << FixItHint::CreateReplacement(
+                                SourceRange(tq.at(tq.size() - 1).first.getLocation(),
+                                            tq.at(tq.size() - 1).first.getEndLoc()),
+                                "\n");
                         } else if (tq.size() > 1 &&
                                    std::regex_match(tq.at(tq.size() - 2).second,
                                                     results, trailing_ws)) {

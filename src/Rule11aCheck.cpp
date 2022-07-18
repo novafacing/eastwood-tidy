@@ -56,8 +56,13 @@ void Rule11aCheck::check(const MatchFinder::MatchResult &Result) {
 
                     for (auto c : ws) {
                         if (c != ' ' && c != '\n') {
-                            diag(this->tokens.at(i).getLocation(),
-                                 "Indentation must consist of spaces only.");
+                            auto errmsg =
+                                diag(this->tokens.at(i).getLocation(),
+                                     "Indentation must consist of spaces only.");
+                            errmsg << FixItHint::CreateReplacement(
+                                SourceRange(this->tokens.at(i - 1).getLocation(),
+                                            this->tokens.at(i).getEndLoc()),
+                                "    ");
                         }
                     }
                 }

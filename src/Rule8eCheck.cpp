@@ -36,9 +36,9 @@ public:
             } else {
                 if (this->Check->incls.size() > 1) {
                     if (not this->Check->incls.back().first && isAngled) {
-                        this->Check->diag(HashLoc,
-                                          "All global includes must preceed any local "
-                                          "include, less the associated header.");
+                        Check->diag(HashLoc,
+                                    "All global includes must preceed any local "
+                                    "include, less the associated header.");
                     }
                     if (this->Check->incls.back().first == isAngled) {
                         // std::cout << "Checking" <<
@@ -47,8 +47,8 @@ public:
                         // (this->Check->incls.back().second >
                         // FileName.str()) << std::endl;
                         if (this->Check->incls.back().second > FileName.str()) {
-                            this->Check->diag(HashLoc, "Includes should be ordered "
-                                                       "lexicographically ascending.");
+                            Check->diag(HashLoc, "Includes should be ordered "
+                                                 "lexicographically ascending.");
                         }
                     }
                 }

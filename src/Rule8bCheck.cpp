@@ -32,8 +32,8 @@ public:
                 std::string file_path(File->getFileEntry().tryGetRealPathName().str());
                 std::string ext(file_path.substr(file_path.find_last_of(".") + 1));
                 if (ext != "h") {
-                    this->Check->diag(HashLoc,
-                                      "All non-global header files must end in '.h'.");
+                    Check->diag(HashLoc,
+                                "All non-global header files must end in '.h'.");
                 }
             }
         }
