@@ -103,7 +103,9 @@ void Rule3bCheck::check(const MatchFinder::MatchResult &Result) {
                                     SM.getCharacterData(tokens.back().getEndLoc())) !=
                             " " &&
                         not tok.isAtStartOfLine()) {
-                        diag(tok.getLocation(), "Leading space required.");
+                        auto errmsg =
+                            diag(tok.getLocation(), "Leading space required.");
+                        errmsg << FixItHint::CreateInsertion(tok.getLocation(), " ");
                     }
 
                     if (SM.isWrittenInMainFile(next.getLocation())) {
@@ -111,7 +113,9 @@ void Rule3bCheck::check(const MatchFinder::MatchResult &Result) {
                                           SM.getCharacterData(next.getEndLoc()));
 
                         if (match != " " && match.find('\n') == std::string::npos) {
-                            diag(tok.getEndLoc(), "Trailing space required.");
+                            auto errmsg =
+                                diag(tok.getEndLoc(), "Trailing space required.");
+                            errmsg << FixItHint::CreateInsertion(tok.getEndLoc(), " ");
                         }
                     }
 

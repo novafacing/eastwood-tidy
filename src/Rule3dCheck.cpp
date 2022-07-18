@@ -8,6 +8,7 @@
 //===----------------------------------------------------------------------===//
 
 #include "Rule3dCheck.h"
+#include "clang/Basic/Diagnostic.h"
 #include <cstring>
 
 using namespace clang::ast_matchers;
@@ -167,9 +168,12 @@ void Rule3dCheck::onEndOfTranslationUnit() {
         std::string raw_tok_data = *this->tok_string(*this->source_manager, tok);
         if (raw_tok_data.rfind("#", 0) == 0 && tok.isAtStartOfLine() &&
             spc_ct(ws) > 0) {
-            diag(tok.getLocation(), "Incorrect indentation level for preprocessor "
-                                    "directive. Expected %0, got %1.")
+            auto errmsg =
+                diag(tok.getLocation(), "Incorrect indentation level for preprocessor "
+                                        "directive. Expected %0, got %1.")
                 << 0 << spc_ct(ws);
+            errmsg << FixItHint::CreateRemoval(SourceRange(
+                tok.getLocation().getLocWithOffset(-spc_ct(ws)), tok.getLocation()));
         }
     }
 

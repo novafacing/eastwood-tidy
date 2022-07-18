@@ -28,54 +28,46 @@ void Rule3cCheck::registerMatchers(MatchFinder *Finder) {
 }
 void Rule3cCheck::check(const MatchFinder::MatchResult &Result) {
     this->acquire_common(Result);
-    const SourceManager &SM = *Result.SourceManager;
-    const ASTContext *Context = Result.Context;
+    RELEX();
+}
 
-    if (auto MatchedDecl = Result.Nodes.getNodeAs<FunctionDecl>("function_decl")) {
-        if (not MatchedDecl->isDefined()) {
-            return;
-        }
-        const FunctionDecl *FunctionDefinition = MatchedDecl->getDefinition();
-        std::string fname = FunctionDefinition->getNameInfo().getName().getAsString();
-        if (FunctionDefinition) {
-            SourceRange FunctionDefinitionRange = FunctionDefinition->getSourceRange();
-            std::pair<FileID, unsigned> LocInfo =
-                SM.getDecomposedLoc(FunctionDefinitionRange.getBegin());
-            SourceLocation StartOfFile = SM.getLocForStartOfFile(
-                SM.getFileID(FunctionDefinitionRange.getBegin()));
-            StringRef File = SM.getBufferData(SM.getFileID(StartOfFile));
-            const char *TokenBegin = File.data();
+void Rule3cCheck::onEndOfTranslationUnit() {
 
-            Lexer RawLexer(SM.getLocForStartOfFile(LocInfo.first),
-                           Context->getLangOpts(), File.begin(), TokenBegin,
-                           File.end());
+    for (size_t i = 0; i < this->tokens.size(); i++) {
+        Token tok = this->tokens.at(i);
 
-            RawLexer.SetKeepWhitespaceMode(true);
+        if (tok.isOneOf(tok::semi, tok::comma) && i + 1 < this->tokens.size()) {
+            size_t j = i + 1;
+            std::vector<Token> ntokens;
+            std::string fullstr;
 
-            if (not this->checked) {
-                Token tok;
-                while (!RawLexer.LexFromRawLexer(tok)) {
-                    if (tok.isOneOf(tok::semi, tok::comma)) {
-                        Token report = tok;
-                        if (!RawLexer.LexFromRawLexer(tok)) {
-                            std::regex trailing_ws{R"([ \t\f\p\v]+\n)"};
-                            std::smatch results;
-                            std::string next_content(
-                                SM.getCharacterData(tok.getLocation()),
-                                SM.getCharacterData(tok.getEndLoc()));
-                            if (std::regex_search(next_content, results, trailing_ws)) {
-                                continue;
-                            }
-                            if (next_content == " " ||
-                                (next_content != "" && next_content[0] == '\n')) {
-                                continue;
-                            }
-                            diag(report.getEndLoc(), "Expected single space.");
-                        }
-                    }
+            for (; j < this->tokens.size(); j++) {
+                std::string ntok_str =
+                    *this->tok_string(*this->source_manager, this->tokens.at(j));
+
+                if (!std::regex_match(ntok_str, std::regex("[ \\t\\n\\r]+")) &&
+                    !this->tokens.at(j).is(tok::comment)) {
+                    break;
                 }
-                this->checked = true;
+
+                ntokens.push_back(this->tokens.at(j));
+                fullstr += ntok_str;
             }
+
+            if (j >= this->tokens.size() || this->tokens.at(j).isAtStartOfLine() ||
+                fullstr == " " || fullstr == "\n") {
+                // It's ok if the semicolon was at the end of the line and some stuff is
+                // after, or if the spacing is correct
+                continue;
+            }
+
+            auto errmsg = diag(tok.getEndLoc(), "Single space required after '%0'.")
+                          << *this->tok_string(*this->source_manager, tok);
+            errmsg << FixItHint::CreateReplacement(
+                SourceRange(tok.getEndLoc(), ntokens.empty()
+                                                 ? tok.getEndLoc()
+                                                 : ntokens.back().getEndLoc()),
+                " ");
         }
     }
 }

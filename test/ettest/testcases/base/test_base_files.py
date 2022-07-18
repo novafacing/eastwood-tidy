@@ -223,6 +223,7 @@ def test_rule_3_b_file(manager) -> None:
                 Error(Rule.III_B, 22, 21),
                 Error(Rule.III_B, 22, 23),
                 Error(Rule.III_B, 24, 18),
+                Error(Rule.III_C, 24, 18),
             ],
         )
     ]
