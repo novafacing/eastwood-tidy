@@ -189,3 +189,4 @@ cython_debug/
 *.app
 
 compile_commands.json
+paper/

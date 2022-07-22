@@ -1,0 +1,86 @@
+every_error.c:1:1: warning: Corresponding header file include must be first and have same basename as source file. [eastwood-Rule8aCheck]
+#include <other.h>
+^
+every_error.c:1:10: warning: Local includes must be included with "...", not angle braces. [eastwood-Rule8gCheck]
+note: this fix will not be applied because it overlaps with another fix
+every_error.c:3:5: warning: Variable declaration without definition is forbidden. [eastwood-Rule12bCheck]
+int globalval;
+    ^
+every_error.c:3:5: warning: Global variable 'globalval' doesn't conform to global naming scheme. [eastwood-Rule1dCheck]
+int globalval;
+    ^~~~~~~~~~
+    g_globalval
+every_error.c:5:9: warning: 'H' is not all uppercase, separated by underscores, and >= 2 characters in length. [eastwood-Rule1cCheck]
+#define H 1
+        ^
+        H
+every_error.c:5:11: warning: 'H' initializer is non-string constant and not surrounded by parentheses. [eastwood-Rule1cCheck]
+#define H 1
+          ^
+          (1)
+every_error.c:7:1: warning: All preprocessor directives outside of a function should be placed at the top of the file after include directives. [eastwood-Rule3dCheck]
+#define goodbye ("goodbye")
+^
+every_error.c:7:9: warning: 'goodbye' is not all uppercase, separated by underscores, and >= 2 characters in length. [eastwood-Rule1cCheck]
+#define goodbye ("goodbye")
+        ^~~~~~~
+        GOODBYE
+every_error.c:7:17: warning: 'goodbye' initializer is string constant and surrounded by parentheses. [eastwood-Rule1cCheck]
+#define goodbye ("goodbye")
+                ^~~~~~~~~~~
+                "goodbye"
+every_error.c:9:1: warning: Malformed function header comment for function foo. [eastwood-Rule7aCheck]
+/* foo */
+^
+every_error.c:11:8: warning: No space permitted between function name and parameter list. [eastwood-Rule3fCheck]
+int foo () {
+       ^~
+every_error.c:12:5: warning: Incorrect indentation level. Expected 2, got 4 [eastwood-Rule4aCheck]
+    int looooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooongline = 0;
+  ~~^~~~
+every_error.c:12:90: warning: Line length must be less than 80 characters [eastwood-Rule2aCheck]
+    int looooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooongline = 0;
+                                                                               ~~~~~~~~~~^
+every_error.c:14:13: warning: There must be exactly one space between parenthesis and open brace. [eastwood-Rule3aCheck]
+  if (a == 5){
+            ^~
+             
+every_error.c:15:6: warning: Leading space required. [eastwood-Rule3bCheck]
+    a+=3;
+     ^
+      
+every_error.c:15:8: warning: Trailing space required. [eastwood-Rule3bCheck]
+    a+=3;
+       ^
+        
+every_error.c:17:18: warning: Single space required after ';'. [eastwood-Rule3cCheck]
+  for (int i = 0;i<a;i++) { 
+                 ^
+                  
+every_error.c:17:19: warning: Leading space required. [eastwood-Rule3bCheck]
+  for (int i = 0;i<a;i++) { 
+                  ^
+                   
+every_error.c:17:20: warning: Trailing space required. [eastwood-Rule3bCheck]
+  for (int i = 0;i<a;i++) { 
+                   ^
+                    
+every_error.c:17:22: warning: Single space required after ';'. [eastwood-Rule3cCheck]
+  for (int i = 0;i<a;i++) { 
+                     ^
+                      
+every_error.c:17:28: warning: Trailing whitespace. [eastwood-Rule3eCheck]
+  for (int i = 0;i<a;i++) { 
+                           ^
+every_error.c:22:3: warning: Use of goto. [eastwood-Rule11eCheck]
+  goto end;
+  ^~~~~~~~
+every_error.c:34:8: warning: Line-broken parameter is not aligned with first parameter. Parameters should be aligned in column 9 (got 8). [eastwood-Rule4bCheck]
+       char *b) {
+       ^
+        
+every_error.c:37:4: warning: While statement in a do-while must be on same line as the closing brace. [eastwood-Rule4cCheck]
+  }
+   ^
+every_error.c:38:27: warning: Comments must appear above code except for else, case, #defines, or declarations [eastwood-Rule5bCheck]
+  while (*(a++) != '\0'); // Bad comment
