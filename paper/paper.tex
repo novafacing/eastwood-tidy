@@ -51,12 +51,10 @@
 \acmDOI{10.1145/1122445.1122456}
 
 %% These commands are for a PROCEEDINGS abstract or paper.
-\acmConference[Woodstock '18]{Woodstock '18: ACM Symposium on Neural
-  Gaze Detection}{June 03--05, 2018}{Woodstock, NY}
-\acmBooktitle{Woodstock '18: ACM Symposium on Neural Gaze Detection,
-  June 03--05, 2018, Woodstock, NY}
-\acmPrice{15.00}
-\acmISBN{978-1-4503-XXXX-X/18/06}
+\acmConference[SIGCSE TS 2023]{SIGCSE 2023 Technical Symposium}{March 2023}{Toronto, Canada}
+\acmBooktitle{SIGCSE 2023 Technical Symposium, March 2023, Toronto, Canada}
+\acmPrice{}
+\acmISBN{}
 \usepackage{listings}
 \usepackage{makecell}
 
@@ -87,7 +85,7 @@
 %%
 %% The "title" command has an optional parameter,
 %% allowing the author to define a "short title" to be used in page headers.
-\title{Automated Code Style Enforcement in C Programming Courses}
+\title{Eastwood: C Linting for Automated Code Style Enforcement in Programming Courses}
 
 %%
 %% The "author" command and its associated commands are used to define
@@ -122,16 +120,30 @@
   \institution{Purdue University}
   \city{West Lafayette}
   \state{Indiana}}
-  \email{bph412@gmail.com}
+\email{bph412@gmail.com}
 
 \author{Connor McMillin}
 \affiliation{%
   \institution{Purdue University}
   \city{West Lafayette}
   \state{Indiana}}
-  \email{mcmillinconnor@gmail.com}
-  
-\author{Dr. Jeffrey A. Turkstra}
+\email{mcmillinconnor@gmail.com}
+
+\author{El Kindi Rezig}
+\affiliation{%
+  \institution{Massachusetts Institute of Technology}
+  \city{Cambridge}
+  \state{Massachusetts}}
+\email{elkindi@mit.edu}
+
+\author{Gustavo Rodriguez-Rivera}
+\affiliation{%
+  \institution{Purdue University}
+  \city{West Lafayette}
+  \state{Indiana}}
+\email{grr@purdue.edu}
+
+\author{Jeffrey A. Turkstra}
 \affiliation{%
   \institution{Purdue University}
   \city{West Lafayette}
@@ -149,17 +161,20 @@
 %% The abstract is a short summary of the work to be presented in the
 %% article.
 \begin{abstract}
-Computer Science students receive significant instruction towards writing functional code.
-Auto grading is effective at scale \cite{doi:10.1080/08993400500150747} for the assessment
-of student code correctness, however whether code is correct does not necessarily imply
-whether code is "good". We propose a standard by which to assess student code style for
-the enforcement of programming habits and a C Linter, \textit{Eastwood}, capable of
-automatically performing this assessment at scale. Our objective is twofold. First, to
-provide a standard of best practices for students to follow while writing code to
-complete assignments. Second, to provide a tool to present students with feedback
-on demand to minimize the common problem of students treating following a code standard
-as an extraneous "busy-work" task instead of an essential part of the software
-develpment process. %TODO: add methods and results
+  Computer Science students receive significant instruction towards writing functioning
+  code that correctly satisfies requirements. Auto-graders have been shown effective at
+  scalably running student code and determining whether the code correctly implements
+  a given assignment or project. However, code functionality is only one component of
+  "good" code, and there are few studies on the correlation between code style and code
+  quality. There are even fewer studies contributing a tool equivalent to auto-graders for
+  code style checking and grading. We put forth two contributions. First, a style guide
+  for the C programming language focused on readability for student programs. Second, an
+  automated linting tool \textit{Eastwood} that provides on-demand style violation and fix
+  feedback for students and automated style grading for course staff. Finally, we survey
+  students and find a positive response to both a code standard and an automated tool to
+  support the standard and make recommendations for the inclusion of both in programming
+  focused courses based on these results.
+  \\
 \end{abstract}
 
 %%
@@ -167,18 +182,18 @@ develpment process. %TODO: add methods and results
 %% Please copy and paste the code instead of the example below.
 %%
 \begin{CCSXML}
-<ccs2012>
-    <concept>
-    <concept_id>10011007.10011006.10011073</concept_id>
-    <concept_desc>Software and its engineering~Software maintenance tools</concept_desc>
-    <concept_significance>500</concept_significance>
-    </concept>
-    <concept>
-    <concept_id>10010405.10010489.10010490</concept_id>
-    <concept_desc>Applied computing~Computer-assisted instruction</concept_desc>
-    <concept_significance>500</concept_significance>
-    </concept>
-</ccs2012>
+  <ccs2012>
+  <concept>
+  <concept_id>10011007.10011006.10011073</concept_id>
+  <concept_desc>Software and its engineering~Software maintenance tools</concept_desc>
+  <concept_significance>500</concept_significance>
+  </concept>
+  <concept>
+  <concept_id>10010405.10010489.10010490</concept_id>
+  <concept_desc>Applied computing~Computer-assisted instruction</concept_desc>
+  <concept_significance>500</concept_significance>
+  </concept>
+  </ccs2012>
 \end{CCSXML}
 
 \ccsdesc[500]{Software and its engineering~Software maintenance tools}
@@ -198,25 +213,24 @@ develpment process. %TODO: add methods and results
 The Computer Science curriculum at the authors' university includes core classes which
 consist, with few exceptions, of courses primarily taught using the C programming
 language. These courses are generally large, up to several hundred students at a time,
-and make liberal use of auto-graders, including custom solutions as well as platforms
-such as Vocareum as class sizes increase, a trend that shows no signs of slowing
-\cite{10.1145/2839509.2844616}. Unlike automated grading for functionality of student
-code, professors implement style standards for student code as they see fit on a
-per-course basis, some with as little as a simple visual check by teaching assistants
-during grading. Some courses do not check student code for style at all. Some courses
-check student code during sessions with Teaching Assistants, but style is not a graded
-component of the course.
+and make liberal use of auto-graders \cite{doi:10.1080/08993400500150747},
+including custom solutions as well as platforms such as Vocareum as class sizes increase,
+a trend that shows no signs of slowing \cite{10.1145/2839509.2844616}. Unlike automated
+grading for functionality of student code, professors implement style standards for
+student code as they see fit on a per-course basis, some with as little as a simple
+visual check by teaching assistants during grading. Some courses do not check student
+code for style at all. Some courses check student code during sessions with Teaching
+Assistants, but style is not a graded component of the course.
 \\
 
 We posit instructing students to write code with proper style by adhering to programming
 best practice guidelines is a critical part of teaching programming. Ample anecdotal
 evidence is available from educators worldwide detailing questionable student choices
 when writing code, a fact often attributable to a lack of formal standard for those
-students to adhere to. Like learning syntax, language features, and algorithms
-programming techniques, learning to program \textit{well}, not simply to write programs
-that pass a set of tests, is critical to the development of quality programmers
-\cite{10.1145/3297156.3297227} and should be taught and evaluated at a commensurate level 
-of rigor.
+students to adhere to. Like learning syntax, language features, and algorithms, learning
+to program \textit{well}, not simply to write programs that pass a set of tests, is
+critical to the development of quality programmers \cite{10.1145/3297156.3297227} and
+should be taught and evaluated at a commensurate level of rigor.
 \\
 
 Producing students with the ability to write clean, safe code in addition to code that
@@ -291,7 +305,7 @@ leads to improved style. This is an important observation, if not a novel one, a
 an observation that we seek to directly leverage by making the style feedback provided
 by humans in Leite and Blanco's work possible via automated checks, which eliminates or
 greatly reduces the need to commit teaching resources to style assistance.
-\\ 
+\\
 
 Outside of educational environments, programming style receives middling attention.
 As previously mentioned, corporations such as Google \cite{GoogleCStyleGuide} and large
@@ -419,7 +433,7 @@ tool can be created using modern techniques, languages, and frameworks. \\
 These checks primarily leverage the Lexer and Matcher functionality of the LLVM libraries
 to locate instances of problem code and report them to the student. This has become a
 critical design decision. Rather than utilize the code standard and \textit{Eastwood}
-linter solely to grade students, all students are provided access to the linter 
+linter solely to grade students, all students are provided access to the linter
 throughout the semester as a binary and trained on its use for self-evaluation.
 The objective is twofold. First, our position is that students will develop good coding
 habits not by returning to their code after writing it and fixing code standard
@@ -565,27 +579,27 @@ is the primary contribution of this work.
 \begin{table*}[t]
   \centering
   \begin{tabular}{cccccl}
-    Strongly Agree & Agree & Neutral & Disagree & Strongly Disagree & Question \\
+    Strongly Agree & Agree  & Neutral & Disagree & Strongly Disagree & Question                                                          \\
     \hline
-    25.9\% & 57.1\% & 11.6\% & 4.1\%  & 1.4\% & The new linter makes it easier to meet the code standard. \\
+    25.9\%         & 57.1\% & 11.6\%  & 4.1\%    & 1.4\%             & The new linter makes it easier to meet the code standard.         \\
     \hline
-    33.3\% & 42.9\% & 15.6\% & 6.1\%  & 2\%   & The new linter saves time meeting the code standard. \\
+    33.3\%         & 42.9\% & 15.6\%  & 6.1\%    & 2\%               & The new linter saves time meeting the code standard.              \\
     \hline
-    23.1\% & 54.4\% & 15.6\% & 4.8\%  & 2\%   & \makecell{The new linter effectively checks whether my code meets \\ the standard.} \\
+    23.1\%         & 54.4\% & 15.6\%  & 4.8\%    & 2\%               & \makecell{The new linter effectively checks whether my code meets \\ the standard.} \\
     \hline
-    33.3\% & 50.3\% & 12.2\% & 2.7\%  & 2.7\% & \makecell{The new linter helps me accurately locate code standard \\ violations in my code.} \\
+    33.3\%         & 50.3\% & 12.2\%  & 2.7\%    & 2.7\%             & \makecell{The new linter helps me accurately locate code standard \\ violations in my code.} \\
     \hline
-    19.7\% & 47.6\% & 28.6\% & 3.4\%  & 0.7\% & The new linter helps improve the quality of my code. \\
+    19.7\%         & 47.6\% & 28.6\%  & 3.4\%    & 0.7\%             & The new linter helps improve the quality of my code.              \\
     \hline
-    8.3\%  & 31\%   & 32.4\% & 22.8\% & 5.5\% & The new linter helps me find bugs in my code. \\
+    8.3\%          & 31\%   & 32.4\%  & 22.8\%   & 5.5\%             & The new linter helps me find bugs in my code.                     \\
     \hline
-    23.1\% & 50.3\% & 17.7\% & 6.8\%  & 2\%   & The new linter helps me make my code more readable. \\
+    23.1\%         & 50.3\% & 17.7\%  & 6.8\%    & 2\%               & The new linter helps me make my code more readable.               \\
     \hline
-    15.8\% & 48.6\% & 19.2\% & 11.6\% & 4.8\% & Following the code standard improves my code quality. \\
+    15.8\%         & 48.6\% & 19.2\%  & 11.6\%   & 4.8\%             & Following the code standard improves my code quality.             \\
     \hline
-    14.4\% & 38.4\% & 24\% & 16.6\% & 6.8\% & \makecell{I will continue to use the...Code Standard in \\ future C programming...} \\
+    14.4\%         & 38.4\% & 24\%    & 16.6\%   & 6.8\%             & \makecell{I will continue to use the...Code Standard in           \\ future C programming...} \\
     \hline
-    21.9\% & 49.3\% & 13.7\% & 5.5\% & 9.6\% & \makecell{I will continue to use some code standard in \\ future C programming...} \\
+    21.9\%         & 49.3\% & 13.7\%  & 5.5\%    & 9.6\%             & \makecell{I will continue to use some code standard in            \\ future C programming...} \\
     \hline
   \end{tabular}
   \caption{Results of Student Survey}
@@ -599,7 +613,7 @@ functionality, students understand the value writing well structured and formatt
 code represents.
 \\
 
-More than 80\% of students reported agreement that \textit{Eastwood} makes 
+More than 80\% of students reported agreement that \textit{Eastwood} makes
 it easier to follow the meet the existing code standard. This means the tool accomplishes
 its primary goal, as the code standard has always been a component of the course grade.
 Likewise, over 75\% of students reported that the linter saves time meeting the code
@@ -613,7 +627,7 @@ standard and linting tool to facilitate.
 \\
 
 The next two questions, whether the linter "effectively checks whether my code meets the
-standard" (77.5\% agreement) and whether the linter "helps me accurately locate code 
+standard" (77.5\% agreement) and whether the linter "helps me accurately locate code
 standard violations..." (83.6\% agreement) sought to understand how \textbf{well}
 \textit{Eastwood} was able to perform its checks. Once again, the highly positive responses
 suggest that the tool works accurately and correctly in helping students meet the set
@@ -632,7 +646,7 @@ goal of \textit{Eastwood} and in fact there are zero rules built into the tool
 that detect the definite presence of a programming error. That even 40\% of students
 agreed with this statement then, is extremely interesting. We suspect that by writing
 better formatted and well-styled code, students were more easily able to \textit{find
-bugs themselves}, a deeper and even more encouraging result than anticipated. This is
+  bugs themselves}, a deeper and even more encouraging result than anticipated. This is
 difficult to quantitatively ascertain, but from anecdotal discussions with students
 we believe this is the case. Finally, nearly 75\% of students felt \textit{Eastwood}
 helped make their code more readable.
@@ -673,11 +687,11 @@ Courses typically have only a few Graduate Teaching Assistants and several Under
 Teaching Assistants. As put forth by Dickson, Dragon, and Lee
 \cite{10.1145/3017680.3017725} it is feasible to delegate grading of code standard
 adherence to Undergraduates, however doing so is not an effective use of time,
-especially when automated grading systems are available and possible. 
+especially when automated grading systems are available and possible.
 
 We put forth \textit{Eastwood}, one such example of an end to end solution that provides
-instant, feedback and suggestions to students. Such a system helps encourage good 
-programming habits that will ideally stay with students as they continue in their 
+instant, feedback and suggestions to students. Such a system helps encourage good
+programming habits that will ideally stay with students as they continue in their
 careers. It also reduces the workload on students and course staff in the software
 development and grading processes, respectively.
 \\
@@ -686,7 +700,7 @@ There is ample future work in this area. Defining code standards is a somewhat
 subjective matter, and implementing automated checks for those standardized
 requirements will provide a continuous engineering challenge. Improved static analysis
 techniques would allow a code standard to check for functionality errors that may not be
-observed by simple output-based automated test systems such as Vocareum employed heavily 
+observed by simple output-based automated test systems such as Vocareum employed heavily
 by university programs. In summation: code style is an exciting opportunity to reinforce
 student skills that are at present largely left by the wayside.
 \\
