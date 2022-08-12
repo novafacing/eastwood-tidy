@@ -213,7 +213,7 @@ cmake --build . -j NN # where NN is the number of cores in your machine + 1
 
 7. Binary will be located at `llvm-project/llvm/build/bin/clang-tidy`
 
-8. If developing for use at Purdue University, the binary can be updated
+8. If developing for use at [REDACTED] University, the binary can be updated
    by using the [update script](scripts/update.sh) which will upload both
    the new binary and the necessary include directories to avoid spurious errors.
 
