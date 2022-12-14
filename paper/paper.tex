@@ -1,0 +1,879 @@
+%%
+%% This is file `sample-sigconf.tex',
+%% generated with the docstrip utility.
+%%
+%% The original source files were:
+%%
+%% samples.dtx  (with options: `sigconf')
+%% 
+%% IMPORTANT NOTICE:
+%% 
+%% For the copyright see the source file.
+%% 
+%% Any modified versions of this file must be renamed
+%% with new filenames distinct from sample-sigconf.tex.
+%% 
+%% For distribution of the original source see the terms
+%% for copying and modification in the file samples.dtx.
+%% 
+%% This generated file may be distributed as long as the
+%% original source files, as listed above, are part of the
+%% same distribution. (The sources need not necessarily be
+%% in the same archive or directory.)
+%%
+%% The first command in your LaTeX source must be the \documentclass command.
+
+% Reviewer comments to fix:
+
+% DONE Remove interpar spacing to add room for more info -- Willfix. 100%, didn't know we could do this.
+% DONE Provide details on difficulty of writing checks (LOC perhaps) -- Willfix.
+% DONE Cite "only a handful mention code style" in 2.1 -- Willfix.
+% DONE Cite missing recent papers on code quality from '22 -- Yup, I ran out of time to go back and cite new papers. Lucky us they let it slide. Willfix.
+% More clearly explain how the linter​ fixes code quality, not just code quality problems in intro -- Willfix.
+% DONE Relabel 'methodology' as 'system design' -- Willfix.
+% DONE Need citation for "increase reliance on automated formatting too early" in 2.4 -- I don't know if there is any research that says this, but I'll try and find some whether positive or negative. maybefix.
+% DONE Number of respondents vs class size is not given in paper -- I'll add the #respondents, I don't know if I have the #enrolled but Jeff likely has this #. Willfix.
+% DONE State how students run the tool -- Willfix.
+% Details on expandability beyond C would be helpful -- Well, it's only expandable to clang languages C/C++/ObjC, but sure! Willfix.
+% "first-time programmers often lack any personal code standard...."  Yes; how could this statement be false? -- Wontfix, I think tautologies are fine.
+
+\documentclass[sigconf]{acmart}
+
+%%%% As of March 2017, [siggraph] is no longer used. Please use sigconf (above) for SIGGRAPH conferences.
+
+%%%% As of May 2020, [sigchi] and [sigchi-a] are no longer used. Please use sigconf (above) for SIGCHI conferences.
+
+%%%% Proceedings format for SIGPLAN conferences 
+% \documentclass[sigplan, anonymous, review]{acmart}
+
+%%%% Proceedings format for conferences using one-column small layout
+% \documentclass[acmsmall,review]{acmart}
+
+%%
+%% \BibTeX command to typeset BibTeX logo in the docs
+\AtBeginDocument{%
+  \providecommand\BibTeX{{%
+    \normalfont B\kern-0.5em{\scshape i\kern-0.25em b}\kern-0.8em\TeX}}}
+
+%% Rights management information.  This information is sent to you
+%% when you complete the rights form.  These commands have SAMPLE
+%% values in them; it is your responsibility as an author to replace
+%% the commands and values with those provided to you when you
+%% complete the rights form.
+% \setcopyright{placeholder copyright}
+% \copyrightyear{placeholder year}
+% \acmYear{placeholder year}
+% \acmDOI{placeholder doi}
+\copyrightyear{2023}
+\acmYear{2023}
+\setcopyright{rightsretained}
+\acmConference[SIGCSE 2023]{Proceedings of the 54th ACM Technical Symposium on Computing Science Education V. 1}{March 15--18, 2023}{Toronto, ON, Canada}
+\acmBooktitle{Proceedings of the 54th ACM Technical Symposium on Computing Science Education V. 1 (SIGCSE 2023), March 15--18, 2023, Toronto, ON, Canada}
+\acmDOI{10.1145/3545945.3569817}
+\acmISBN{978-1-4503-9431-4/23/03}
+
+%% These commands are for a PROCEEDINGS abstract or paper.
+% \acmConference[SIGCSE TS 2023]{SIGCSE 2023 Technical Symposium}{March 2023}{Toronto, Canada}
+% \acmBooktitle{SIGCSE 2023 Technical Symposium, March 2023, Toronto, Canada}
+% \acmPrice{}
+% \acmISBN{}
+\usepackage{listings}
+\usepackage{minted}
+\usepackage{makecell}
+% \lstdefinestyle{base}{
+%   emptylines=0,
+%   breaklines=true,
+%   basicstyle=\ttfamily\color{black},
+%   moredelim=**[is][\color{teal}]{@@}{@@},
+% }
+% \usepackage[dvipsnames,svgnames]{xcolor}
+% \lstset{escapeinside={<@}{@>}}
+% \usepackage[color=white]{todonotes}
+% \newcommand{\todocomment}[1]{\renewcommand{\baselinestretch}{1}\todo[color=green!90,tickmarkheight=6pt]{\small #1}}
+% \newcommand{\todowarn}[1]{\renewcommand{\baselinestretch}{1}\todo[color=yellow!90,tickmarkheight=6pt]{\small #1}}
+% \newcommand{\todoerror}[1]{\renewcommand{\baselinestretch}{1}\todo[color=red!55,tickmarkheight=6pt]{\small #1}}
+\usepackage{enumitem}
+
+% \newcommand{\elkindi}[1]{[\textcolor{blue}{El Kindi says: #1}]}
+
+%%
+%% Submission ID.
+%% Use this when submitting an article to a sponsored event. You'll
+%% receive a unique submission ID from the organizers
+%% of the event, and this ID should be used as the parameter to this command.
+%%\acmSubmissionID{123-A56-BU3}
+
+%%
+%% The majority of ACM publications use numbered citations and
+%% references.  The command \citestyle{authoryear} switches to the
+%% "author year" style.
+%%
+%% If you are preparing content for an event
+%% sponsored by ACM SIGGRAPH, you must use the "author year" style of
+%% citations and references.
+%% Uncommenting
+%% the next command will enable that style.
+%%\citestyle{acmauthoryear}
+
+%%
+%% end of the preamble, start of the body of the document source.
+\begin{document}
+
+%%
+%% The "title" command has an optional parameter,
+%% allowing the author to define a "short title" to be used in page headers.
+\newcommand{\oldtool}{\texttt{Eastwood}}
+\newcommand{\tool}{\texttt{Eastwood-Tidy}}
+
+\title{\tool{}: C Linting for Automated Code Style Assessment in Programming Courses}
+
+
+%%
+%% The "author" command and its associated commands are used to define
+%% the authors and their affiliations.
+%% Of note is the shared affiliation of the first two authors, and the
+%% "authornote" and "authornotemark" commands
+%% used to denote shared contribution to the research.
+%\author{Ben Trovato}
+%\authornote{Both authors contributed equally to this research.}
+%\email{trovato@corporation.com}
+%\orcid{1234-5678-9012}
+%\author{G.K.M. Tobin}
+%\authornotemark[1]
+%\email{webmaster@marysville-ohio.com}
+%\affiliation{%
+%  \institution{Institute for Clarity in Documentation}
+%  \streetaddress{P.O. Box 1212}
+%  \city{Dublin}
+%  \state{Ohio}
+%  \postcode{43017-6221}
+%}
+
+\author{Rowan Hart}
+\affiliation{%
+  \institution{Purdue University}
+  \city{West Lafayette}
+  \state{Indiana}}
+\email{hart111@purdue.edu}
+
+ % TODO: Uncomment when contribution received :)
+ \author{Brian Hays}
+ \affiliation{%
+   \institution{Purdue University}
+   \city{West Lafayette}
+   \state{Indiana}}
+ \email{bph412@gmail.com}
+
+% Thanks Connor :)
+\author{Connor McMillin}
+\affiliation{%
+  \institution{Purdue University}
+  \city{West Lafayette}
+  \state{Indiana}}
+\email{mcmillinconnor@gmail.com}
+
+ % TODO: Uncomment when contribution received :)
+ \author{El Kindi Rezig}
+ \affiliation{%
+   \institution{Massachusetts Institute of Technology}
+   \city{Cambridge}
+   \state{Massachusetts}}
+ \email{elkindi@mit.edu}
+
+\author{Gustavo Rodriguez-Rivera}
+\affiliation{%
+  \institution{Purdue University}
+  \city{West Lafayette}
+  \state{Indiana}}
+\email{grr@purdue.edu}
+
+\author{Jeffrey A. Turkstra}
+\affiliation{%
+  \institution{Purdue University}
+  \city{West Lafayette}
+  \state{Indiana}}
+\email{jeff@purdue.edu}
+%% \author{Author 1}
+%% \affiliation{%
+%%   \institution{Institution}
+%%   \city{City}
+%%   \state{State}}
+%% \email{placeholder@email}
+%% 
+%%  % TODO: Uncomment when contribution received :)
+%% \author{Author 2}
+%% \affiliation{%
+%%   \institution{Institution}
+%%   \city{City}
+%%   \state{State}}
+%% \email{placeholder@email}
+%% 
+%% % Thanks Connor :)
+%% \author{Author 3}
+%% \affiliation{%
+%%   \institution{Institution}
+%%   \city{City}
+%%   \state{State}}
+%% \email{placeholder@email}
+%% 
+%%  % TODO: Uncomment when contribution received :)
+%% \author{Author 4}
+%% \affiliation{%
+%%   \institution{Institution}
+%%   \city{City}
+%%   \state{State}}
+%% \email{placeholder@email}
+%% 
+%% \author{Author 5}
+%% \affiliation{%
+%%   \institution{Institution}
+%%   \city{City}
+%%   \state{State}}
+%% \email{placeholder@email}
+%% 
+%% \author{Author 6}
+%% \affiliation{%
+%%   \institution{Institution}
+%%  \city{City}
+%%   \state{State}}
+%% \email{placeholder@email}
+%%
+%% By default, the full list of authors will be used in the page
+%% headers. Often, this list is too long, and will overlap
+%% other information printed in the page headers. This command allows
+%% the author to define a more concise list
+%% of authors' names for this purpose.
+% \renewcommand{\shortauthors}{Hart and Turkstra, et. al.}
+\renewcommand{\shortauthors}{Hart and Turkstra, et. al.}
+
+
+% Submitted Abstract: Computer Science students receive significant instruction towards writing functioning code that correctly satisfies requirements. Auto-graders have been shown effective at scalably running student code and determining whether the code correctly implements a given assignment or project. However, code functionality is only one component of "good" code, and there are few studies on the correlation between code style and code quality. There are even fewer studies contributing a tool equivalent to auto-graders for code style checking and grading. We put forth two contributions. First, a style guide for the C programming language focused on readability for student programs. Second, an automated linting tool Eastwood-Tidy which provides on-demand style violation and fix feedback for students and automated style grading for course staff. Finally, we survey students and find a positive response to both a code standard and an automated tool to support the standard and make recommendations for the inclusion of both in programming focused courses based on these results.
+
+%%
+%% The abstract is a short summary of the work to be presented in the
+%% article.
+\begin{abstract}
+Computer Science students receive significant instruction towards writing functioning
+code that correctly satisfies requirements. Auto-graders have been shown effective at
+scalably running student code and determining whether the code correctly implements
+a given assignment or project. However, code functionality is only one component of
+``good'' code, and there are few studies on the correlation between code style and code
+quality. There are even fewer studies contributing a tool equivalent to auto-graders for
+code style checking and grading. We put forth two contributions. First, a style guide
+for the C programming language focused on readability for student programs. Second, an
+automated linting tool \tool{} providing on-demand style violation and fix
+feedback for students and automated style grading for course staff. Finally, we survey
+students and find a positive response to both a code standard and an automated tool to
+support the standard and make recommendations for the inclusion of both in programming
+focused courses based on these results.
+\\
+
+\end{abstract}
+
+%%
+%% The code below is generated by the tool at http://dl.acm.org/ccs.cfm.
+%% Please copy and paste the code instead of the example below.
+%%
+\begin{CCSXML}
+  <ccs2012>
+  <concept>
+  <concept_id>10011007.10011006.10011073</concept_id>
+  <concept_desc>Software and its engineering~Software maintenance tools</concept_desc>
+  <concept_significance>500</concept_significance>
+  </concept>
+  <concept>
+  <concept_id>10010405.10010489.10010490</concept_id>
+  <concept_desc>Applied computing~Computer-assisted instruction</concept_desc>
+  <concept_significance>500</concept_significance>
+  </concept>
+  </ccs2012>
+\end{CCSXML}
+
+\ccsdesc[500]{Software and its engineering~Software maintenance tools}
+\ccsdesc[500]{Applied computing~Computer-assisted instruction}
+
+%%
+%% Keywords. The author(s) should pick words that accurately describe
+%% the work being presented. Separate the keywords with commas.
+\keywords{Code style, Linting, C Language, Computer Science education, Automated assessment tools, Automated feedback}
+
+%%
+%% This command processes the author and affiliation and title
+%% information and builds the first part of the formatted document.
+\maketitle
+\vfill\null
+\columnbreak
+
+\section{Introduction}
+The C programming language is the second most popular programming language according to the
+TIOBE popularity index \cite{tiobe}. C is
+primarily used in operating systems, embedded systems, and performance-critical applications. Due to this and the language's simplicity, it is often taught in foundational or introductory programming courses at major universities. These courses can often be large, with enrollments approaching one thousand students.
+The scale of these courses is almost always enabled by using auto-graders \cite{doi:10.1080/08993400500150747}, both custom solutions and commercial 
+platforms such as Vocareum \cite{vocareum}. As class sizes further increase---a trend that shows no signs of slowing \cite{10.1145/2839509.2844616}---these auto-graders 
+become continually more helpful, if not necessary. In addition to grading for functionality, courses often implement style standards for code. \tool{} and the included code standard provides one
+proposed and tested approach to address this additional, and often overlooked, challenge.
+% \\
+
+Ensuring that students write code that adheres to some consistent style is a critical part of teaching students to create quality code. The computer science field is rife with stories involving ``spaghetti code'' and other descriptive terms for difficult to read and comprehend code. Such poor quality code is often attributable to a lack of formal education and experience as well as a lack of exposure to code style standards. Similar to learning syntax, language features, and algorithms, learning
+to write code \textit{well} is
+critical to the development of good programmers \cite{10.1145/3297156.3297227} and
+should be emphasized and evaluated at a commensurate level of rigor.
+% \\
+
+Fostering students' ability to write clean, safe code in addition to code that
+meets functional requirements prepares them for professional team-oriented programming.
+Industry and open source giants such as Google \cite{GoogleCStyleGuide},
+LLVM \cite{LLVMStyleGuide}, and Gnome \cite{GnomeStyleGuide} implement style guides for
+programming and expect employees or contributors to adhere to them. It is prudent
+to instruct and evaluate students similarly to prepare them to make positive,
+usable contributions in their careers through readable and functioning code. \tool{}, and the associated
+coding standard, provide one approach appropriate for new C programmers. The tooling specifically aids in evaluating the presented standard across large classes.
+
+\section{Related Works}
+
+\subsection{Auto-Graders}
+
+Prior work in automated grading and course scaling is widely available,
+with automated systems and auto-graders filling sessions at \textit{SIGCSE} frequently
+in the last decade. Commercially available grading systems such as Gradescope
+and Vocareum have pushed functionality assessment toward scalability. In
+\cite{10.1145/1930464.1930480}, Ihantola et.
+al. created an overview of recent advancements and developments in automatic
+grading of Computer Science coursework. This overview
+details advancements in learning management, including automatic testing of code
+functionality across languages and disciplines. However, this overview shows the
+distinct lack of tools specifically targeted at analyzing code style, only mentioning
+style once by Ala-Mutka \cite{doi:10.1080/08993400500150747}, who describes
+traditional linting tools such as Lint and advanced tools such as Checkstyle.
+Critically, Ala-Mutka connects programming style to ``reliability, functionality, and
+maintainability'' \cite{doi:10.1080/08993400500150747}. Of auto-grading and automation
+papers put forth in SIGCSE in the past
+half decade, only a handful (\cite{birillo_hyperstyle_2022}, \cite{groeneveld_are_2022}, \cite{wiese_readable_2022}, \cite{crichton_automating_2021}, and \cite{leite_effects_2020}) mention coding style and only \textit{Hyperstyle} \cite{birillo_hyperstyle_2022} presents a method for scalable style analysis, but focuses on using existing industry tools with pre-configured defaults instead of custom style requirements on a per-course basis.
+
+\subsection{Compiler Messages}
+
+Compiler messaging is deeply related to coding style. Compilers, as the primary static
+analysis tool in use today, have become adept at providing messages related to
+uninitialized variables, improper boolean operations, etc. LLVM-based compilers
+such as clang \cite{Clang} have made pioneering strides toward simplifying error messages to enable
+programmers to solve complex issues quickly using static analysis \cite{ClangStaticChecks}. The GNU Compiler Collection \cite{GCC} has also begun initiatives towards
+improving messaging---implementing Fix-It hints \cite{GCCFixItHints} that point to specific code locations and
+provide suggested fixes in addition to the error, warning, or note. Some fixes these systems provide can even be applied
+automatically, reducing programmer burden significantly and streamlining debugging.
+Research has been conducted into the effectiveness of improved, human-readable compiler
+errors with mixed \cite{10.1145/3017680.3017768} to positive results
+\cite{10.1145/2839509.2844584} measured in increased student performance by Pettit et al.
+and Becker, respectively. Becker points out that ``students often have little experience
+to draw on, leaving compiler error messages as their primary guidance on error
+correction''. This is doubly true in large courses where office hours may be crowded,
+reducing the availability of personalized assistance.
+
+\subsection{Style Analysis}
+
+Despite the small quantity of recent code-style-focused research, an effort has been put
+into analyzing code style. Particularly with higher-level languages \cite{pylint}. 
+Moghadam et al. put forth a system for analyzing code style; however, in their work, they ``refer
+not to mechanical coding conventions (indentation, punctuation, naming of variables, and
+so on), but to the effective use of programming idioms'' \cite{10.1145/2724660.2728672}.
+This concept is not entirely unrelated to conventional style, as idiomatic programming
+in C, particularly, is linked to a convention, especially regarding to macro and pointer
+use. Leite and Blanco present a comparison of human feedback as compared to automatic
+feedback \cite{10.1145/3328778.3366921}, however their automated system does not deliver
+syntactic feedback, only functionality-related feedback, while their human feedback
+included syntax-related comments. They uncovered marginal improvement in the coding style of
+students who received style feedback.  A more comprehensive, on-demand method of delivering
+this feedback style may improve results over manual human delivery. This is an important
+observation, if not a novel one,
+and automation of style feedback similar to feedback provided
+by humans in Leite and Blanco's work eliminates or
+dramatically reduces the need to commit teaching resources to style assistance. Automating this
+feedback also ensures students always have up-to-date information on the current state of their code as they work.
+% \\
+
+Outside of educational environments, programming style receives significant attention.
+As previously mentioned, corporations such as Google \cite{GoogleCStyleGuide} and large
+open source projects commonly provide and strictly enforce style guides. Google also
+maintains a tool called \texttt{cpplint} \cite{cpplint} that automatically checks code
+for conformance to their style guide. This tool is a precursor to the set of checks
+Google provides for Clang-Tidy, and is, in fact very similar to
+\oldtool{} in implementing a custom parser. Also similarly to \oldtool{} and \tool{},
+\texttt{cpplint} does not automatically fix code; it simply outputs errors. The motivation for
+this decision for \tool{} is covered in greater depth in the
+Section \ref{sec:systemdesign}.
+% \\
+
+Yang et al. \cite{10.1145/3297156.3297227} provide a method for using static Abstract Syntax Tree (AST) based methods
+for analyzing programming style using a rule set. They focus on Java; however, the
+methodology is exceedingly similar to the AST traversals
+\tool{} uses to analyze code.
+In addition, Yang et al. provide studies of running their analyzer on large open source
+projects with striking results, uncovering hundreds of style violations. They recommend
+future work into developing analyzers for source code and instituting code style
+training for developers, future work which \tool{} addresses. In particular, 
+the AST of programs is leveraged to disallow multiple assignments, require
+separating complex logical expressions, and check indentation of multi-line expressions.
+
+\subsection{Formatters}
+
+Numerous existing tools are designed to automatically format code, beginning from the
+Unix \texttt{indent} utility and evolving into modern solutions such as Clang-Tidy
+checks that automatically fix style and functionality violations as they check code. 
+\texttt{Clang-Format} \cite{ClangFormat} is widely used for the C language, and is even integrated into most
+Integrated Development Environments such as Visual Studio Code. Most popular languages
+provide an automatic formatter, with varying degrees of configurability. Some, such as the
+famous  \texttt{Black} \cite{Black} formatter for Python, provide almost no user configurability
+by design. Using automated formatting instead of an error reporting system may increase student
+reliance on automated formatting too early in their curriculum. Baniassad et al. 
+ \cite{baniassad_stop_2021} 
+studied this effect with respect to auto-graders, with inconclusive results. Removing student access to the 
+grader increases student engagement in testing at the cost of stress, a tradeoff that makes less sense 
+for style testing than for functionality testing. Instead, guiding students toward
+careful consideration and manual formatting of their code while providing feedback when they have 
+successfully done so requires students to pay manual attention to their style habits without causing panic.
+
+\section{History}
+
+
+\tool{} and its associated code standard (see Standard \ref{itm:codestandard}) is the result of several iterations
+of development to support a curriculum-required C programming course. Instructors of the course introduced
+this code standard and a grading policy change to add a small (15\%) weight per assignment for code
+style. It has two benefits. First, students have an opportunity for every assignment to  guarantee some
+points simply by writing properly formatted code following best practices. Second, a standard
+helps students form good programming habits that benefit them far beyond a single course. The first
+iteration of \oldtool{} was written in BASH and used complex regular expressions to check a small
+subset of the code standard. This script worked well on correctly formatted code, but could not
+quickly diagnose issues with incorrectly formatted code, which comprises the majority of code requiring
+accurate error reporting. This shortcoming is primarily due to the inherent
+inability of regular expressions to process context, precisely the context of a C program.
+% \\
+
+A second iteration, called \oldtool{}, was built using \texttt{Bison} and \texttt{Flex}. \oldtool{} used an extended
+C99 grammar to parse code submissions as code rather than text. An actual parser enabled
+checking variable naming conventions, forbidden statements,
+a grouping of logical expressions, and more. Enhanced error reporting allowed students
+to use \oldtool{} on-demand while completing assignments, eased conforming to the code standard, and enabled
+a faster grading process. Despite the success of \oldtool{}, students and teaching
+assistants observed several critical issues with the platform. Because it was built using a Flex and Bison-based parser for the ANSI C11 standard, the tool could not
+run on many external libraries. Especially libraries employing GNU
+extensions to the C language, such as GTK and Cairo, are used in projects in introductory C courses and later
+courses employing the C language at the authors’ institution. In addition,
+the structure of \oldtool{} as a parser with no attached type or preprocessor
+system meant it experienced intermittent failures to resolve types and resorted to heuristics.
+Rather than add the necessary functionality to the current system, developers attempted to identify platforms with more extensive feature sets that would meet the requirements.
+% \\
+
+After considering several options, leveraging the LLVM framework
+became the clear path forward. Each code standard rule was converted into a Clang-Tidy \cite{ClangTidyChecks}
+check, and the previously tedious tasks of lexing, parsing and AST analysis were nearly entirely handed off to
+existing LLVM functionality. The wealth of features provided by the LLVM Project via Clang-Tidy facilitated
+re-implementation by a single developer and allowed the creation of a more flexible tool that
+could feasibly be modified and extended to accomplish the goals of not only C
+programming courses, but C++ and Objective-C programming courses. In addition, the LLVM code provided interfaces to analyze a program’s AST deeply. This feature was
+leveraged to combine style analysis with functionality checks to provide a more
+holistic evaluation of a student's grasp of the language and solution to a problem. For example, neither
+\oldtool{} nor the original BASH script could check whether a \texttt{FILE} pointer is \texttt{fclose}'d
+after use, but this deep check is possible using LLVM.
+
+\section{System Design}\label{sec:systemdesign}
+
+\tool{} assesses a coding standard that is used in programming courses at our university utilizing the C language---particularly the Introductory C Programming and Systems Programming courses. The code standard was 
+inspired by the Google C++ Style Guide \cite{cpplint} with more concrete requirements
+around spacing and indentation. The code standard draws heavily from
+the Linux Kernel code standard \cite{LinuxCodingStandard}, for C language-specific rules, especially for comment formatting, function size, naming, and spacing.  It also adds several defensive programming requirements that should become
+habitual, such as \texttt{NULL}-ing \texttt{free}'d pointers.
+% \todowarn{Insert statements from Jeff about the development and contribution of the code standard here. I don't know much about its origin/inspiration/anything it was based on}.
+% \\
+
+% \subsection{Overview}
+The tool is run from the command line by issuing a simple \texttt{linter ./myfile.c} command either on a
+University machine (where \tool{} is provided in the system PATH by default, or using a downloaded binary.
+For each section and subsection, an instructional assistant implemented a Clang-Tidy check that verifies
+whether a student's code meets a particular part of the standard. If a violation is detected,
+\tool{} warns of the type of violation, the line and column location it occurs, and in
+many cases, suggests a change to fix the violation.  The output includes an arrow
+indicating the exact source location or source range containing the error. Listing \ref{lst:example} shows an example of C source with the associated output (edited for brevity). Each of these checks is implemented in a single
+C++ source file with corresponding header file and are implemented in approximately seven thousand
+lines of C++ total. The check for rule 6.A for example, that ensures each set of logical comparisons is surrounded by parentheses, consists of a 95 line C++ source and 45 line header. Indentation checks are the largest, around 700 lines. Despite the complexity of LLVM and Clang-Tidy frameworks, this is a comparatively small undertaking
+as compared to creating a full C language preprocessor, parser, and static analysis system. The software is also architected to allow other educators to modify and extend the system to implement their 
+standards. For example, each check \tool{} implements can be toggled individually. Many parameters such
+as indentation amount (which is set to 2 spaces by default) can be modified by changing
+definitions when building without any additional code.
+% \\
+
+% \subsection{Automated Fixes}
+Automatic fixes are also supported. The Clang-Tidy framework can apply fixes based on suggestions implemented in \tool{} for a majority of code standard violations. These automatic fixes are disabled by default to bring the
+students into the code formatting and style process. A format would be applied automatically in a specific industry or academic software development setting.
+
+Requiring students to fix their errors manually helps them internalize a standard while creating more straightforward code for themselves
+and instructional staff to read, understand, and debug. However,
+any educator wishing to adopt \tool{} could enable automated fixes, allowing their students to apply fixes and conform to the course coding standard mostly automatically. 
+% \\
+
+% \lstinputlisting[float=*, label={lst:outputexample}, frame=single, style=base, caption={\tool{} output example}, captionpos=b]{eastwood-example.txt}
+
+\begin{listing*}[!ht]
+\begin{minipage}[]{0.35\linewidth}
+\begin{minted}[frame=lines,framesep=2mm,fontsize=\small,linenos]{c}
+#include "x.h"
+#include <other.h>
+#define H 1
+#define T ("bad")
+int badglobal;
+
+int add_values (int first_value,
+       int second_value) {
+  first_value = second_value + first_value;
+    return first_value;
+} // add values
+
+int main() {
+  int value = add_values(1, 2);
+  if (value == 1) {
+    return 1447;
+  }
+  value++;
+  return value;
+}
+\end{minted}
+\vspace{1.5cm}
+\end{minipage}
+\hfill
+\begin{minipage}[]{0.60\linewidth}
+\begin{minted}[frame=lines,framesep=2mm,fontsize=\footnotesize,breaklines]{text}
+x.c:3:11: warning: 'H' initializer is non-string constant and not surrounded by parentheses. [eastwood-Rule1cCheck]
+#define H 1
+          ^
+          (1)
+x.c:5:5: warning: Variable declaration without definition is forbidden. [eastwood-Rule12bCheck]
+int badglobal;
+    ^
+x.c:5:5: warning: Global variable 'badglobal' doesn't conform to global naming scheme. [eastwood-Rule1dCheck]
+int badglobal;
+    ^~~~~~~~~~
+    g_badglobal
+x.c:7:1: warning: Missing header comment for function add_values. [eastwood-Rule7aCheck]
+int add_values (int first_value,
+^
+x.c:7:15: warning: No space permitted between function name and parameter list. [eastwood-Rule3fCheck]
+int add_values (int first_value,
+              ^~
+x.c:11:3: warning: End of function comment is malformed. Got "// add values" Expected "/* add_values() */". [eastwood-Rule5dCheck]
+} // add values
+  ^~~~~~~~~~~~~
+  /* add_values() */
+x.c:16:12: note: embedded constant of type 'integerLiteral'. [eastwood-Rule11dCheck]
+    return 1447;
+           ^
+\end{minted}
+\end{minipage}
+\caption{Example of a C program and a partial snippet of output generated by \tool{}}
+\label{lst:example}
+\end{listing*}
+
+
+The default checks can be divided into two categories: syn-
+tactic checks and usage checks. Syntactic checks involve purely
+appearance-related properties of code, such as whether binary operators are surrounded by spaces, whether functions have descriptive
+header comments, or line and function length. Usage checks are a
+level deeper, determining factors such as whether all variables are
+initialized when declared, checking all null values
+are appropriately typed, or determining whether an expression
+contains multiple assignment sub-expressions. Generally, syntactic
+checks utilize the concept of  \textit{Matchers} to locate specific nodes in the
+program AST to perform checks. For example, the check ensuring
+all binary operators have a space preceding and following the operator first matches all binary operators, then uses the clang lexer to
+obtain tokens around the operator. Usage checks also leverage  \textit{Matchers} but tend not to use the clang lexer directly, preferring to
+utilize structural checks and AST visitors to check assertions about
+the code. E.g., every variable declaration is checked to ensure that
+the declaration is also a definition to enforce the critical idea ``Resource Allocation Is Initialization.''
+% \\
+
+These default checks closely reflect the specific code standard in use for
+these C programming courses; however, many are easily adaptable to a slightly different
+standard, and the framework for creating these rules serves as a model for how such a
+tool can be created using modern techniques, languages, and frameworks. These checks primarily leverage the Lexer and Matcher functionality of the LLVM libraries
+to locate instances of problem code and report them to the student, which has become a
+critical design decision. \tool{} is used to grade students' submissions. It is also
+provided to students to self-check their code while completing programming
+assignments.
+The objective is twofold. First, to ensure students develop good coding
+habits, not by returning to their code after writing it and fixing code standard
+mistakes, but by continuously writing quality code from the beginning. Second, to provide a format encouraging
+clean, readable, and functional code. By providing a tool to check most of the standard automatically, adherence to this standard becomes less tedious and more
+habitual.
+
+
+
+% \todowarn{insert some details about how code standard grading works and how \tool{} is integrated into that process. This is best written by Jeff}
+
+\section{Metrics and Results}
+
+Students were asked to voluntarily complete two anonymous surveys (see Table \ref{tab:surveyresults}) to gauge student sentiment concerning the helpfulness of 
+the code standard and \tool{}. These surveys were conducted at the beginning and end of the Spring
+2021 offering of an introductory C programming course. As a first-year course, enrollment is high at nearly 500 students. The surveys
+collected students' responses about the code standard
+used in the course and \tool{}. Specifically, the survey
+sought to determine students' takeaways about two factors. First,
+whether they felt using the code standard and linting tool
+caused them to write better, more readable code with fewer bugs.
+Second, whether they positively reacted to the requirement to follow a coding standard and intended to continue to follow some
+personal standard in the future. For tool development reasons, the
+end-of-semester survey also asked about the difference between
+\tool{} and \oldtool{}. There were 186 responses to the survey.
+% \\
+
+\begin{table*}[t]
+  \centering
+  \begin{tabular}{cccccl}
+    Strongly Agree & Agree  & Neutral & Disagree & Strongly Disagree & Question                                                          \\
+    \hline
+    25.9\%         & 57.1\% & 11.6\%  & 4.1\%    & 1.4\%             & The new linter makes it easier to meet the code standard.         \\
+    \hline
+    33.3\%         & 42.9\% & 15.6\%  & 6.1\%    & 2\%               & The new linter saves time meeting the code standard.              \\
+    \hline
+    23.1\%         & 54.4\% & 15.6\%  & 4.8\%    & 2\%               & \makecell{The new linter effectively checks whether my code meets \\ the standard.} \\
+    \hline
+    33.3\%         & 50.3\% & 12.2\%  & 2.7\%    & 2.7\%             & \makecell{The new linter helps me accurately locate code standard \\ violations in my code.} \\
+    \hline
+    19.7\%         & 47.6\% & 28.6\%  & 3.4\%    & 0.7\%             & The new linter helps improve the quality of my code. \\
+    \hline
+    8.3\%          & 31\%   & 32.4\%  & 22.8\%   & 5.5\%             & The new linter helps me find bugs in my code. \\
+    \hline
+    23.1\%         & 50.3\% & 17.7\%  & 6.8\%    & 2\%               & The new linter helps me make my code more readable. \\
+    \hline
+    15.8\%         & 48.6\% & 19.2\%  & 11.6\%   & 4.8\%             & Following the code standard improves my code quality. \\
+    \hline
+    14.4\%         & 38.4\% & 24\%    & 16.6\%   & 6.8\%             & \makecell{I will continue to use the...Code Standard in \\ future C programming...} \\
+    \hline
+    21.9\%         & 49.3\% & 13.7\%  & 5.5\%    & 9.6\%             & \makecell{I will continue to use some code standard in \\ future C programming...} \\
+    \hline
+  \end{tabular}
+  \caption{Results of Student Survey}
+  \label{tab:surveyresults}
+\end{table*}
+
+As demonstrated by the results (see Table \ref{tab:surveyresults}) of the student survey regarding the linting tool and code
+standard, student opinion is generally very positive. This indicates that despite
+the fact that requiring adherence to a standard could be perceived as ``busy work'' or not
+a direct contribution to writing code that earns a good score for
+functionality, students understand the value in writing well-structured and formatted
+code.
+% \\
+
+More than 80\% of students reported agreement that \tool{} makes
+it easier to adhere to the existing code standard. This means the tool accomplishes
+its primary goal, as the code standard has always been a component of the course grade.
+Likewise, over 75\% of students reported that  \tool{} saves time meeting the code
+standard. This data suggests \tool{} accomplished a secondary goal of reducing
+the tedium required to help their code conform to the standard. Anecdotal evidence from
+observing students during lab meetings suggest that because \tool{} can quickly
+check code, students use it continually while they work instead of waiting until the end
+to fix all formatting errors. This result is meaningful as it suggests students are
+integrating style and formatting into their workflow, a habit the code
+standard and linting tools were originally designed to facilitate.
+% \\
+
+The following two questions, whether \tool{} ``effectively checks whether my code meets the
+standard'' (77.5\% agreement) and whether \tool{} ``helps me accurately locate code
+standard violations...'' (83.6\% agreement) sought to understand how \textit{well}
+\tool{} was able to perform its checks. Once again, the highly positive responses
+suggest that the tool works accurately and correctly helping students meet the set
+standard.
+% \\
+
+The following three questions were the least specific but attempted to discern whether
+\tool{} helped students write ``better'' code by asking about
+three distinct areas. First, students were asked about ``quality'' without defining
+``quality'', thereby leaving students to answer subjectively. 67.3\% of students agreed
+or strongly agreed that \tool{} helped them write higher-quality code. This result  indicates how simple guidelines and tools can help students improve habits and results. Unsurprisingly, less than 40\% of students
+agreed that \tool{} helped them find bugs in their code. Finding bugs is not a
+goal of \tool{}, and there are zero rules built into the tool
+that detects the definite presence of a programming error. That even 40\% of students
+agreed with this statement is interesting. One explanation is that by writing
+a better formatted and well-styled code, students were more easily able to \textit{find
+  bugs themselves}, an even more encouraging result than anticipated. Quantitatively, it  isn't easy to ascertain, but discussions with students
+suggest this is the case. Finally, nearly 75\% of students felt \tool{}
+helped make their code more readable.
+% \\
+
+Students were also given questions regarding the code standard itself instead of
+the \tool{} linter. Students have reported finding some of the points in the code
+standard unnecessary or reflective of older K\&R C programming
+guidelines. Thus, it was unsurprising that only 52\% of students agreed that they would
+use the code standard from this course in future C programming. Over 70\%
+of students agree that they will continue to use some coding standard in the future. \textit{Any} code standard assessment at
+scale in programming courses can have a positive impact. Despite using the code standard in Standard \ref{itm:codestandard}, the authors do not necessarily prefer it over any other well-defined and robust
+standard. The goal to form a habit of following
+some standard is effective, according to these data, which is an encouraging result in itself.
+Overall, students appear to recognize the value of having some standard to
+hold themselves to and, perhaps more importantly, intend to continue to do so of their own volition.
+% \\
+
+The survey results suggest that \tool{} effectively meets its primary goal of helping students more
+easily meet the included course code standard. Students indicate
+via their responses both an understanding and appreciation for the
+role of code style, consistency, and formatting in the software development process. Equally important, most students
+intend to continue utilizing a coding standard for themselves in the future.
+
+Several authors were UTAs in C courses prior to implementing \tool{} and spent upwards of 20 hours per assignment to grade a
+\textit{single} code standard section (e.g. Spacing) before automating the process. This time can now be spent engaging 
+directly with students by holding additional office hours or extended labs.
+
+\section{Conclusions and Future Work} \label{conclusions}
+
+The authors propose two ideas concerning assessing student
+code projects in Computer Science. First, the authors recommend
+that programming courses adopt a code style and best practices
+standard for code formatting, organization, and syntax in addition
+to language-specific best practices. This recommendation is based
+on previously referenced statements by Ala-Mutka \cite{doi:10.1080/08993400500150747} and Yang \cite{10.1145/3297156.3297227}, who present information suggesting a tangible association
+between code style and overall code quality. Computer Science departments seeking to replicate the success of \tool{} are urged to adopt a code standard, such as the standard put forth here (see Standard \ref{itm:codestandard}). However, the adopted standard need not be the same
+so long as it is comprehensive and well-specified. Well-specified
+rules (which some existing formatting tools like Black call “opinionated”)
+ease implementation of \texttt{Clang-Tidy}
+rules and manual grading.
+% \\
+
+Second, when adopting such a code style guide, automated tooling such as  \tool{} should be utilized to
+the fullest possible extent to provide the best experience for staff and students.
+Courses typically have only a few Graduate Teaching Assistants and several Undergraduate
+Teaching Assistants. As put forth by Dickson, Dragon, and Lee \cite{10.1145/3017680.3017725} it is feasible to delegate grading of code standard
+adherence to Undergraduates, but doing so is not an effective use of time,
+especially when automated grading systems are available and possible.
+% \\
+
+The authors put forth \tool{}, one such example of an end-to-end solution that provides
+instant feedback and suggestions to students. Such a system helps encourage good
+programming habits that will stay with students as they continue their
+careers. It also reduces the workload on students and course staff in the software
+development and grading processes. It is worth noting that instructional assistants are still
+tasked with reviewing the output of automated tools to ensure no false positive or
+negative grades are assigned. For certain sections of the standard (e.g., whether variable names are appropriate), they are still more heavily used as well.
+% \\
+
+There is much future work in this area. Defining code standards
+is a somewhat subjective matter, and implementing automated
+checks for those standardized requirements will provide a continuous engineering challenge. In addition, improved static analysis techniques
+would allow a coding standard to check for functionality errors that simple output-based automated test systems such as Vocareum employed heavily by university programs may support.
+In summation: code style is an exciting opportunity to reinforce
+student skills that are at present primarily left by the wayside.
+% \\
+
+The full source code, code standard text, testing framework, and documentation for \tool{} is available at \linebreak\href{https://github.com/novafacing/eastwood-tidy}{https://github.com/novafacing/eastwood-tidy}. The code standard, edited significantly for brevity, is also included here.
+% \href{https://github.com/novafacing/eastwood-tidy}{https://github.com/novafacing/eastwood-tidy}.
+
+
+\section{Code Standard}
+
+\begin{enumerate}[label=\Roman*.,ref=\Roman*,]%topsep=-.5pt,itemsep=-0.6pt,partopsep=-1pt]
+    % I
+    \item \textbf{Naming Convention}
+    \begin{enumerate}[left=\itemindent, label=\theenumi.\Alph*,ref=\theenumi.\Alph*]
+        \item Variable names should be in all lowercase
+        \item Use descriptive and meaningful variable names
+        \item Constants must be \texttt{\#defined}, uppercase, $\geq2$ characters
+        \item All global variables begin with prefix \texttt{g\_}
+    \end{enumerate}
+    \label{itm:codestandard}
+    
+    % II
+    \item \textbf{Line and Function Length}
+    \begin{enumerate}[left=\itemindent,label=\theenumi.\Alph*,ref=\theenumi.\Alph*]
+        \item Lines over 80 characters are split up and indented
+        \item Each function must be under 240 lines
+    \end{enumerate}
+    
+    % III
+    \item \textbf{Spacing}
+    \begin{enumerate}[left=\itemindent,label=\theenumi.\Alph*,ref=\theenumi.\Alph*]
+        \item One space must be placed between all structure and control flow keywords (ex \texttt{while}) and open parentheses, and before all open braces
+        \item One space precedes and follows all operators
+        \item One space follows internal semicolons and commas
+        \item \#define directives must be grouped, left aligned, and surrounded by blank lines
+        \item No line should end with trailing whitespace
+        \item No spaces between function name and parameter list
+    \end{enumerate}
+    
+    % IV
+    \item \textbf{Indentation}
+    \begin{enumerate}[left=\itemindent,label=\theenumi.\Alph*,ref=\theenumi.\Alph*]
+        \item Place open braces on the same line as control flow keywords. Indent compound statements 2 spaces.
+        \item Parameters should be on one line or aligned to the first parameter if line length is exceeded
+        \item The \texttt{while} keyword of do-while loops should be on a line with a closing brace
+    \end{enumerate}
+    
+    % V
+    \item \textbf{Comments}
+    \begin{enumerate}[left=\itemindent,label=\theenumi.\Alph*,ref=\theenumi.\Alph*]
+        \item Comments should be meaningful
+        \item Place comments above code except alongside declarations, \texttt{else}, and \texttt{switch} statements
+        \item Comments should be preceded and followed by a blank line and indented with surrounding code
+        \item Function name should be commented after function compound statement
+        \item Function header comments should be preceded and followed by a blank line
+    \end{enumerate}
+    
+    % VI
+    \item \textbf{Multiple Logical Expressions}
+    \begin{enumerate}[left=\itemindent,label=\theenumi.\Alph*,ref=\theenumi.\Alph*]
+        \item Logical sub-expressions should be surrounded with parentheses, except for the top-level expression
+    \end{enumerate}
+    
+    % VII
+    \item \textbf{Headers}
+    \begin{enumerate}[left=\itemindent,label=\theenumi.\Alph*,ref=\theenumi.\Alph*]
+        \item A comment should be placed above each function describing the interface and purpose of the function
+    \end{enumerate}
+    
+    
+    % VIII
+    \item \textbf{Header Files}
+    \begin{enumerate}[left=\itemindent,label=\theenumi.\Alph*,ref=\theenumi.\Alph*]
+        \item Every \texttt{.c} file should have a corresponding \texttt{.h} file
+        \item Header filenames should end in \texttt{.h}
+        \item All header files should have include guards, with defined symbol names ending in \texttt{\_H}
+        \item All project header files should use relative paths and be descendants of the project directory
+        \item Includes should be ordered alphabetically with the corresponding header first, then local and global files
+        \item All included files should be included explicitly
+        \item Library includes must use angle braces
+    \end{enumerate}
+    
+    % IX
+    \item \textbf{Defensive Coding}
+    \begin{enumerate}[left=\itemindent,label=\theenumi.\Alph*,ref=\theenumi.\Alph*]
+        \item Return values must be guarded for error conditions
+        \item \texttt{FILE} pointers must \texttt{fclose}-ed and set to \texttt{NULL}
+        \item Pointers deallocated with \texttt{free} must be set to \texttt{NULL}
+        \item Function parameters must be checked for errors
+        \item Appropriate zero values should be used for each type
+    \end{enumerate}
+    
+    
+    % X
+    \item \textbf{Output Handling}
+    \begin{enumerate}[left=\itemindent,label=\theenumi.\Alph*,ref=\theenumi.\Alph*]
+        \item Error messages must be directed to \texttt{stderr}
+    \end{enumerate}
+    
+    % XI
+    \item \textbf{Disallowed Statements}
+    \begin{enumerate}[left=\itemindent,label=\theenumi.\Alph*,ref=\theenumi.\Alph*]
+        \item Do not use tabs for indentation
+        \item DOS newlines should not be used
+        \item Only one assignment should be made per expression
+        \item Constant values should be defined using directives
+        \item \texttt{goto} should not be used
+    \end{enumerate}
+    
+    % XII
+    \item \textbf{Variable Declarations}
+    \begin{enumerate}[left=\itemindent,label=\theenumi.\Alph*,ref=\theenumi.\Alph*]
+        \item Only one variable should be defined in one statement.
+        \item All variables should be initialized where defined
+    \end{enumerate}
+\end{enumerate}
+
+\bibliographystyle{ACM-Reference-Format}
+\bibliography{paper}
+
+\end{document}
+\endinput

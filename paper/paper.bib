@@ -1,0 +1,574 @@
+%  Useful paper, extremely interesting for the idea it presents that students and instructors find it useful but actual grades do not improve
+%  Likely an interesting tack to pursue: maybe grades are NOT the only thing we care about RE CSE. Grades are a useful metric, but they don't
+%  tell the full story of student performance. Furthermore, our grades *are* directly affected by code standard, so better code standard fee
+%  -dback from the linter ostensibly translates directly to actual performance increases gradewise. This is also WRT compiler errors, not style
+%  errors. We use style to form good programming habits, not to help with debugging. So that bears consideration.
+
+%  Key points:
+%  - Student frustration - has good references for this, and mentions that syntax errors are frustrating to students. Good code style theoretically helps with this.
+%  - "require  independent  analysis  of  the  source  code.  At  this  stage, some  cases  scan  a  parse  tree  representation  of  the  student's program,  which  is  obtained  from  a  context-free  grammar  parser that   interprets   a   subset   of   the   C++   programming   language. However,  most cases rely solely  upon the original compiler error message for error case recognition." - This is critical to mention, we also parse the entire program (in Eastwood 1.0) and do that for a similar reason.
+%  - The "more helpful" errors are really just restatements of the GCC error in like....all of this project. It seems extremely NOT novel to me.
+%  - Definitely want to consider student sentiment like this paper does, however.
+
+@inproceedings{10.1145/3017680.3017768,
+author = {Pettit, Raymond S. and Homer, John and Gee, Roger},
+title = {Do Enhanced Compiler Error Messages Help Students? Results Inconclusive.},
+year = {2017},
+isbn = {9781450346986},
+publisher = {Association for Computing Machinery},
+address = {New York, NY, USA},
+url = {https://doi.org/10.1145/3017680.3017768},
+doi = {10.1145/3017680.3017768},
+abstract = {One common frustration students face when first learning to program in a compiled language is the difficulty in interpreting the compiler error messages they receive. Attempts to improve error messages have produced differing results. Two recently published papers showed conflicting results, with one showing measurable change in student behavior, and the other showing no measurable change. We conducted an experiment comparable to these two over the course of several semesters in a CS1 course. This paper presents our results in the context of previous work in this area. We improved the clarity of the compiler error messages the students receive, so that they may more readily understand their mistakes and be able to make effective corrections. Our goal was to help students better understand their syntax mistakes and, as a reasonable measure of our success, we expected to document a decrease in the number of times students made consecutive submissions with the same compilation error. By doing this, we could demonstrate that this enhancement is effective. After collecting and thoroughly analyzing our own experimental data, we found that--despite anecdotal stories, student survey responses, and instructor opinions testifying to the tool's helpfulness--enhancing compiler error messages shows no measurable benefit to students. Our results validate one of the existing studies and contradict another. We discuss some of the reasons for these results and conclude with projections for future research.},
+booktitle = {Proceedings of the 2017 ACM SIGCSE Technical Symposium on Computer Science Education},
+pages = {465–470},
+numpages = {6},
+keywords = {automated feedback, error messages, computer science education, automated assessment tools, computer aided instruction},
+location = {Seattle, Washington, USA},
+series = {SIGCSE '17}
+}
+
+% Educational IDE that offers a *removal* of the need to learn language syntax etc. This is worth mentioning that this approach is extremely sound
+% for introductory CS but is insufficient for teaching a modern language intended for real world use. The extension to this idea obviously is what we're doing.
+
+@inproceedings{10.1145/3287324.3287462,
+author = {K\"{o}lling, Michael and Brown, Neil C. C. and Hamza, Hamza and McCall, Davin},
+title = {Stride in BlueJ -- Computing for All in an Educational IDE},
+year = {2019},
+isbn = {9781450358903},
+publisher = {Association for Computing Machinery},
+address = {New York, NY, USA},
+url = {https://doi.org/10.1145/3287324.3287462},
+doi = {10.1145/3287324.3287462},
+abstract = {Block-based programming languages and environments have several benefits for introductory programming courses, compared to more traditional text-based languages. In particular, blocks remove the burden of learning language syntax and dealing with syntax-related errors. Many blocks-based environments are tightly focused on developing graphical games, stories and simulations, while the more general programming environments are typically text-based. In this tool paper, we describe the incorporation of a Stride editor within the BlueJ programming environment. Stride is a frame-based programming language, intended to combine the best of blocks and text programming, usable both as a stepping stone towards text-based languages and as a comprehensive language in its own right. The incorporation of Stride into BlueJ brings some aspects of block programming into a general purpose educational environment.},
+booktitle = {Proceedings of the 50th ACM Technical Symposium on Computer Science Education},
+pages = {63–69},
+numpages = {7},
+keywords = {bluej, stride, frame-based editing},
+location = {Minneapolis, MN, USA},
+series = {SIGCSE '19}
+}
+
+% This paper essentially talks about using jenkins in class. A great idea (if a little outdated). 
+
+% Specifically of note here for our purposes is that jenkins is noted to improve code quality, how is not clear.
+% unfortunately only the abstract is available
+
+@inproceedings{10.1145/2676723.2691921,
+author = {Heckman, Sarah and King, Jason and Winters, Michael},
+title = {Automating Software Engineering Best Practices Using an Open Source Continuous Integration Framework (Abstract Only)},
+year = {2015},
+isbn = {9781450329668},
+publisher = {Association for Computing Machinery},
+address = {New York, NY, USA},
+url = {https://doi.org/10.1145/2676723.2691921},
+doi = {10.1145/2676723.2691921},
+abstract = {Ideally, software engineering courses should adequately reflect real-world software development so that students obtain a better understanding and experience with practices and techniques used in industry. Our objective is to improve software engineering courses by incorporating best practices for automated software engineering and facilitating rapid feedback for students using an open source continuous integration framework for evaluating student software development. The open source Jenkins Continuous Integration Server is the core of our framework, which provides a consistent environment for building student projects, executing automated test cases, calculating code coverage, executing static analysis, and generating reports for students. By using continuous integration, a common tool in real-world software development, we can incorporate software engineering best practices, introduce students to continuous integration in practice, and provide formative feedback to students throughout the software development lifecycle. We found that 76% or more of students in each of the classes that deploy our framework reported that using Jenkins increased their productivity, and that 84% or more of students in each of the classes reported that using Jenkins increased their code quality.},
+booktitle = {Proceedings of the 46th ACM Technical Symposium on Computer Science Education},
+pages = {677},
+numpages = {1},
+keywords = {automated evaluation and feedback, continuous integration, software engineering skills},
+location = {Kansas City, Missouri, USA},
+series = {SIGCSE '15}
+}
+
+% Pretty straightforward resource, will be quoted significantly for information on programming style. The paper covers how style is often ignored in favor of simply functionality
+% Critical note is "Style  of  programming  is  presented  as  a  style  of  thinking manifested in the ability to outline the algorithm in a form, suitable for solving the problem in the terminology of a specific programming language."
+% This paper is pretty theoretical, not really a one-language approach but this is actually very good for reference, especially it sites many more concrete examples and presents a middle ground
+
+@article{article,
+author = {Teodosiev, Teodosi and Nachev, Anatoli},
+year = {2015},
+month = {05},
+pages = {26103-26114},
+title = {Programming style in introductory programming courses},
+volume = {10},
+journal = {International Journal of Applied Engineering Research}
+}
+
+% This is the closest to what we are trying to do. There are a few key differences:
+% - It presents inline suggestions for fixing issues
+% - It only works in python, so essentially what this boils down to is a PEP8 gui and is *significantly* easier to analyze semantically than C.
+% - Python is an *idiomatic* language, so there are many equivalences to the same construct. This suggests mostly *idiomizing* code streamlines, and less so syntactic rulings.
+% Especially of note as far as similarities: 
+% - instantaneous feedback
+
+@inproceedings{10.1145/2724660.2728672,
+author = {Moghadam, Joseph Bahman and Choudhury, Rohan Roy and Yin, HeZheng and Fox, Armando},
+title = {AutoStyle: Toward Coding Style Feedback at Scale},
+year = {2015},
+isbn = {9781450334112},
+publisher = {Association for Computing Machinery},
+address = {New York, NY, USA},
+url = {https://doi.org/10.1145/2724660.2728672},
+doi = {10.1145/2724660.2728672},
+abstract = {While large-scale automatic grading of student programs for correctness is widespread, less effort has focused on automating feedback for good programming style the tasteful use of language features and idioms to produce code that is not only correct, but also concise, elegant, and revealing of design intent. We hypothesize that with a large enough (MOOC-sized) corpus of submissions to a given programming problem, we can observe a range of stylistic mastery from naive to expert, and many points in between, and that we can exploit this continuum to automatically provide hints to learners for improving their code style based on the key stylistic differences between a given learner's submission and a submission that is stylistically slightly better. We are developing a methodology for analyzing and doing feature engineering on differences between submissions, and for learning from instructor-provided feedback as to which hints are most relevant. We describe the techniques used to do this in our prototype, which will be deployed in a residential software engineering course as an alpha test prior to deploying in a MOOC later this year.},
+booktitle = {Proceedings of the Second (2015) ACM Conference on Learning @ Scale},
+pages = {261–266},
+numpages = {6},
+keywords = {moocs, coding style, autograding},
+location = {Vancouver, BC, Canada},
+series = {L@S '15}
+}
+
+% this paper is tangential, I likely will not reference it
+
+
+@article{10.1145/2810041,
+author = {Lobb, Richard and Harlow, Jenny},
+title = {Coderunner: A Tool for Assessing Computer Programming Skills},
+year = {2016},
+issue_date = {March 2016},
+publisher = {Association for Computing Machinery},
+address = {New York, NY, USA},
+volume = {7},
+number = {1},
+issn = {2153-2184},
+url = {https://doi.org/10.1145/2810041},
+doi = {10.1145/2810041},
+abstract = {How should we assess programming skills? Asking students to write code in a traditional hand-written exam can produce results like those in Figure 1. It is nearly impossible to meaningfully grade such code. With sufficient effort one can get some idea of whether the general idea is correct, but to assess programming skill we need much more than this. For example, there will almost certainly be errors in the code; how do we know whether the student would be able to correct those errors or not?},
+journal = {ACM Inroads},
+month = feb,
+pages = {47–51},
+numpages = {5}
+}
+
+
+% Interesting for the relationship between syntax and logic: this is an idea that 100% applies to eastwood/cs grading
+% Code style was graded by humans, but the feedback was split into two groups: human and machine. Interestingly human feedback on code standard had an inverse effect as they expected:
+% "studentswho received human feedback appeared to do better on code styleand worse on efficacy"
+% "e conclude that our results do not indicate that feed-back on coding style improves the results on subsequent collabora-tive projects as originally hypothesized. There may be some extentto which students remember good style pointers, but even this isnot clear and may not justify the extensive labor of giving studentsstyle feedback"
+
+% Will definitely be referencing the style portion of this paper
+
+@inproceedings{10.1145/3328778.3366921,
+author = {Leite, Abe and Blanco, Sa\'{u}l A.},
+title = {Effects of Human vs. Automatic Feedback on Students' Understanding of AI Concepts and Programming Style},
+year = {2020},
+isbn = {9781450367936},
+publisher = {Association for Computing Machinery},
+address = {New York, NY, USA},
+url = {https://doi.org/10.1145/3328778.3366921},
+doi = {10.1145/3328778.3366921},
+abstract = {The use of automatic grading tools has become nearly ubiquitous in large undergraduate programming courses, and recent work has focused on improving the quality of automatically generated feedback. However, there is a relative lack of data directly comparing student outcomes when receiving computer-generated feedback and human-written feedback. This paper addresses this gap by splitting one 90-student class into two feedback groups and analyzing differences in the two cohorts' performance. The class is an intro to AI with programming HW assignments. One group of students received detailed computer-generated feedback on their programming assignments describing which parts of the algorithms' logic was missing; the other group additionally received human-written feedback describing how their programs' syntax relates to issues with their logic, and qualitative (style) recommendations for improving their code. Results on quizzes and exam questions suggest that human feedback helps students obtain a better conceptual understanding, but analyses found no difference between the groups' ability to collaborate on the final project. The course grade distribution revealed that students who received human-written feedback performed better overall; this effect was the most pronounced in the middle two quartiles of each group. These results suggest that feedback about the syntax-logic relation may be a primary mechanism by which human feedback improves student outcomes.},
+booktitle = {Proceedings of the 51st ACM Technical Symposium on Computer Science Education},
+pages = {44–50},
+numpages = {7},
+keywords = {programming style, references to syntax, student outcomes, syntax-logic relation, feedback, automatic grading},
+location = {Portland, OR, USA},
+series = {SIGCSE '20}
+}
+
+% This is tangentially related only in that the idea of continuous feedback during programming is better than going back at the end and fixing everything
+@inproceedings{10.1145/2839509.2844584,
+author = {Becker, Brett A.},
+title = {An Effective Approach to Enhancing Compiler Error Messages},
+year = {2016},
+isbn = {9781450336857},
+publisher = {Association for Computing Machinery},
+address = {New York, NY, USA},
+url = {https://doi.org/10.1145/2839509.2844584},
+doi = {10.1145/2839509.2844584},
+abstract = {One of the many challenges novice programmers face from the time they write their first program is inadequate compiler error messages. These messages report details on errors the programmer has made and are the only feedback the programmer gets from the compiler. For students they play a particularly essential role as students often have little experience to draw upon, leaving compiler error messages as their primary guidance on error correction. However these messages are frequently inadequate, presenting a barrier to progress and are often a source of discouragement. We have designed and implemented an editor that provides enhanced compiler error messages and conducted a controlled empirical study with CS1 students learning Java. We find a reduced frequency of overall errors and errors per student. We also identify eight frequent compiler error messages for which enhancement has a statistically significant effect. Finally we find a reduced number of repeated errors. These findings indicate fewer students struggling with compiler error messages.},
+booktitle = {Proceedings of the 47th ACM Technical Symposium on Computing Science Education},
+pages = {126–131},
+numpages = {6},
+keywords = {syntax errors, error messages, cs1, feedback, debugging, java, compiler errors, novice, errors, programming},
+location = {Memphis, Tennessee, USA},
+series = {SIGCSE '16}
+}
+
+
+% An excellent overview of programming style, provides fact-based concrete examples of why it is important. Will be extremely useful for justifying *why* we grade, lint, and enforce code standard over the common approach which is to do nothing related to code standard and only grade on functionality
+% Need to find a way to reference classes like CS180, which have an in-lab grade for code standard. However, TAs are very lazy/busy and would basically just scroll through and if nothing looked too ugly give 100%. This is obviously suboptimal and will miss many cases where students really ought to lose points
+% in order to reinforce that they need to do a good job writing their code.
+
+@inproceedings{10.1145/3297156.3297227,
+author = {Yang, Chunyu and Liu, Yan and Yu, Jia},
+title = {Exploring Violations of Programming Styles: Insights from Open Source Projects},
+year = {2018},
+isbn = {9781450366069},
+publisher = {Association for Computing Machinery},
+address = {New York, NY, USA},
+url = {https://doi.org/10.1145/3297156.3297227},
+doi = {10.1145/3297156.3297227},
+abstract = {Software project is usually a huge cooperative teamwork, programmers in the project usually have to read the code written by others and understand its implementation. A uniform and clean programming style could ensure the readability and maintainability of the project source code, especially when it becomes a legacy project. However, each programmer has his own programming habit and because of the heavy developing tasks, the programming style of the software project is far from satisfactory. Programming style does not resemble software defects which has a serious effect on program executing. Therefore, many programmers ignore the programming style directly instead of improving it. Programming style should be checked before new features are merged into software projects, just like software testing. Developing with the size of software project, some special programming style rules are violated more seriously, which need be highly focused. Furthermore, one of ultimate targets in software quality engineering is to check the programming style automatically with analysis tools because the software projects usually have an enormous quantity of source code. In this paper, static source code analysis is used for detecting the programming style problems. The source file directly or the class files generated by the compiler are scanned then the abstract syntax tree for the source code is generated. With the help of abstract syntax tree, it is possible to detect code snippets that violate the programming style rules by traverse the tree. Our method employs the static code analysis tools to analyze several Java open source projects, and find that the programming style problems which are violated most. According to our method, each problem is also explained from personal habits, JDK version, and other aspects later. Considering all of the analysis results, a special ruleset that is recommended to pay more attention to in the future software developing is proposed. At last, programming style should be highly valued in software development processes in further project management.},
+booktitle = {Proceedings of the 2018 2nd International Conference on Computer Science and Artificial Intelligence},
+pages = {185–189},
+numpages = {5},
+keywords = {Code review, Programming style, Static source code analysis},
+location = {Shenzhen, China},
+series = {CSAI '18}
+}
+% This is extremely tangential, I don't think I will reference this but it is in a similar category of automated analysis of student code.
+@inproceedings{10.1145/2839509.2844612,
+author = {Leinonen, Juho and Longi, Krista and Klami, Arto and Vihavainen, Arto},
+title = {Automatic Inference of Programming Performance and Experience from Typing Patterns},
+year = {2016},
+isbn = {9781450336857},
+publisher = {Association for Computing Machinery},
+address = {New York, NY, USA},
+url = {https://doi.org/10.1145/2839509.2844612},
+doi = {10.1145/2839509.2844612},
+abstract = {Studies on retention and success in introductory programming course have suggested that previous programming experience contributes to students' course outcomes. If such background information could be automatically distilled from students' working process, additional guidance and support mechanisms could be provided even to those, who do not wish to disclose such information. In this study, we explore methods for automatically distinguishing novice programmers from more experienced programmers using fine-grained source code snapshot data. We approach the issue by partially replicating a previous study that used students' keystroke latencies as a proxy to introductory programming course outcomes, and follow this by an exploration of machine learning methods to separate those students with little to no previous programming experience from those with more experience. Our results confirm that students' keystroke latencies can be used as a metric for measuring course outcomes. At the same time, our results show that students programming experience can be identified to some extent from keystroke latency data, which means that such data has potential as a source of information for customizing the students' learning experience.},
+booktitle = {Proceedings of the 47th ACM Technical Symposium on Computing Science Education},
+pages = {132–137},
+numpages = {6},
+keywords = {programming data, biometric feedback, keystroke latency, source code snapshots, educational data mining, novice programmer identification},
+location = {Memphis, Tennessee, USA},
+series = {SIGCSE '16}
+}
+
+
+% The meaningful feedback is going to be critical for future work. Hints for "did you mean X" would be a massive improvement to the linter. 
+% I will also be talking about this paper with regards to autograding becoming prolific but not automated style analysis. The autograding revolution should take both forms, not just "does your program produce output X".
+@inproceedings{10.1145/3159450.3159502,
+author = {Haldeman, Georgiana and Tjang, Andrew and Babe\c{s}-Vroman, Monica and Bartos, Stephen and Shah, Jay and Yucht, Danielle and Nguyen, Thu D.},
+title = {Providing Meaningful Feedback for Autograding of Programming Assignments},
+year = {2018},
+isbn = {9781450351034},
+publisher = {Association for Computing Machinery},
+address = {New York, NY, USA},
+url = {https://doi.org/10.1145/3159450.3159502},
+doi = {10.1145/3159450.3159502},
+abstract = {Autograding systems are increasingly being deployed to meet the challenge of teaching programming at scale. We propose a methodology for extending autograders to provide meaningful feedback for incorrect programs. Our methodology starts with the instructor identifying the concepts and skills important to each programming assignment, designing the assignment, and designing a comprehensive test suite. Tests are then applied to code submissions to learn classes of common errors and produce classifiers to automatically categorize errors in future submissions. The instructor maps the errors to concepts and skills and writes hints to help students find their misconceptions and mistakes. We have applied the methodology to two assignments from our Introduction to Computer Science course. We used submissions from one semester of the class to build classifiers and write hints for observed common errors. We manually validated the automatic error categorization and potential usefulness of the hints using submissions from a second semester. We found that the hints given for erroneous submissions should be helpful for 96% or more of the cases. Based on these promising results, we have deployed our hints and are currently collecting submissions and feedback from students and instructors.},
+booktitle = {Proceedings of the 49th ACM Technical Symposium on Computer Science Education},
+pages = {278–283},
+numpages = {6},
+keywords = {concepts/skills-based hints, autograding, error categorization},
+location = {Baltimore, Maryland, USA},
+series = {SIGCSE '18}
+}
+
+% Yet another paper discussing auto grading. This one particularly references performance, output analysis for different ways of determining correct execution, etc.
+% None of this is relevant to linting but is relevant to my point that code style is largely ignored in grading student code, and if it is not ignored it is typically carried out by:
+% - TAs who are A) lazy/busy and just take a glance at the code
+% - TAs who spend a *LOT* of time grading style when it could be done more quickly
+@inproceedings{10.1145/2839509.2844616,
+author = {Wilcox, Chris},
+title = {Testing Strategies for the Automated Grading of Student Programs},
+year = {2016},
+isbn = {9781450336857},
+publisher = {Association for Computing Machinery},
+address = {New York, NY, USA},
+url = {https://doi.org/10.1145/2839509.2844616},
+doi = {10.1145/2839509.2844616},
+abstract = {Enrollments in introductory computer science courses are growing rapidly, thereby taxing scarce teaching resources and motivating the increased use of automated tools for program grading. Such tools commonly rely on regression testing methods from industry. However, the goals of automated grading differ from those of testing for software production. In academia, a primary motivation for testing is to provide timely and accurate feedback to students so that they can understand and fix defects in their programs. Testing strategies for program grading are therefore distinct from those of traditional software testing. This paper enumerates and describes a number of testing strategies that improve the quality of feedback for different types of programming assignments.},
+booktitle = {Proceedings of the 47th ACM Technical Symposium on Computing Science Education},
+pages = {437–442},
+numpages = {6},
+keywords = {automated grading, automated assessment},
+location = {Memphis, Tennessee, USA},
+series = {SIGCSE '16}
+}
+
+% This will be useful in arguing for the adoption of linting as a standard in academic settings. 
+% TA time is limited and valuable, especially for good UTAs, which are hard to come by.
+% There is little sense in requiring 10+ hours per week grading code style when it can be done in an automated fashion, due to the usefulness of UTAs mentioned in this paper.
+@inproceedings{10.1145/3017680.3017725,
+author = {Dickson, Paul E. and Dragon, Toby and Lee, Adam},
+title = {Using Undergraduate Teaching Assistants in Small Classes},
+year = {2017},
+isbn = {9781450346986},
+publisher = {Association for Computing Machinery},
+address = {New York, NY, USA},
+url = {https://doi.org/10.1145/3017680.3017725},
+doi = {10.1145/3017680.3017725},
+abstract = {Undergraduate teaching assistants have been used in many classes, over many years, and at many institutions. The literature primarily focuses on the practice in a university environment with large classes. We focus instead on the use of undergraduate teaching assistants in the small college, small class environment. We have been employing students in this capacity for over 15 years and have gained some insight on how best to use these undergraduate teaching assistants in the small classroom setting. We believe these conclusions can inform the design of other undergraduate teaching assistant programs.},
+booktitle = {Proceedings of the 2017 ACM SIGCSE Technical Symposium on Computer Science Education},
+pages = {165–170},
+numpages = {6},
+keywords = {computer science education, undergraduate teaching assistants},
+location = {Seattle, Washington, USA},
+series = {SIGCSE '17}
+}
+
+% Justification for using C. This will likely just be referenced in the introduction and when considering why we teach C instead of just doing what auto-thingy does and use python or some language easier to analyze the style of.
+@inproceedings{Gondow2018WhyDW,
+  title={Why Do We Need the C language in Programming Courses?},
+  author={Katsuhiko Gondow and Yoshitaka Arahori},
+  booktitle={ICSOFT},
+  year={2018}
+}
+
+@online{GoogleCStyleGuide,
+    author = {Google},
+    title={{Google C++ Style Guide}},
+    year = 2020,
+    url = {https://google.github.io/styleguide/cppguide.html},
+    urldate = {2020-12-02}
+}
+
+@online{LLVMStyleGuide,
+    author = {LLVM},
+    title = {{LLVM Coding Standards}},
+    year = 2020,
+    url = {https://llvm.org/docs/CodingStandards.html},
+    urldate = {2020-12-02}
+}
+
+@online{GnomeStyleGuide,
+    author = {Gnome Developer},
+    title = {{C Coding Style}},
+    year = 2020,
+    url = {https://developer.gnome.org/programming-guidelines/stable/c-coding-style.html.en},
+    urldate = {2020-12-02}
+}
+
+@inproceedings{10.1145/1930464.1930480,
+author = {Ihantola, Petri and Ahoniemi, Tuukka and Karavirta, Ville and Sepp\"{a}l\"{a}, Otto},
+title = {Review of Recent Systems for Automatic Assessment of Programming Assignments},
+year = {2010},
+isbn = {9781450305204},
+publisher = {Association for Computing Machinery},
+address = {New York, NY, USA},
+url = {https://doi.org/10.1145/1930464.1930480},
+doi = {10.1145/1930464.1930480},
+abstract = {This paper presents a systematic literature review of the recent (2006--2010) development of automatic assessment tools for programming exercises. We discuss the major features that the tools support and the different approaches they are using both from the pedagogical and the technical point of view. Examples of these features are ways for the teacher to define tests, resubmission policies, security issues, and so forth. We have also identified a list of novel features, like assessing web software, that are likely to get more research attention in the future. As a conclusion, we state that too many new systems are developed, but also acknowledge the current reasons for the phenomenon. As one solution we encourage opening up the existing systems and joining efforts on developing those further. Selected systems from our survey are briefly described in Appendix A.},
+booktitle = {Proceedings of the 10th Koli Calling International Conference on Computing Education Research},
+pages = {86–93},
+numpages = {8},
+location = {Koli, Finland},
+series = {Koli Calling '10}
+}
+
+@article{doi:10.1080/08993400500150747,
+author = { Kirsti M   Ala-Mutka },
+title = {A Survey of Automated Assessment Approaches for Programming Assignments},
+journal = {Computer Science Education},
+volume = {15},
+number = {2},
+pages = {83-102},
+year  = {2005},
+publisher = {Routledge},
+doi = {10.1080/08993400500150747},
+
+URL = { 
+        https://doi.org/10.1080/08993400500150747
+    
+},
+eprint = { 
+        https://doi.org/10.1080/08993400500150747
+    
+}
+,
+    abstract = { Practical programming is one of the basic skills pursued in computer science education. On programming courses, the coursework consists of programming assignments that need to be assessed from different points of view. Since the submitted assignments are executable programs with a formal structure, some features can be assessed automatically. The basic requirement for automated assessment is the numerical measurability of assessment targets, but semiautomatic approaches can overcome this restriction. Recognizing automatically assessable features can help teachers to create educational models, where automatic tools let teachers concentrate their work on the learning issues that need student-teacher interaction the most. Several automatic tools for both static and dynamic assessment of computer programs have been reported in the literature. This article promotes these issues by surveying several automatic approaches for assessing programming assignments. Not all the existing tools will be covered, simply because of the vast number of them. The article concentrates on bringing forward different assessment techniques and approaches to give an interested reader starting points for finding further information in the area. Automatic assessment tools can be used to help teachers in grading tasks as well as to support students' working process with automatic feedback. Common advantages of automation are the speed, availability, consistency and objectivity of assessment. However, automatic tools emphasize the need for careful pedagogical design of the assignment and assessment settings. To effectively share the knowledge and good assessment solutions already developed, better interoperability and portability of the tools is needed. }
+}
+
+@online{Clang,
+    author = {LLVM},
+    title = {{Clang C Language Family Frontend for LLVM}},
+    year = 2022,
+    url = {https://clang.llvm.org/},
+    urldate = {2022-08-15}
+}
+
+@online{ClangStaticChecks,
+    author = {LLVM},
+    title = {{Available Checkers}},
+    year = 2020,
+    url = {https://clang-analyzer.llvm.org/available_checks.html},
+    urldate = {2020-12-02}
+}
+
+@online{ClangTidyChecks,
+    author = {LLVM},
+    title = {{Clang-Tidy}},
+    year = {2020},
+    url = {https://clang.llvm.org/extra/clang-tidy/},
+    urldate = {2020-12-02}
+}
+
+@online{ClangFormat,
+    author = {LLVM},
+    title = {{Clang-Format}},
+    year = {2022},
+    url = {https://clang.llvm.org/docs/ClangFormat.html},
+    urldate = {2022-08-04}
+}
+
+@online{GCC,
+    author = {GNU},
+    title = {GCC, the GNU Compiler Collection},
+    year = {2022},
+    url = {https://gcc.gnu.org/},
+    urldate = {2022-08-15}
+}
+
+@online{GCCFixItHints,
+    author = {GNU},
+    title = {{Guidelines for Diagnostics}},
+    year = {2022},
+    url = {https://gcc.gnu.org/onlinedocs/gccint/Guidelines-for-Diagnostics.html},
+    urldate = {2022-08-04}
+}
+
+@online{Black,
+    author = {Black Developers},
+    title = {{The uncompromising code formatter}},
+    year = {2022},
+    url = {https://black.readthedocs.io/en/stable/},
+    urldate = {2022-08-04}
+}
+
+@online{cpplint,
+    author = {Google},
+    title = {{cpplint}},
+    year = 2021,
+    url = {https://github.com/google/styleguide},
+    urldate = {2021-10-15}
+}
+
+
+@online{pylint,
+    author = {Logilab},
+    title = {{PyLint}},
+    year = 2001,
+    url = {https://www.pylint.org},
+    urldate = {2022-08-11}
+}
+
+@online{tiobe,
+    author = {TIOBE},
+    title = {{TIOBE Index}},
+    year = 2022,
+    url = {https://www.tiobe.com/tiobe-index/},
+    urldate = {2022-08-15}
+}
+
+@online{vocareum,
+    author = {Vocareum},
+    title = {{Programming Lab}},
+    year = 2022,
+    url = {https://www.vocareum.com/home/programming-lab/},
+    urldate = {2022-08-15}
+}
+
+@online{LinuxCodingStandard,
+    author = {Linus Torvalds},
+    title = {Linux kernel coding style},
+    year = {2005},
+    url = {https://www.kernel.org/doc/html/v4.10/process/coding-style.html},
+    urldate = {2022-08-15}
+}
+
+@online{VisualStudioCode,
+    author = {Microsoft},
+    year = {2022},
+    url = {https://code.visualstudio.com/},
+    urldate = {2022-08-18}
+}
+
+
+@inproceedings{birillo_hyperstyle_2022,
+	location = {New York, {NY}, {USA}},
+	title = {Hyperstyle: A Tool for Assessing the Code Quality of Solutions to Programming Assignments},
+	isbn = {978-1-4503-9070-5},
+	url = {http://doi.org/10.1145/3478431.3499294},
+	doi = {10.1145/3478431.3499294},
+	series = {{SIGCSE} 2022},
+	shorttitle = {Hyperstyle},
+	abstract = {In software engineering, it is not enough to simply write code that only works as intended, even if it is free from vulnerabilities and bugs. Every programming language has a style guide and a set of best practices defined by its community, which help practitioners to build solutions that have a clear structure and therefore are easy to read and maintain. To introduce assessment of code quality into the educational process, we developed a tool called Hyperstyle. To make it reflect the needs of the programming community and at the same time be easily extendable, we built it upon several existing professional linters and code checkers. Hyperstyle supports four programming languages (Python, Java, Kotlin, and Javascript) and can be used as a standalone tool or integrated into a {MOOC} platform. We have integrated the tool into two educational platforms, Stepik and {JetBrains} Academy, and it has been used to process about one million submissions every week since May 2021.},
+	pages = {307--313},
+	booktitle = {Proceedings of the 53rd {ACM} Technical Symposium on Computer Science Education V. 1},
+	publisher = {Association for Computing Machinery},
+	author = {Birillo, Anastasiia and Vlasov, Ilya and Burylov, Artyom and Selishchev, Vitalii and Goncharov, Artyom and Tikhomirova, Elena and Vyahhi, Nikolay and Bryksin, Timofey},
+	urldate = {2022-12-13},
+	date = {2022-02-22},
+	keywords = {code formatting, code quality assessment, learning programming, programming education, refactoring},
+	file = {Full Text PDF:/home/novafacing/Zotero/storage/BXPFRHJF/Birillo et al. - 2022 - Hyperstyle A Tool for Assessing the Code Quality .pdf:application/pdf},
+}
+
+@inproceedings{groeneveld_are_2022,
+	location = {New York, {NY}, {USA}},
+	title = {Are Undergraduate Creative Coders Clean Coders? A Correlation Study},
+	isbn = {978-1-4503-9070-5},
+	url = {http://doi.org/10.1145/3478431.3499345},
+	doi = {10.1145/3478431.3499345},
+	series = {{SIGCSE} 2022},
+	shorttitle = {Are Undergraduate Creative Coders Clean Coders?},
+	abstract = {Research on global competencies of computing students suggests that next to technical programming knowledge, the teaching of non-technical skills such as creativity is becoming very relevant. Many {CS}1 courses introduce a layer of creative freedom by employing open project assignments. We are interested in the quality of the submitted projects in relation to the creativity that students show when tackling these open assignments. We have analyzed 110 projects from two academic years to investigate whether there is a relation between creativity and clean code in {CS}1 student projects. Seven judges were recruited that evaluated the creativity based on Amabile's Consensual Assessment Technique, while the {PMD} tool was used to explore code quality issues in the Java projects. Results indicate that the more projects are deemed as creative, the more likely code quality issues arise in these projects, and thus the less clean the code will be. We argue that next to promoting creativity in order to solve programming problems, the necessary attention should also be given to the clean code principles.},
+	pages = {314--320},
+	booktitle = {Proceedings of the 53rd {ACM} Technical Symposium on Computer Science Education V. 1},
+	publisher = {Association for Computing Machinery},
+	author = {Groeneveld, Wouter and Martin, Dries and Poncelet, Tibo and Aerts, Kris},
+	urldate = {2022-12-13},
+	date = {2022-02-22},
+	keywords = {clean code, code quality, creativity, software engineering education},
+	file = {Full Text PDF:/home/novafacing/Zotero/storage/2GE6YMJJ/Groeneveld et al. - 2022 - Are Undergraduate Creative Coders Clean Coders A .pdf:application/pdf},
+}
+
+@inproceedings{wiese_readable_2022,
+	location = {New York, {NY}, {USA}},
+	title = {Readable vs. Writable Code: A Survey of Intermediate Students' Structure Choices},
+	isbn = {978-1-4503-9070-5},
+	url = {http://doi.org/10.1145/3478431.3499413},
+	doi = {10.1145/3478431.3499413},
+	series = {{SIGCSE} 2022},
+	shorttitle = {Readable vs. Writable Code},
+	abstract = {Since intermediate {CS} students can use a variety of control struc- tures, why do their choices often not match experts' Students may not realize what choices expert prefer, find non-expert choices easier to read, or simply forget to write with expert structure. To disentangle these explanations, we surveyed 328 2nd and 3rd se- mester undergraduates, with tasks including writing short func- tions, selecting which structure was most readable or best styled, and comprehension questions. Questions focused on seven control structure topics that were important to instructors (e.g., factoring out repeated code between an if-block and its else). Students frequently wrote with non-expert structure, and, for five topics, at least 1/3 of students (48\% - 71\%) thought a non-expert struc- ture was more readable than the expert one. However, students often made one choice when writing code, but preferred a different choice when reading it. Additionally, for more complex topics, stu- dents often failed to notice (or understand) differences in execution caused by changes in structure. Together, these results suggest that instruction and practice for choosing control structures should be context-specific, and that assessment focused only on code writing may miss underlying misunderstandings.},
+	pages = {321--327},
+	booktitle = {Proceedings of the 53rd {ACM} Technical Symposium on Computer Science Education V. 1},
+	publisher = {Association for Computing Machinery},
+	author = {Wiese, Eliane and Rafferty, Anna N. and Pyper, Jordan},
+	urldate = {2022-12-13},
+	date = {2022-02-22},
+	keywords = {control structures, discourse rules, novice programmers},
+	file = {Full Text PDF:/home/novafacing/Zotero/storage/SWU92S67/Wiese et al. - 2022 - Readable vs. Writable Code A Survey of Intermedia.pdf:application/pdf},
+}
+
+@inproceedings{crichton_automating_2021,
+	location = {New York, {NY}, {USA}},
+	title = {Automating Program Structure Classification},
+	isbn = {978-1-4503-8062-1},
+	url = {http://doi.org/10.1145/3408877.3432358},
+	doi = {10.1145/3408877.3432358},
+	series = {{SIGCSE} '21},
+	abstract = {When students write programs, their program structure provides insight into their learning process. However, analyzing program structure by hand is time-consuming, and teachers need better tools for computer-assisted exploration of student solutions. As a first step towards an education-oriented program analysis toolkit, we show how supervised machine learning methods can automatically classify student programs into a predetermined set of high-level structures. We evaluate two models on classifying student solutions to the Rainfall problem: a nearest-neighbors classifier using syntax tree edit distance and a recurrent neural network. We demonstrate that these models can achieve 91\% classification accuracy when trained on 108 programs. We further explore the generality, trade-offs, and failure cases of each model.},
+	pages = {1177--1183},
+	booktitle = {Proceedings of the 52nd {ACM} Technical Symposium on Computer Science Education},
+	publisher = {Association for Computing Machinery},
+	author = {Crichton, Will and Sampaio, Georgia Gabriela and Hanrahan, Pat},
+	urldate = {2022-12-13},
+	date = {2021-03-05},
+	keywords = {machine learning, neural networks, program classification},
+	file = {Full Text PDF:/home/novafacing/Zotero/storage/9YGCAJUW/Crichton et al. - 2021 - Automating Program Structure Classification.pdf:application/pdf},
+}
+
+@inproceedings{leite_effects_2020,
+	location = {New York, {NY}, {USA}},
+	title = {Effects of Human vs. Automatic Feedback on Students' Understanding of {AI} Concepts and Programming Style},
+	isbn = {978-1-4503-6793-6},
+	url = {http://doi.org/10.1145/3328778.3366921},
+	doi = {10.1145/3328778.3366921},
+	series = {{SIGCSE} '20},
+	abstract = {The use of automatic grading tools has become nearly ubiquitous in large undergraduate programming courses, and recent work has focused on improving the quality of automatically generated feedback. However, there is a relative lack of data directly comparing student outcomes when receiving computer-generated feedback and human-written feedback. This paper addresses this gap by splitting one 90-student class into two feedback groups and analyzing differences in the two cohorts' performance. The class is an intro to {AI} with programming {HW} assignments. One group of students received detailed computer-generated feedback on their programming assignments describing which parts of the algorithms' logic was missing; the other group additionally received human-written feedback describing how their programs' syntax relates to issues with their logic, and qualitative (style) recommendations for improving their code. Results on quizzes and exam questions suggest that human feedback helps students obtain a better conceptual understanding, but analyses found no difference between the groups' ability to collaborate on the final project. The course grade distribution revealed that students who received human-written feedback performed better overall; this effect was the most pronounced in the middle two quartiles of each group. These results suggest that feedback about the syntax-logic relation may be a primary mechanism by which human feedback improves student outcomes.},
+	pages = {44--50},
+	booktitle = {Proceedings of the 51st {ACM} Technical Symposium on Computer Science Education},
+	publisher = {Association for Computing Machinery},
+	author = {Leite, Abe and Blanco, Saúl A.},
+	urldate = {2022-12-13},
+	date = {2020-02-26},
+	keywords = {automatic grading, feedback, programming style, references to syntax, student outcomes, syntax-logic relation},
+	file = {Full Text PDF:/home/novafacing/Zotero/storage/9J4UX7M4/Leite and Blanco - 2020 - Effects of Human vs. Automatic Feedback on Student.pdf:application/pdf},
+}
+
+
+@inproceedings{baniassad_stop_2021,
+	location = {New York, {NY}, {USA}},
+	title = {{STOP} {THE} ({AUTOGRADER}) {INSANITY}: Regression Penalties to Deter Autograder Overreliance},
+	isbn = {978-1-4503-8062-1},
+	url = {http://doi.org/10.1145/3408877.3432430},
+	doi = {10.1145/3408877.3432430},
+	series = {{SIGCSE} '21},
+	shorttitle = {{STOP} {THE} ({AUTOGRADER}) {INSANITY}},
+	abstract = {Autograders are an invaluable tool for deploying assessments in large classes. However students sometimes rely on the autograder in place of careful thought for ways to improve to their solution. We sought to naturally encourage students to check their own solutions more, and hammer the grader less. To do this, we imposed a penalty each time a student's grade went down: we called these regression penalties. We assessed whether the introduction of these penalties resulted in less reliance on the autograder without hurting student performance. Encouragingly, the number of autograder submissions was reduced by roughly half while only slightly decreasing the median final grade. Students reported feeling nervous about their submissions, but noted that they checked their own solutions by testing their code far more than they would have without the penalty. Students also expressed positivity about the regression model.},
+	pages = {1062--1068},
+	booktitle = {Proceedings of the 52nd {ACM} Technical Symposium on Computer Science Education},
+	publisher = {Association for Computing Machinery},
+	author = {Baniassad, Elisa and Zamprogno, Lucas and Hall, Braxton and Holmes, Reid},
+	urldate = {2022-12-13},
+	date = {2021-03-05},
+	keywords = {assessment, autograder, software engineering},
+	file = {Full Text PDF:/home/novafacing/Zotero/storage/A9JUQJPL/Baniassad et al. - 2021 - STOP THE (AUTOGRADER) INSANITY Regression Penalti.pdf:application/pdf},
+}

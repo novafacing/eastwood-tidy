@@ -1,0 +1,40 @@
+x.c:3:1: warning: Header file does not exist. [eastwood-Rule8cCheck]
+#include <other.h>
+^
+x.c:5:11: warning: 'H' initializer is non-string constant and not surrounded by parentheses. [eastwood-Rule1cCheck]
+#define H 1
+          ^
+          (1)
+x.c:6:9: warning: 'T' is not all uppercase, separated by underscores, and >= 2 characters in length. [eastwood-Rule1cCheck]
+#define T ("bad")
+        ^
+        T
+x.c:8:5: warning: Variable declaration without definition is forbidden. [eastwood-Rule12bCheck]
+int badglobal;
+    ^
+x.c:8:5: warning: Global variable 'badglobal' doesn't conform to global naming scheme. [eastwood-Rule1dCheck]
+int badglobal;
+    ^~~~~~~~~~
+    g_badglobal
+x.c:10:1: warning: Missing header comment for function add_values. [eastwood-Rule7aCheck]
+int add_values (int first_value,
+^
+x.c:10:15: warning: No space permitted between function name and parameter list. [eastwood-Rule3fCheck]
+int add_values (int first_value,
+              ^~
+x.c:11:8: warning: Line-broken parameter is not aligned with first parameter. Parameters should be aligned in column 17 (got 8). [eastwood-Rule4bCheck]
+       int second_value) {
+       ^
+x.c:13:5: warning: Incorrect indentation level. Expected 2, got 4 [eastwood-Rule4aCheck]
+    return first_value;
+  ~~^~~~~~~
+x.c:14:3: warning: End of function comment is malformed. Got "// add values" Expected "/* add_values() */". [eastwood-Rule5dCheck]
+} // add values
+  ^~~~~~~~~~~~~
+  /* add_values() */
+x.c:14:3: warning: Malformed function header comment for function main. [eastwood-Rule7aCheck]
+x.c:18:16: note: embedded constant of type 'integerLiteral'. [eastwood-Rule11dCheck]
+  if (value == 1) {
+x.c:19:12: note: embedded constant of type 'integerLiteral'. [eastwood-Rule11dCheck]
+    return 1447;
+           ^
