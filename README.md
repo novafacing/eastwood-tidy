@@ -1,5 +1,6 @@
 # eastwood-tidy
 
+![Thumbnail](paper/Thumbnail%20Web.jpg)
 
 ## Table Of Contents
 1. [About This Project](#about)
