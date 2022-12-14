@@ -1,27 +1,20 @@
 #include "x.h"
-
+#include <other.h>
+#define H 1
+#define T ("bad")
 int badglobal;
-
-/*
- * add_values: add two values and return the result
- */
 
 int add_values (int first_value,
        int second_value) {
   first_value = second_value + first_value;
     return first_value;
-} /* add_values() */
-
-/*
- * main: demonstration main function
- */
+} // add values
 
 int main() {
   int value = add_values(1, 2);
   if (value == 1) {
-    goto end;
+    return 1447;
   }
   value++;
-  end:
   return value;
 }
