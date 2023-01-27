@@ -37,7 +37,7 @@ public:
         : Check(Check), SM(SM){};
     void InclusionDirective(SourceLocation HashLoc, const Token &IncludeTok,
                             StringRef FileName, bool isAngled,
-                            CharSourceRange FilenameRange, Optional<FileEntryRef> File,
+                            CharSourceRange FilenameRange, OptionalFileEntryRef File,
                             StringRef SearchPath, StringRef RelativePath,
                             const Module *Imported,
                             SrcMgr::CharacteristicKind FileType) override {

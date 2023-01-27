@@ -97,8 +97,8 @@ void EastwoodTidyCheckBase::relex_file(const MatchFinder::MatchResult &Result,
 
     /* If the location is overridden, use that instead. Useful if the Result
      * location is not in the main file or something like that. */
-    if (loc_override.hasValue()) {
-        loc = loc_override.getValue();
+    if (loc_override.has_value()) {
+        loc = loc_override.value();
     }
 
     this->tokens.clear();

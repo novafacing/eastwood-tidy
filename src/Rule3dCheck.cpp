@@ -28,7 +28,7 @@ public:
 
     void InclusionDirective(SourceLocation HashLoc, const Token &IncludeTok,
                             StringRef FileName, bool IsAngled,
-                            CharSourceRange FilenameRange, Optional<FileEntryRef> File,
+                            CharSourceRange FilenameRange, OptionalFileEntryRef File,
                             StringRef SearchPath, StringRef RelativePath,
                             const Module *Imported,
                             SrcMgr::CharacteristicKind FileType) override {}

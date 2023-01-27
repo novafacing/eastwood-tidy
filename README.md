@@ -197,7 +197,7 @@ $ ln -s $(pwd)/eastwood-tidy/ $(pwd)/llvm-project/clang-tools-extra/clang-tidy/
    missing compilation databases.
 
 ```bash
-$ ./patch/patch.sh /path/to/llvm-project
+$ $(pwd)/eastwood-tidy/patch/patch.sh $(pwd)/llvm-project
 ```
 
 5. Use CMake + Make to build the new clang-tidy
@@ -206,7 +206,7 @@ $ ./patch/patch.sh /path/to/llvm-project
 cd llvm-project/llvm
 mkdir build
 cd build
-cmake -GNinja -DLLVM_TARGETS_TO_BUILD=X86 -DLLVM_ENABLE_PROJECTS="clang;clang-tools-extra" -DCMAKE_CXX_COMPILER="clang++" -DCMAKE_C_COMPILER="clang" -DLLVM_USE_LINKER="lld" -DLLVM_BUILD_TESTS="OFF" -DCMAKE_BUILD_TYPE="Debug" -DBUILD_SHARED_LIBS="OFF" -DCMAKE_COMPILE_COMMANDS=1 ..
+cmake -GNinja -DLLVM_TARGETS_TO_BUILD=X86 -DLLVM_ENABLE_PROJECTS="clang;clang-tools-extra" -DCMAKE_CXX_COMPILER="clang++" -DCMAKE_C_COMPILER="clang" -DLLVM_BUILD_TESTS="OFF" -DCMAKE_BUILD_TYPE="Debug" -DBUILD_SHARED_LIBS="OFF" -DCMAKE_COMPILE_COMMANDS=1 ..
 cmake --build . -j NN # where NN is the number of cores in your machine + 1
 ```
 
