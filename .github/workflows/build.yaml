@@ -27,11 +27,11 @@ jobs:
         run: sudo rm -f /var/lib/man-db/auto-update
       - name: Install dependencies
         run: |
-          apt-get install -y build-essential cmake git bash wget ninja-build
+          sudo apt-get install -y build-essential cmake git bash wget ninja-build
       - name: Install Clang/LLVM And Mold
         run: |
-          "$(wget -O - https://apt.llvm.org/llvm.sh)" | bash -s -- 16
-          apt-get install -y clang-15 llvm-15-dev llvm-15-tools \
+          "$(wget -O - https://apt.llvm.org/llvm.sh)" | sudo bash -s -- 16
+          sudo apt-get install -y clang-15 llvm-15-dev llvm-15-tools \
             clang-tools-15 lld-15 mold
       - name: Clone LLVM
         uses: actions/checkout@v3
