@@ -73,5 +73,10 @@ jobs:
             -DLLVM_BUILD_DOCS="OFF" \
             -S "${LLVM_PROJECT_PATH}/llvm/" -B "${LLVM_PROJECT_PATH}/llvm/build/"
           cmake --build "${LLVM_PROJECT_PATH}/llvm/build/" -j "$(nproc)"
+      - name: Release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: |
+            "${LLVM_PROJECT_PATH}/llvm/build/bin/clang-tidy"
 
 
