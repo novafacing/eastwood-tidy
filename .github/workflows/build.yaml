@@ -50,9 +50,11 @@ jobs:
         run: |
           rm -f "${LLVM_PROJECT_PATH}/clang-tools-extra/clang-tidy/CMakeLists.txt"
           rm -f "${LLVM_PROJECT_PATH}/clang-tools-extra/clang-tidy/ClangTidyForceLinker.h"
-          ln -s "${EASTWOOD_TIDY_PATH}/setup/CMakeLists.txt" "${LLVM_PROJECT_PATH}/llvm-project/clang-tools-extra/clang-tidy/CMakeLists.txt"
+
+          ln -s "${EASTWOOD_TIDY_PATH}/setup/CMakeLists.txt" "${LLVM_PROJECT_PATH}/clang-tools-extra/clang-tidy/CMakeLists.txt"
           ln -s "${EASTWOOD_TIDY_PATH}/setup/ClangTidyForceLinker.h" "${LLVM_PROJECT_PATH}/clang-tools-extra/clang-tidy/ClangTidyForceLinker.h"
           ln -s "${EASTWOOD_TIDY_PATH}/" "${LLVM_PROJECT_PATH}/clang-tools-extra/clang-tidy/"
+
           bash "${EASTWOOD_TIDY_PATH}/patch/patch.sh" "${LLVM_PROJECT_PATH}"
       - name: Build
         run: |
