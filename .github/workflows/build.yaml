@@ -33,6 +33,7 @@ jobs:
       - name: Install Clang/LLVM And Mold
         run: |
           "$(wget -O - https://apt.llvm.org/llvm.sh)" | sudo bash -s -- 16
+          sudo apt-get update -y
           sudo apt-get install -y clang-16 llvm-16-dev llvm-16-tools \
             clang-tools-16 lld-16 mold
       - name: Clone LLVM
