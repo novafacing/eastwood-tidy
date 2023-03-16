@@ -1,0 +1,68 @@
+name: Build
+
+on:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: read
+  pull-requests: read
+
+concurrency:
+  group: '${{ github.workflow }} @ ${{ github.event.pull_request.head.label || github.head_ref || github.ref }}'
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-22.04
+    env:
+      LLVM_TAG: release/16.x
+      LLVM_PROJECT_PATH: /llvm-project
+      EASTWOOD_TIDY_PATH: /eastwood-tidy
+    steps:
+      - name: Disable initramfs update
+        run: sudo sed -i 's/yes/no/g' /etc/initramfs-tools/update-initramfs.conf
+      - name: Disable man-db update
+        run: sudo rm -f /var/lib/man-db/auto-update
+      - name: Install dependencies
+        run: |
+          apt-get install -y build-essential cmake git bash wget ninja-build
+      - name: Install Clang/LLVM And Mold
+        run: |
+          "$(wget -O - https://apt.llvm.org/llvm.sh)" | bash -s -- 16
+          apt-get install -y clang-15 llvm-15-dev llvm-15-tools \
+            clang-tools-15 lld-15 mold
+      - name: Clone LLVM
+        uses: actions/checkout@v3
+        with:
+          repository: llvm/llvm-project
+          path: ${{ env.LLVM_PROJECT_PATH }}
+          ref: ${{ env.LLVM_TAG }}
+      # TODO: Cache LLVM Clone
+      - name: Checkout Eastwood Tidy
+        uses: actions/checkout@v3
+        with:
+          path: ${{ env.EASTWOOD_TIDY_PATH }}
+      - name: Prepare Build
+        run: |
+          rm "${LLVM_PROJECT_PATH}/clang-tools-extra/clang-tidy/CMakeLists.txt" \
+            "${LLVM_PROJECT_PATH}/clang-tools-extra/clang-tidy/CMakeLists.txt"
+          ln -s "${EASTWOOD_TIDY_PATH}/setup/CMakeLists.txt "${LLVM_PROJECT_PATH}/llvm-project/clang-tools-extra/clang-tidy/CMakeLists.txt"
+          ln -s "${EASTWOOD_TIDY_PATH}/setup/ClangTidyForceLinker.h "${LLVM_PROJECT_PATH}/clang-tools-extra/clang-tidy/ClangTidyForceLinker.h"
+          ln -s "${EASTWOOD_TIDY_PATH}/ "${LLVM_PROJECT_PATH}/clang-tools-extra/clang-tidy/"
+          bash "${EASTWOOD_TIDY_PATH}/patch/patch.sh "${LLVM_PROJECT_PATH}"
+      - name: BUild
+        run: |
+          mkdir "${LLVM_PROJECT_PATH}/llvm/build/"
+          cmake -GNinja -DLLVM_TARGETS_TO_BUILD=X86 -DLLVM_ENABLE_PROJECTS="clang-tools-extra" \
+            -DCMAKE_CXX_COMPILER="clang++-16" -DCMAKE_C_COMPILER="clang-16" \
+            -DLLVM_BUILD_TESTS="OFF" -DCMAKE_BUILD_TYPE="MinSizeRel" -DBUILD_SHARED_LIBS="OFF" \
+            -DLLVM_USE_LINKER="mold" -DLLVM_ENABLE_RUNTIMES="" -DLLVM_BUILD_TOOLS="OFF" \
+            -DLLVM_ENABLE_LIBPFM="OFF" -DLLVM_ENABLE_ZLIB="OFF" -DLLVM_INCLUDE_BENCHMARKS="OFF" \
+            -DLLVM_INCLUDE_EXAMPLES="OFF" -DLLVM_INCLUDE_TESTS="OFF" -DLLVM_INCLUDE_TOOLS="OFF" \
+            -DLLVM_BUILD_DOCS="OFF" \
+            -S "${LLVM_PROJECT_PATH}/llvm/" -B "${LLVM_PROJECT_PATH}/llvm/build/"
+          cmake --build -B "${LLVM_PROJECT_PATH}/llvm/build/" -j "$(nproc)"
+
+
