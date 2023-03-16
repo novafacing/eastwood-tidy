@@ -18,9 +18,11 @@ jobs:
     runs-on: ubuntu-22.04
     env:
       LLVM_TAG: release/16.x
-      LLVM_PROJECT_PATH: ${{ env.GITHUB_WORKSPACE}}/llvm-project
-      EASTWOOD_TIDY_PATH: ${{ env.GITHUB_WORKSPACE}}/eastwood-tidy
     steps:
+      - name: Set Environment Paths
+        run: |
+          echo "LLVM_PROJECT_PATH=${GITHUB_WORKSPACE}/llvm-project" >> "${GITHUB_ENV}"
+          echo "EASTWOOD_TIDY_PATH=${GITHUB_WORKSPACE}/eastwood-tidy" >> "${GITHUB_ENV}"
       - name: Disable initramfs update
         run: sudo sed -i 's/yes/no/g' /etc/initramfs-tools/update-initramfs.conf
       - name: Disable man-db update
