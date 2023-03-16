@@ -48,6 +48,7 @@ jobs:
           path: ${{ env.EASTWOOD_TIDY_PATH }}
       - name: Prepare Build
         run: |
+          ls -lah "${LLVM_PROJECT_PATH}"
           rm "${LLVM_PROJECT_PATH}/clang-tools-extra/clang-tidy/CMakeLists.txt" \
             "${LLVM_PROJECT_PATH}/clang-tools-extra/clang-tidy/CMakeLists.txt"
           ln -s "${EASTWOOD_TIDY_PATH}/setup/CMakeLists.txt "${LLVM_PROJECT_PATH}/llvm-project/clang-tools-extra/clang-tidy/CMakeLists.txt"
