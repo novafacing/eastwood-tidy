@@ -18,8 +18,8 @@ jobs:
     runs-on: ubuntu-22.04
     env:
       LLVM_TAG: release/16.x
-      LLVM_PROJECT_PATH: /llvm-project
-      EASTWOOD_TIDY_PATH: /eastwood-tidy
+      LLVM_PROJECT_PATH: ${{ env.GITHUB_WORKSPACE}}/llvm-project
+      EASTWOOD_TIDY_PATH: ${{ env.GITHUB_WORKSPACE}}/eastwood-tidy
     steps:
       - name: Disable initramfs update
         run: sudo sed -i 's/yes/no/g' /etc/initramfs-tools/update-initramfs.conf
