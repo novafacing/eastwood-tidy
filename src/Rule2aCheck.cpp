@@ -37,26 +37,6 @@ Rule2aCheck::Rule2aCheck(StringRef Name, ClangTidyContext *Context)
     }
 }
 
-static bool hasCompoundChildRec(const Stmt *stmt) {
-    if (dyn_cast<WhileStmt>(stmt) || dyn_cast<DoStmt>(stmt) ||
-        dyn_cast<ForStmt>(stmt) || dyn_cast<IfStmt>(stmt) ||
-        dyn_cast<SwitchStmt>(stmt) ||
-        (dyn_cast<DeclStmt>(stmt) &&
-         (dyn_cast<RecordDecl>(dyn_cast<DeclStmt>(stmt)->getSingleDecl()) ||
-          dyn_cast<EnumDecl>(dyn_cast<DeclStmt>(stmt)->getSingleDecl())))) {
-        return true;
-    }
-    if (auto compound = dyn_cast<CompoundStmt>(stmt)) {
-        return true;
-    }
-
-    for (auto child : stmt->children()) {
-        return hasCompoundChildRec(child);
-    }
-
-    return false;
-}
-
 void Rule2aCheck::registerMatchers(MatchFinder *Finder) {
     this->register_relex_matchers(Finder, this);
     Finder->addMatcher(recordDecl().bind("record"), this);
@@ -576,22 +556,24 @@ void Rule2aCheck::onEndOfTranslationUnit(void) {
                     //     << 0 << spc_ct(ws);
                 }
             } else if (breakable) {
-                if (spc_ct(ws) != indent_amount + INDENT_AMOUNT) {
+                if (spc_ct(ws) < indent_amount + INDENT_AMOUNT) {
                     auto errmsg = diag(tok.getLocation(),
                                        "Incorrect indentation level for broken "
-                                       "line. Expected %0, got %1")
+                                       "line. Expected at least %0, got %1")
                                   << indent_amount + INDENT_AMOUNT << spc_ct(ws);
-                    if (spc_ct(ws) < indent_amount + INDENT_AMOUNT) {
-                        errmsg << FixItHint::CreateRemoval(SourceRange(
-                            tok.getLocation().getLocWithOffset(
-                                -(indent_amount + INDENT_AMOUNT - spc_ct(ws))),
-                            tok.getLocation()));
-                    } else {
-                        errmsg << FixItHint::CreateInsertion(
+                    errmsg << FixItHint::CreateInsertion(
+                        tok.getLocation(),
+                        std::string(indent_amount + INDENT_AMOUNT - spc_ct(ws), ' '));
+                }
+                if (spc_ct(ws) % INDENT_AMOUNT != 0) {
+                    auto errmsg =
+                        diag(
                             tok.getLocation(),
-                            std::string(indent_amount + INDENT_AMOUNT - spc_ct(ws),
-                                        ' '));
-                    }
+                            "Indentation of %0 for broken line is not a multiple of %1")
+                        << spc_ct(ws) << INDENT_AMOUNT;
+                    errmsg << FixItHint::CreateInsertion(
+                        tok.getLocation(),
+                        std::string(INDENT_AMOUNT - (spc_ct(ws) % INDENT_AMOUNT), ' '));
                 }
             } else if (spc_ct(ws) != indent_amount) {
                 // This error falls under 4.A and is displayed there

@@ -53,7 +53,6 @@ private:
     std::vector<size_t> over_length_lines;
     std::vector<size_t> broken_lines;
     std::unordered_map<size_t, size_t> indent_map;
-    size_t indent_level;
     std::deque<SourceLocation> opens;
     std::deque<SourceLocation> closes;
     std::deque<SourceRange> broken_ranges;
