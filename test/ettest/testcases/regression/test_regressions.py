@@ -100,3 +100,14 @@ def test_switch_indentation(manager) -> None:
             print(res.debug_result.stdout.decode("utf-8"))
             print(res.debug_result.stderr.decode("utf-8"))
         assert not res.unseen_errors, " ".join(res.debug_result.args)
+
+def test_regression_rule2b_57_17(manager) -> None:
+    """
+    Test regression in Rule 2b
+
+    """
+    tests = [FileTest("hw3.c")]
+    for test in tests:
+        res = manager.test_file(test)
+        assert not res.unexpected_errors
+        assert not res.unseen_errors
