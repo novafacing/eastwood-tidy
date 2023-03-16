@@ -74,10 +74,9 @@ ssize_t EastwoodTidyCheckBase::token_index(const SourceLocation &loc) {
     return idx;
 }
 
-void EastwoodTidyCheckBase::relex_file(const MatchFinder::MatchResult &Result,
-                                       const std::string &match_name,
-                                       const Optional<SourceLocation> &loc_override,
-                                       bool keep_whitespace) {
+void EastwoodTidyCheckBase::relex_file(
+    const MatchFinder::MatchResult &Result, const std::string &match_name,
+    const std::optional<SourceLocation> &loc_override, bool keep_whitespace) {
 
     SourceLocation loc;
     auto MatchedStmt = Result.Nodes.getNodeAs<Stmt>(match_name.c_str());

@@ -16,6 +16,7 @@
 #include "llvm/Support/raw_ostream.h"
 #include <iostream>
 #include <memory>
+#include <optional>
 #include <sstream>
 #include <string>
 #include <typeinfo>
@@ -113,10 +114,11 @@ public:
     ssize_t token_index(const SourceLocation &loc);
 
     /* Relex a source file containing a match result into a vector of tokens. */
-    void relex_file(
-        const MatchFinder::MatchResult &Result, const std::string &match_name = "relex",
-        const Optional<SourceLocation> &loc_override = Optional<SourceLocation>(),
-        bool keep_whitespace = true);
+    void relex_file(const MatchFinder::MatchResult &Result,
+                    const std::string &match_name = "relex",
+                    const std::optional<SourceLocation> &loc_override =
+                        std::optional<SourceLocation>(),
+                    bool keep_whitespace = true);
 
     void acquire_common(const MatchFinder::MatchResult &Result);
 };
