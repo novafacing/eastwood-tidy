@@ -72,6 +72,6 @@ jobs:
             -DLLVM_INCLUDE_EXAMPLES="OFF" -DLLVM_INCLUDE_TESTS="OFF" -DLLVM_INCLUDE_TOOLS="OFF" \
             -DLLVM_BUILD_DOCS="OFF" \
             -S "${LLVM_PROJECT_PATH}/llvm/" -B "${LLVM_PROJECT_PATH}/llvm/build/"
-          cmake --build -B "${LLVM_PROJECT_PATH}/llvm/build/" -j "$(nproc)"
+          cmake --build "${LLVM_PROJECT_PATH}/llvm/build/" -j "$(nproc)"
 
 
