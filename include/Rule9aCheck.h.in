@@ -26,8 +26,7 @@ private:
 
 public:
     /* Constructors */
-    Rule9aCheck(StringRef Name, ClangTidyContext *Context)
-        : ClangTidyCheck(Name, Context), EastwoodTidyCheckBase(Name) {}
+    Rule9aCheck(StringRef Name, ClangTidyContext *Context);
 
     /* Overrides */
     void registerMatchers(ast_matchers::MatchFinder *Finder) override;
