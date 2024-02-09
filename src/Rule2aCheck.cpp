@@ -415,18 +415,39 @@ void Rule2aCheck::onEndOfTranslationUnit(void) {
     }
 
     for (size_t i = 2; i < this->tokens.size(); i++) {
+        if (this->tokens.at(i).getKind() == tok::comment) {
+            SourceLocation loc = this->tokens.at(i).getLocation();
+            std::string comment_str = *this->tok_string(*this->source_manager, this->tokens.at(i));
+            size_t str_loc = 0;
+            while ((str_loc = comment_str.find("\n", str_loc)) != std::string::npos) {
+                SourceLocation end_loc = loc.getLocWithOffset(str_loc - 1);
+                unsigned col_num = this->source_manager->getSpellingColumnNumber(
+                    end_loc);
+                this->dout() << "Checking comment with end column " << col_num << "\n";
+                if (col_num > MAX_LINE_LEN) {
+                    auto errmsg = diag(end_loc,
+                                    "Line length must be less than %0 characters")
+                                << MAX_LINE_LEN;
+                    errmsg << FixItHint::CreateRemoval(
+                        SourceRange(end_loc.getLocWithOffset(
+                                        MAX_LINE_LEN + 1 - col_num),
+                                        end_loc));
+                }
+                str_loc += 1;
+            }
+        }
         if (this->tokens.at(i).isAtStartOfLine()) {
-            unsigned col_num = this->source_manager->getSpellingColumnNumber(
-                this->tokens.at(i - 2).getEndLoc());
+            SourceLocation end_loc = this->tokens.at(i - 2).getEndLoc().getLocWithOffset(-1);
+            unsigned col_num = this->source_manager->getSpellingColumnNumber(end_loc);
             this->dout() << "Checking line with end column " << col_num << "\n";
             if (col_num > MAX_LINE_LEN) {
-                auto errmsg = diag(this->tokens.at(i - 2).getEndLoc(),
+                auto errmsg = diag(end_loc,
                                    "Line length must be less than %0 characters")
                               << MAX_LINE_LEN;
                 errmsg << FixItHint::CreateRemoval(
-                    SourceRange(this->tokens.at(i - 2).getEndLoc().getLocWithOffset(
-                                    MAX_LINE_LEN - col_num),
-                                this->tokens.at(i - 2).getEndLoc()));
+                    SourceRange(end_loc.getLocWithOffset(
+                                    MAX_LINE_LEN + 1 - col_num),
+                                    end_loc));
             }
         }
     }
@@ -565,6 +586,7 @@ void Rule2aCheck::onEndOfTranslationUnit(void) {
                         tok.getLocation(),
                         std::string(indent_amount + INDENT_AMOUNT - spc_ct(ws), ' '));
                 }
+                /*
                 if (spc_ct(ws) % INDENT_AMOUNT != 0) {
                     auto errmsg =
                         diag(
@@ -575,6 +597,7 @@ void Rule2aCheck::onEndOfTranslationUnit(void) {
                         tok.getLocation(),
                         std::string(INDENT_AMOUNT - (spc_ct(ws) % INDENT_AMOUNT), ' '));
                 }
+                */
             } else if (spc_ct(ws) != indent_amount) {
                 // This error falls under 4.A and is displayed there
                 // diag(tok.getLocation(),

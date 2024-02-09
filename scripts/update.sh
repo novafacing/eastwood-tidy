@@ -44,7 +44,7 @@ echo "REMOTE_BINDIR=${REMOTE_BINDIR}"
 echo "REMOTE_INCLUDEDIR=${REMOTE_INCLUDEDIR}"
 
 TIDY_BIN="${LLVM_DIR}/llvm/build/bin/clang-tidy"
-TIDY_INC="${LLVM_DIR}/llvm/build/lib/clang/14.0.0/include/"
+TIDY_INC="${LLVM_DIR}/llvm/build/lib/clang/16/include/"
 
 if [ ! -f "${TIDY_BIN}" ]; then
     echo "Clang tidy binary ${TIDY_BIN} does not exist."

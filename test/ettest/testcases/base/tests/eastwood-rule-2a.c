@@ -20,6 +20,14 @@ struct list_node {
  */
 
 int foo(void) {
+
+  // Bad: the next line is 81 characters long
+  /* ----------------------------------------------------------------------------
+  */
+
+  // Good: the next line is 80 characters long
+  // ---------------------------------------------------------------------------
+
   // Bad: line length
   int aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa = 10;
 
