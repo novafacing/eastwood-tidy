@@ -15,7 +15,7 @@
 #include "clang/AST/ASTContext.h"
 #include "clang/ASTMatchers/ASTMatchFinder.h"
 
-#define MAX_FN_SIZE 240 // This is approximately 2 pages
+#define MAX_FN_SIZE 122 // This is approximately 2 pages
 #include "EastwoodTidyUtil.h"
 
 namespace clang {
