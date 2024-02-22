@@ -388,8 +388,13 @@ void Rule4aCheck::check(const MatchFinder::MatchResult &Result) {
         range =
             new SourceRange(MatchedDecl->getLParenLoc(), MatchedDecl->getRParenLoc());
     } else if (auto MatchedDecl = Result.Nodes.getNodeAs<Expr>("exprSplit")) {
-        CHECK_LOC(MatchedDecl);
-        range = new SourceRange(MatchedDecl->getBeginLoc(), MatchedDecl->getEndLoc());
+        if (this->source_manager->isMacroArgExpansion(MatchedDecl->getBeginLoc())) {
+            range = new SourceRange(this->source_manager->getSpellingLoc(MatchedDecl->getBeginLoc()),
+                                    this->source_manager->getSpellingLoc(MatchedDecl->getEndLoc()));
+        } else {
+            CHECK_LOC(MatchedDecl);
+            range = new SourceRange(MatchedDecl->getBeginLoc(), MatchedDecl->getEndLoc());
+        }
     } else if (auto MatchedDecl = Result.Nodes.getNodeAs<ReturnStmt>("returnSplit")) {
         CHECK_LOC(MatchedDecl);
         range = new SourceRange(MatchedDecl->getReturnLoc(), MatchedDecl->getEndLoc());
