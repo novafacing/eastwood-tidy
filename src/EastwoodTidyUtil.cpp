@@ -84,8 +84,14 @@ void EastwoodTidyCheckBase::relex_file(
 
     if (MatchedDecl) {
         loc = MatchedDecl->getBeginLoc();
+        if (!this->source_manager->isWrittenInMainFile(loc)) {
+            loc = MatchedDecl->getEndLoc();
+        }
     } else if (MatchedStmt) {
         loc = MatchedStmt->getBeginLoc();
+        if (!this->source_manager->isWrittenInMainFile(loc)) {
+            loc = MatchedStmt->getEndLoc();
+        }
     } else {
         return;
     }
