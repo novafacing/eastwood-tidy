@@ -141,28 +141,23 @@ void Rule4aCheck::check(const MatchFinder::MatchResult &Result) {
         if (MatchedDecl->isThisDeclarationADefinition() &&
             MatchedDecl->doesThisDeclarationHaveABody()) {
             SourceLocation StartBrace = MatchedDecl->getBody()->getBeginLoc();
+            unsigned startingLineNumber = 0;
+            // if there are no parameters, compare line of open brace with beginning line of function
+            if (MatchedDecl->getNumParams() == 0) {
+                startingLineNumber = this->source_manager->getSpellingLineNumber(MatchedDecl->getLocation());
+            } else { // if there are parameters, compare line of open brace with line of last parameter
+                startingLineNumber = this->source_manager->getSpellingLineNumber(
+                    MatchedDecl->getParametersSourceRange().getEnd());
+            }
 
-            if ( // No parameters and the function decl isn't on the same line as the
-                 // open brace
-                (MatchedDecl->getNumParams() == 0 &&
-                 this->source_manager->getSpellingLineNumber(StartBrace) !=
-                     this->source_manager->getSpellingLineNumber(
-                         MatchedDecl->getLocation())) ||
-                // There are parameters and the open brace isn't on the same line as the
-                // last parameter
-                (MatchedDecl->getNumParams() > 0 &&
-                 this->source_manager->getSpellingLineNumber(
-                     MatchedDecl->getParamDecl(MatchedDecl->getNumParams() - 1)
-                         ->getEndLoc()) !=
-                     this->source_manager->getSpellingLineNumber(StartBrace))) {
+            if (this->source_manager->getSpellingLineNumber(StartBrace) != startingLineNumber) {
 
                 diag(StartBrace, "Open brace on line %0 must be located on same "
                                  "line "
                                  "as function "
                                  "declaration or after parameters on line %1.")
                     << this->source_manager->getSpellingLineNumber(StartBrace)
-                    << this->source_manager->getSpellingLineNumber(
-                           MatchedDecl->getParametersSourceRange().getEnd());
+                    << startingLineNumber;
             }
         }
 
@@ -315,6 +310,18 @@ void Rule4aCheck::check(const MatchFinder::MatchResult &Result) {
                     break;
                 }
             }
+        }
+
+        SourceLocation EndBrace = MatchedDecl->getEndLoc();
+        const Stmt *LastStmt = MatchedDecl->body_back();
+        unsigned endingLineNumber;
+        if (LastStmt) {
+            endingLineNumber = this->source_manager->getSpellingLineNumber(LastStmt->getEndLoc());
+        } else {
+            endingLineNumber = this->source_manager->getSpellingLineNumber(MatchedDecl->getBeginLoc());
+        }
+        if (this->source_manager->getSpellingLineNumber(EndBrace) == endingLineNumber) {
+            diag(EndBrace, "Close brace should be alone on line");
         }
 
         LOG_OPEN("compound", MatchedDecl->getLBracLoc());
