@@ -192,7 +192,7 @@ void Rule4aCheck::check(const MatchFinder::MatchResult &Result) {
 
         if (this->source_manager->getSpellingLineNumber(If->getThen()->getBeginLoc()) !=
             this->source_manager->getSpellingLineNumber(MatchedDecl->getRParenLoc())) {
-            diag(this->opens.back(), "Open brace must be located on same line as if.");
+            diag(If->getThen()->getBeginLoc(), "Open brace must be located on same line as if.");
         }
 
         if (Else) {
@@ -211,9 +211,9 @@ void Rule4aCheck::check(const MatchFinder::MatchResult &Result) {
                 if (this->source_manager->getSpellingLineNumber(StartElse) !=
                     this->source_manager->getSpellingLineNumber(
                         ChildIf->getRParenLoc())) {
-                    diag(this->opens.back(),
-                         "Open brace must be located on same line as "
-                         "else.");
+                    diag(ChildIf->getThen()->getBeginLoc(),
+                        "Open brace must be located on same line as "
+                        "else.");
                 }
             }
         }
@@ -258,7 +258,7 @@ void Rule4aCheck::check(const MatchFinder::MatchResult &Result) {
         if (this->source_manager->getSpellingLineNumber(MatchedDecl->getRParenLoc()) !=
             this->source_manager->getSpellingLineNumber(
                 MatchedDecl->getBody()->getBeginLoc())) {
-            diag(this->opens.back(),
+            diag(MatchedDecl->getBody()->getBeginLoc(),
                  "Open brace must be located on same line as while.");
         }
 
@@ -403,7 +403,7 @@ void Rule4aCheck::check(const MatchFinder::MatchResult &Result) {
             this->source_manager->isWrittenInMainFile(range->getEnd()) &&
             this->source_manager->getSpellingLineNumber(range->getBegin()) !=
                 this->source_manager->getSpellingLineNumber(range->getEnd())) {
-            this->dout() << "Adding range: " << std::endl;
+            this->dout() << "Adding range: " << *this->sourcerange_string(*this->source_manager, *range) << std::endl;
             this->broken_ranges.push_back(*range);
         }
         delete range;
@@ -501,7 +501,7 @@ void Rule4aCheck::onEndOfTranslationUnit(void) {
             if (this->source_manager->isBeforeInTranslationUnit(r.getBegin(),
                                                                 tok.getLocation()) &&
                 this->source_manager->isBeforeInTranslationUnit(tok.getLocation(),
-                                                                r.getEnd())) {
+                                                                r.getEnd().getLocWithOffset(1))) {
                 this->dout() << "Token " << raw_tok_data << " on line "
                              << tok_line_number << " is in broken range" << std::endl;
                 breakable = true;
@@ -522,7 +522,9 @@ void Rule4aCheck::onEndOfTranslationUnit(void) {
         while (close_lines.front() <= tok_line_number && !close_lines.empty()) {
             size_t close_line = close_lines.front();
             close_lines.erase(close_lines.begin());
-            indent_amount -= INDENT_AMOUNT;
+            if (indent_amount >= INDENT_AMOUNT) {
+                indent_amount -= INDENT_AMOUNT;
+            }
             this->dout() << "Closing at line " << close_line << " with indent "
                          << indent_amount << ":" << raw_tok_data << std::endl;
         }

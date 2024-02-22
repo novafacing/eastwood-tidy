@@ -111,9 +111,7 @@ private:
     void setup(void) {
         llvm::setBugReportMsg(
             "=============================================================="
-            "==================\nPLEASE submit a bug report to:\nTara "
-            "Harmon "
-            "on Campuswire OR send an email to harmon67@purdue.edu\nIn your "
+            "==================\nPLEASE send an email to lu987@purdue.edu\nIn your "
             "email, "
             "please include:\n  - The entire stack trace printed below.\n  "
             "- Your code that is causing the "
