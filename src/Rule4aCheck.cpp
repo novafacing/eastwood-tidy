@@ -316,7 +316,7 @@ void Rule4aCheck::check(const MatchFinder::MatchResult &Result) {
         const Stmt *LastStmt = MatchedDecl->body_back();
         unsigned endingLineNumber;
         if (LastStmt) {
-            endingLineNumber = this->source_manager->getSpellingLineNumber(LastStmt->getEndLoc());
+            endingLineNumber = this->source_manager->getSpellingLineNumber(this->source_manager->getFileLoc(LastStmt->getEndLoc()));
         } else {
             endingLineNumber = this->source_manager->getSpellingLineNumber(MatchedDecl->getBeginLoc());
         }
@@ -389,8 +389,8 @@ void Rule4aCheck::check(const MatchFinder::MatchResult &Result) {
             new SourceRange(MatchedDecl->getLParenLoc(), MatchedDecl->getRParenLoc());
     } else if (auto MatchedDecl = Result.Nodes.getNodeAs<Expr>("exprSplit")) {
         if (this->source_manager->isMacroArgExpansion(MatchedDecl->getBeginLoc())) {
-            range = new SourceRange(this->source_manager->getSpellingLoc(MatchedDecl->getBeginLoc()),
-                                    this->source_manager->getSpellingLoc(MatchedDecl->getEndLoc()));
+            range = new SourceRange(this->source_manager->getFileLoc(MatchedDecl->getBeginLoc()),
+                                    this->source_manager->getFileLoc(MatchedDecl->getEndLoc()));
         } else {
             CHECK_LOC(MatchedDecl);
             range = new SourceRange(MatchedDecl->getBeginLoc(), MatchedDecl->getEndLoc());
@@ -401,7 +401,11 @@ void Rule4aCheck::check(const MatchFinder::MatchResult &Result) {
     } else if (auto MatchedDecl =
                    Result.Nodes.getNodeAs<TypedefNameDecl>("typeSplit")) {
         CHECK_LOC(MatchedDecl);
-        range = new SourceRange(MatchedDecl->getBeginLoc(), MatchedDecl->getEndLoc());
+        auto range_string = this->sourcerange_string(*this->source_manager, MatchedDecl->getSourceRange());
+        // if there are braces within the typedef decl, that means there's a RecordDecl sandwiched inside it.
+        if (range_string->find("{") == std::string::npos || range_string->find("}") == std::string::npos) {
+            range = new SourceRange(MatchedDecl->getBeginLoc(), MatchedDecl->getEndLoc());
+        }
     } else if (auto MatchedDecl = Result.Nodes.getNodeAs<FieldDecl>("fieldSplit")) {
         CHECK_LOC(MatchedDecl);
         range = new SourceRange(MatchedDecl->getBeginLoc(), MatchedDecl->getEndLoc());
@@ -434,6 +438,7 @@ static size_t spc_ct(std::string s) {
 
 void Rule4aCheck::onEndOfTranslationUnit(void) {
     size_t indent_amount = 0;
+    size_t last_close_line = 0;
     std::vector<Token> checked_tokens;
     std::vector<Token> eol_tokens;
 
@@ -526,7 +531,11 @@ void Rule4aCheck::onEndOfTranslationUnit(void) {
         while (open_lines.front() < tok_line_number && !open_lines.empty()) {
             size_t open_line = open_lines.front();
             open_lines.erase(open_lines.begin());
-            indent_amount += INDENT_AMOUNT;
+            // if an open brace is on the same line as a close brace, we don't
+            // change the indent amount.
+            if (open_line != last_close_line) {
+                indent_amount += INDENT_AMOUNT;
+            }
             this->dout() << "Opening at line " << open_line << " with indent "
                          << indent_amount << ":" << raw_tok_data << std::endl;
         }
@@ -534,9 +543,12 @@ void Rule4aCheck::onEndOfTranslationUnit(void) {
         while (close_lines.front() <= tok_line_number && !close_lines.empty()) {
             size_t close_line = close_lines.front();
             close_lines.erase(close_lines.begin());
-            if (indent_amount >= INDENT_AMOUNT) {
+            // if an open brace is on the same line as a close brace, we don't
+            // change the indent amount.
+            if (close_line != open_lines.front()) {
                 indent_amount -= INDENT_AMOUNT;
             }
+            last_close_line = close_line;
             this->dout() << "Closing at line " << close_line << " with indent "
                          << indent_amount << ":" << raw_tok_data << std::endl;
         }

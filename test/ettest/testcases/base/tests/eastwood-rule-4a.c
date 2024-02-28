@@ -15,7 +15,7 @@ typedef struct a
     int a;
 int b;
         int c;
-  };
+  } a_t;
 
 /*
  * Header comment

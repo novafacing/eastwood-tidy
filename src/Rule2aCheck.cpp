@@ -16,6 +16,7 @@
 #include <iostream>
 #include <regex>
 #include <sstream>
+#include <string>
 #include <vector>
 
 #include "clang/Basic/Diagnostic.h"
@@ -371,8 +372,8 @@ void Rule2aCheck::check(const MatchFinder::MatchResult &Result) {
             new SourceRange(MatchedDecl->getLParenLoc(), MatchedDecl->getRParenLoc());
     } else if (auto MatchedDecl = Result.Nodes.getNodeAs<Expr>("exprSplit")) {
         if (this->source_manager->isMacroArgExpansion(MatchedDecl->getBeginLoc())) {
-            range = new SourceRange(this->source_manager->getSpellingLoc(MatchedDecl->getBeginLoc()),
-                                    this->source_manager->getSpellingLoc(MatchedDecl->getEndLoc()));
+            range = new SourceRange(this->source_manager->getFileLoc(MatchedDecl->getBeginLoc()),
+                                    this->source_manager->getFileLoc(MatchedDecl->getEndLoc()));
         } else {
             CHECK_LOC(MatchedDecl);
             range = new SourceRange(MatchedDecl->getBeginLoc(), MatchedDecl->getEndLoc());
@@ -383,7 +384,11 @@ void Rule2aCheck::check(const MatchFinder::MatchResult &Result) {
     } else if (auto MatchedDecl =
                    Result.Nodes.getNodeAs<TypedefNameDecl>("typeSplit")) {
         CHECK_LOC(MatchedDecl);
-        range = new SourceRange(MatchedDecl->getBeginLoc(), MatchedDecl->getEndLoc());
+        auto range_string = this->sourcerange_string(*this->source_manager, MatchedDecl->getSourceRange());
+        // if there are braces within the typedef decl, that means there's a RecordDecl sandwiched inside it.
+        if (range_string->find("{") == std::string::npos || range_string->find("}") == std::string::npos) {
+            range = new SourceRange(MatchedDecl->getBeginLoc(), MatchedDecl->getEndLoc());
+        }
     } else if (auto MatchedDecl = Result.Nodes.getNodeAs<FieldDecl>("fieldSplit")) {
         CHECK_LOC(MatchedDecl);
         range = new SourceRange(MatchedDecl->getBeginLoc(), MatchedDecl->getEndLoc());
