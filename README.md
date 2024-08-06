@@ -1,5 +1,7 @@
 # eastwood-tidy
 
+[Read the Paper: Automated_Code_Style_Enforcement_in_C_Programming_Courses.pdf](https://github.com/user-attachments/files/16505252/Automated_Code_Style_Enforcement_in_C_Programming_Courses.pdf)
+
 ![Thumbnail](paper/Thumbnail%20Web.jpg)
 
 ## Table Of Contents
@@ -17,7 +19,7 @@
 
 ## About
 
-`eastwood-tidy` is a port of the Eastwood C language linter to the clang-tidy check system.
+`eastwood-tidy` is a port of the Eastwood C language linter to the clang-tidy check system, part of the LLVM infrastructure.
 
 Initial work was done by Connor McMillin. The project is now maintained by Rowan Hart
 <rowanbhart@gmail.com>.
@@ -44,7 +46,9 @@ GitHub. `eastwood-tidy` currently only supports Linux, and there are no plans to
 releases for other platforms. You are, of course, welcome to create these yourself.
 
 
-The binary can be installed by simply copying it to a `$PATH` location, or with a full
+The binary can be installed by simply copying it to a `$PATH` location[Automated_Code_Style_Enforcement_in_C_Programming_Courses.pdf](https://github.com/user-attachments/files/16505250/Automated_Code_Style_Enforcement_in_C_Programming_Courses.pdf)
+[Automated_Code_Style_Enforcement_in_C_Programming_Courses.pdf](https://github.com/user-attachments/files/16505248/Automated_Code_Style_Enforcement_in_C_Programming_Courses.pdf)
+, or with a full
 path. 
 ### Usage
 
